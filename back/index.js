@@ -40,5 +40,32 @@ app.post('/company',(req,res)=>{
         }
     }
     );
+})
 
+//login
+app.post('/login',(req,res)=>{
+    const email = req.body.email
+    const password = req.body.password
+    //
+    db.query(`SELECT company,username,email,logo FROM company WHERE email=? AND password=?`,[email,password],
+    (err, result) => {
+        if (err) {
+            res.send({
+                status: 500,
+                message: err
+            })
+        }else{
+            if (result.lenght > 0){
+                res.status(200)
+                .send(result[0])
+            }
+            else{
+                res.status(401).send({
+                    status: 401,
+                    message: 'Usuario o contraseña incorrectos'
+                })
+            }
+        }
+    }
+    );
 })

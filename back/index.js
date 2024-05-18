@@ -42,6 +42,24 @@ app.post('/company',(req,res)=>{
     );
 })
 
+// consultar empresa
+app.get('/company/:id',(req,res)=>{
+    const companyId = req.params.id
+    db.query(`SELECT  company_id,company,username,email,logo FROM company WHERE company_id=${companyId}`,
+    (err, result) => {
+        if (result.length >0) {
+            res.status(200)
+            .send(result[0])
+        }else{
+            res.status(400).send({
+                message: 'No existe la empresa'
+            })
+        }
+    }
+    );
+})
+
+
 //login
 app.post('/login',(req,res)=>{
     const email = req.body.email
@@ -69,3 +87,4 @@ app.post('/login',(req,res)=>{
     }
     );
 })
+

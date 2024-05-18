@@ -97,11 +97,10 @@ app.post('/job',(req,res)=>{
     const job_type = req.body.job_type
     const experience = req.body.experience
     const company_id = req.body.company_id
-
-    db.query(`INSERT INTO company (title,from_date,until_date,city,job_type,experience,company_id) VALUES(?,?,?,?,?,?,?)`,[title,from_date,until_date,city,job_type,experience,company_id],
+    db.query(`INSERT INTO job (title,from_date,until_date,city,job_type,experience,company_id) VALUES(?,?,?,?,?,?,?)`,[title,from_date,until_date,city,job_type,experience,company_id],
     (err, result) => {
         if (err) {
-            res.atatus(500).send({
+            res.status(500).send({
                 message: err
             })
         }else{
@@ -147,10 +146,10 @@ app.put('/job/:id',(req,res)=>{
 
     switch(id){
         case company_id :
-        db.query(`UPDATE job SET title=?,from_date=?,until_date=?,city=?,job_type=?,experience=?,company_id=? WHERE job_id=? AND company_id=?`,[title,from_date,until_date,city,job_type,experience,id,company_id],
+        db.query(`UPDATE job SET title=?,from_date=?,until_date=?,city=?,job_type=?,experience=? where job_id=? and company_id=?`,[title,from_date,until_date,city,job_type,experience,id,company_id],
         (err, result) => {
             if (err) {
-                res.atatus(400).send({
+                res.status(400).send({
                     message: err
                 })
             }else{
@@ -164,9 +163,10 @@ app.put('/job/:id',(req,res)=>{
         );
         break;
     default :
-        res.atatus(401).send({
+        res.status(401).send({
             message: 'Empresa no autorizada'
         })
         break;
     }
 })
+

@@ -17,7 +17,7 @@ app.listen(3001, () => {
     console.log('listening on 3001')
 })
 
-// empresa
+// Registrar empresa
 app.post('/company',(req,res)=>{
     const company = req.body.company
     const username = req.body.username
@@ -43,7 +43,7 @@ app.post('/company',(req,res)=>{
     );
 })
 
-// consultar empresa
+// Consultar empresa
 app.get('/company/:id',(req,res)=>{
     const companyId = req.params.id
     db.query(`SELECT  company_id,company,username,email,logo FROM company WHERE company_id=${companyId}`,
@@ -60,7 +60,7 @@ app.get('/company/:id',(req,res)=>{
     );
 })
 
-// login
+// Login
 app.post('/login',(req,res)=>{
     const email = req.body.email
     const password = req.body.password
@@ -87,7 +87,7 @@ app.post('/login',(req,res)=>{
     );
 })
 
-// vacantes
+// Registrar vacantes
 app.post('/job',(req,res)=>{
     const title = req.body.title
     const from_date = req.body.from_date
@@ -114,7 +114,7 @@ app.post('/job',(req,res)=>{
     );
 })
 
-// consultar vacante
+// Consultar vacante
 app.get('/job/:id',(req,res)=>{
     const id = req.params.id
     db.query(`SELECT * FROM job WHERE job_id=${id}`,
@@ -168,7 +168,7 @@ app.put('/job/:id',(req,res)=>{
     }
 })
 
-// Eliminar vacante
+// Eliminar vacante    //NOTA ACTUALIZAR PARA ELIMINAR POR COMPLETO EN LA TABLA
 app.delete('/job/:id',(req,res)=>{
     const id = Number(req.params.id)
     const company_id = Number(req.body.company_id)

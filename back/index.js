@@ -239,3 +239,112 @@ app.get('/job/all/:page/:limit',(req,res)=>{
     }
     );
 })
+
+// Registrar persona
+app.post('/persons',(req,res)=>{
+    const dni = req.body.dni
+    const name = req.body.name
+    const email = req.body.email
+    const img = req.body.img
+
+    // Consultar existencia
+    db.query(`SELECT * FROM persons WHERE dni=?`,[dni],
+    (err, result) => {
+        if (err) {
+            res.send({
+                status: 500,
+                message: err
+            })
+        }else{
+            if (result.length >0) {
+                res.status(200)
+                .send(result[0])
+            }else{
+                db.query(`INSERT INTO persons (dni,name,email,img) VALUES(?,?,?,?)`,[dni,name,email,img],
+                (err, result) => {
+                    if (err) {
+                        res.status(400).send({
+                            message: err
+                        })
+                    }else{
+                        res.status(201)
+                        .send({
+                            status: 201,
+                            message: 'Persona creada con éxito',
+                            data: result
+                        })
+                    }
+                })
+            }
+        }
+    });
+})
+
+// Aplicar vacante
+app.post('/apply',(req,res)=>{
+    const job_id = req.body.job_id
+    const persons_id = req.body.persons_id
+    const salary = req.body.salary
+    
+    db.query(`INSERT INTO job_persons_apply (job_job_id,persons_id,salary) VALUES(?,?,?)`,[job_id,persons_id,salary],
+    (err, result) => {
+        if (err) {
+            res.status(400).send({
+                message: err
+            })
+        }else{
+            res.status(201)
+            .send({
+                status: 201,
+                message: 'Postulación registrada con éxito',
+                data: result
+            })
+        }
+    });
+})
+
+// Modificar postulación
+app.put('/apply/:job_id/:person_id',(req,res)=>{
+    const job_id = req.params.job_id
+    const persons_id = req.params.person_id
+    const deleted = req.body.deleted
+    const selected = req.body.selected
+    
+    db.query(`UPDATE job_persons_apply SET deleted=?,selected=? WHERE persons_id=? AND job_job_id=?`,[deleted,selected,persons_id,job_id],
+    (err, result) => {
+        if (err) {
+            res.status(400).send({
+                message: err
+            })
+        }else{
+            res.status(201)
+            .send({
+                status: 201,
+                message: 'Postulación actualizada con éxito',
+                data: result
+            })
+        }
+    });
+})
+
+// Verificar postulaciones existentes
+app.get('/applications/:jobId',(req,res)=>{
+    const jobId = req.params.jobId
+
+    db.query(`SELECT J.title,P.*,JPA.salary FROM persons P 
+    INNER JOIN job_persons_apply JPA ON JPA.persons_id=P.person_id
+    INNER JOIN job J ON J.job_id=JPA.job_job_id 
+    WHERE J.job_id=${jobId}`,
+    (err, result) => {
+        if (result.length >0) {
+            res.status(200)
+            .send(result)
+        }else{
+            res.status(400).send({
+                message: 'No hay postulaciones'
+            })
+        }
+    });
+})
+
+

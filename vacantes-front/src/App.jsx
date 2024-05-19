@@ -11,12 +11,12 @@ const App = () => {
     <nav className="py-2 bg-body-tertiary border-bottom">
         <div className="container d-flex flex-wrap">
           <ul className="nav me-auto">
-            <li className="nav-item">
+            <li style={{marginRight:"20px"}} className="nav-item">
             <Link
-               to="/" className="d-flex align-items-centers mb-3 mb-lg-0 me-lg-auto link-body-emphasis text-decoration-none" >
-                <img src="./../public/vite.svg" className="bi me-2" width="40" height="32" />
-                <span className="fs-4">Vacantes de Empleo</span>
-               </Link>
+              to="/" className="d-flex align-items-centers mb-3 mb-lg-0 me-lg-auto link-body-emphasis text-decoration-none" >
+              <img src="./../public/vite.svg" className="bi me-2" width="40" height="32" />
+              <span className="fs-4 mr-4">Vacantes</span>
+              </Link>
             </li>
             <li className="nav-item"><Link to='/' className="nav-link link-body-emphasis px-2 active" aria-current="page">Inicio</Link></li>
             <li className="nav-item"><Link to='/' className="nav-link link-body-emphasis px-2">Ofertas</Link></li>

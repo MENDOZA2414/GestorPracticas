@@ -1,8 +1,11 @@
 import React from 'react'
+import Titulo from './common/Titulo'
 
 const Login = () => {
   return (
-    <div>Login</div>
+    <>
+    <Titulo titulo={"Iniciar Sesión"}/>
+    </>
   )
 }
 

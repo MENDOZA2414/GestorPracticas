@@ -1,8 +1,11 @@
 import React from 'react'
+import Titulo from './common/Titulo'
 
 const Ofertas = () => {
   return (
-    <div>Ofertas</div>
+    <>
+    <Titulo titulo={"Ofertas Disponibles"}/>
+    </>
   )
 }
 

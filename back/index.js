@@ -64,7 +64,6 @@ app.get('/company/:id',(req,res)=>{
 app.post('/login',(req,res)=>{
     const email = req.body.email
     const password = req.body.password
-    //
     db.query(`SELECT company,username,email,logo FROM company WHERE email=? AND password=?`,[email,password],
     (err, result) => {
         if (err) {
@@ -142,24 +141,23 @@ app.put('/job/:id',(req,res)=>{
     const job_type = req.body.job_type
     const experience = req.body.experience
     const company_id = Number(req.body.company_id)
-    let validado = true
 
     switch(id){
         case company_id :
-        db.query(`UPDATE job SET title=?,from_date=?,until_date=?,city=?,job_type=?,experience=? where job_id=? and company_id=?`,[title,from_date,until_date,city,job_type,experience,id,company_id],
-        (err, result) => {
-            if (err) {
-                res.status(400).send({
-                    message: err
-                })
-            }else{
-                res.status(200)
-                .send({
-                    message: 'Vacante actualizada con éxito',
-                    data: result
-                })
+            db.query(`UPDATE job SET title=?,from_date=?,until_date=?,city=?,job_type=?,experience=? where job_id=? and company_id=?`,[title,from_date,until_date,city,job_type,experience,id,company_id],
+            (err, result) => {
+                if (err) {
+                    res.status(400).send({
+                        message: err
+                    })
+                }else{
+                    res.status(200)
+                    .send({
+                        message: 'Vacante actualizada con éxito',
+                        data: result
+                    })
+                }
             }
-        }
         );
         break;
     default :
@@ -170,3 +168,34 @@ app.put('/job/:id',(req,res)=>{
     }
 })
 
+ 
+// Eliminar vacante
+app.delete('/job/:id',(req,res)=>{
+    const id = Number(req.params.id)
+    const company_id = Number(req.body.company_id)
+
+    switch(id){
+        case company_id :
+            db.query(`UPDATE job SET deleted=1 where job_id=? and company_id=?`,[id,company_id],
+            (err, result) => {
+                if (err) {
+                    res.status(400).send({
+                        message: err
+                    })
+                }else{
+                    res.status(200)
+                    .send({
+                        message: 'Vacante borrada con éxito',
+                        data: result
+                    })
+                }
+            }
+        );
+        break;
+    default :
+        res.status(401).send({
+            message: 'Empresa no autorizada'
+        })
+        break;
+    }
+})

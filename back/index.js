@@ -12,6 +12,7 @@ const db = mysql.createPool({
 
 app.use(express.json());
 app.use(cors());
+
 app.listen(3001, () => {
     console.log('listening on 3001')
 })
@@ -58,7 +59,6 @@ app.get('/company/:id',(req,res)=>{
     }
     );
 })
-
 
 // login
 app.post('/login',(req,res)=>{
@@ -168,7 +168,6 @@ app.put('/job/:id',(req,res)=>{
     }
 })
 
- 
 // Eliminar vacante
 app.delete('/job/:id',(req,res)=>{
     const id = Number(req.params.id)
@@ -198,4 +197,45 @@ app.delete('/job/:id',(req,res)=>{
         })
         break;
     }
+})
+
+// Listar vacantes por empresa
+app.get('/job/all/:company_id/:page/:limit',(req,res)=>{
+    const id = req.params.company_id
+    const page = req.params.page
+    const limit = req.params.limit
+    const start = (page - 1) * limit 
+
+    db.query(`SELECT  * FROM job WHERE company_id=${id} order by job_id DESC limit ${start}, ${limit} `,
+    (err, result) => {
+        if (result.length >0) {
+            res.status(200)
+            .send(result)
+        }else{
+            res.status(400).send({
+                message: 'No existe datos'
+            })
+        }
+    }
+    );
+})
+
+// Listar todas las vacantes
+app.get('/job/all/:page/:limit',(req,res)=>{
+    const page = req.params.page
+    const limit = req.params.limit
+    const start = (page - 1) * limit 
+
+    db.query(`SELECT  * FROM job order by job_id DESC limit ${start}, ${limit} `,
+    (err, result) => {
+        if (result.length >0) {
+            res.status(200)
+            .send(result)
+        }else{
+            res.status(400).send({
+                message: 'No existe datos'
+            })
+        }
+    }
+    );
 })

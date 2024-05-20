@@ -29,7 +29,7 @@ export const Register = () => {
     setLoading(true)
     try{
       const { data } = await axios.post(
-        `comapany`,
+        `company`,
         {
           logo,
           company,
@@ -57,7 +57,7 @@ export const Register = () => {
   }
   return (
     <>
-      <Titulo titulo={"Registro de emp resas"} />
+      <Titulo titulo={"Registro de empresas"} />
       <form onSubmit={registro}>
         <div className="container">
           <div className="row">

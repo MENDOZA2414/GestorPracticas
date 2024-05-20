@@ -6,7 +6,7 @@ const mysql = require('mysql');
 const db = mysql.createPool({
     host: 'localhost',
     user: 'root',
-    password: 'Jm241410',
+    password: 'max42415',
     database: 'vacantes_react',
 });
 

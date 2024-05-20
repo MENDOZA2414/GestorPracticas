@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Titulo from "./common/Titulo";
 import axios from 'axios';
 import Swal from 'sweetalert2'
+import Error from './common/Error';
 
 export const Register = () => {
 
@@ -12,6 +13,7 @@ export const Register = () => {
   const [password, setPassword] = useState('')
   const [passwordConfirm, setPasswordConfirm] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
 
 
   const prevLogo = (e) => {
@@ -24,8 +26,26 @@ export const Register = () => {
     }
   }
 
+  const limpiarCampos = (e) =>{
+    e.preventDefault()
+    setCompany('')
+    setEmail('')
+    setUsername('')
+    setPassword('')
+    setPasswordConfirm('')
+    setLogo('')
+    document.getElementById('logo').src = "./../../public/vite.svg" //Quitar logo por ruta, si da problemas a futuro, eliminar
+  }
+
   const registro = async(e) => {
     e.preventDefault()
+
+    //validar
+    if([logo,company,username,email,password].includes('') || [logo,company,username,email].includes('#')){
+      setError(true)
+      return
+    }else setError(false)
+
     setLoading(true)
     try{
       const { data } = await axios.post(
@@ -39,7 +59,7 @@ export const Register = () => {
         }
       )
       Swal.fire({
-        position: "top-end",
+        position: "top-center",
         icon: 'success',
         title: data.message,
         showConfirmButton: false,
@@ -54,6 +74,7 @@ export const Register = () => {
         timer: 1500
       })
     }
+    limpiarCampos()
   }
   return (
     <>
@@ -61,6 +82,7 @@ export const Register = () => {
       <form onSubmit={registro}>
         <div className="container">
           <div className="row">
+            
             <div className="col-md">
               <img width='100%' src="./../../public/slider/slide1.jpg" alt="" />
               <p>Accede a nuestra comunidad de talento y haz un seguimiento de tus candidaturas</p>
@@ -92,6 +114,7 @@ export const Register = () => {
                       className="form-control"
                       aria-describedby="emailHelp"
                       onChange={(e)=> setCompany(e.target.value) }
+                      value={company}
                     />
                   </div>
                   <div className="mb-3">
@@ -103,6 +126,7 @@ export const Register = () => {
                       className="form-control"
                       aria-describedby="emailHelp"
                       onChange={(e)=> setUsername(e.target.value) }
+                      value={username}
                     />
                   </div>
                   <div className="mb-3">
@@ -114,6 +138,7 @@ export const Register = () => {
                       className="form-control"
                       aria-describedby="emailHelp"
                       onChange={(e)=> setEmail(e.target.value) }
+                      value={email}
                     />
                   </div>
                   <div className="mb-3">
@@ -125,6 +150,7 @@ export const Register = () => {
                       className="form-control"
                       aria-describedby="emailHelp"
                       onChange={(e)=> setPassword(e.target.value) }
+                      value={password}
                     />
                   </div>
                   <div className="mb-3">
@@ -136,12 +162,14 @@ export const Register = () => {
                       className="form-control"
                       aria-describedby="emailHelp"
                       onChange={(e)=> setPasswordConfirm(e.target.value) }
+                      value={passwordConfirm}
                     />
                   </div>
-                  <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+                  <div className="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
                     <button className="btn btn-success me-md-2" type="submit">Crear cuenta empresa</button>
-                    <button className="btn btn-primary" type="button">Cancelar</button>
+                    <button onClick={limpiarCampos} className="btn btn-primary" type="button">Cancelar</button>
                   </div>
+                  {error && <Error mensaje='Todos los campos son obligatorios'/>}
                 </div>
               </div>
             </div>

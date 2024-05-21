@@ -2,6 +2,7 @@ import Login from "./components/Login"
 import Ofertas from "./components/Ofertas"
 import {BrowserRouter, Route, Routes, Link} from 'react-router-dom'
 import { Register } from "./components/Register"
+import MisOfertas from "./components/MisOfertas"
 
 const App = () => {
   return (
@@ -88,6 +89,7 @@ const App = () => {
         <Route path="/" element={<Ofertas/>}/>
         <Route path="/login" element={<Login/>}/>
         <Route path="/register" element={<Register/>}/>
+        <Route path="/misOfertas" element={<MisOfertas/>}/>
       </Routes>
       </div>  
       

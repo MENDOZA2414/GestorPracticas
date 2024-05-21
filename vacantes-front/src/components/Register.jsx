@@ -3,6 +3,8 @@ import Titulo from "./common/Titulo";
 import axios from 'axios';
 import Swal from 'sweetalert2'
 import Error from './common/Error';
+import md5 from "md5";
+import { Navigate } from "react-router-dom";
 
 export const Register = () => {
 
@@ -14,6 +16,7 @@ export const Register = () => {
   const [passwordConfirm, setPasswordConfirm] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
+  const [goLogin, setGoLogin] = useState(false)
 
 
   const prevLogo = (e) => {
@@ -40,8 +43,28 @@ export const Register = () => {
   const registro = async(e) => {
     e.preventDefault()
 
+    let dataCom = {logo,company,username,email}
     //validar
-    if([logo,company,username,email,password].includes('') || [logo,company,username,email].includes('#')){
+    if([logo,company,username,email,password,passwordConfirm].includes('') || [logo,company,username,email,passwordConfirm].includes('#')){
+      setError(true)
+      Swal.fire({
+        position: "center",
+        icon: 'error',
+        title: "Debes llenar todos los campos",
+        showConfirmButton: false,
+        timer: 1500
+      })
+      return
+    }else if(password!==passwordConfirm){
+      setPassword('')
+      setPasswordConfirm('')
+      Swal.fire({
+        position: "center",
+        icon: 'warning',
+        title: "Las contraseñas no coinciden",
+        showConfirmButton: false,
+        timer: 1500
+      })
       setError(true)
       return
     }else setError(false)
@@ -59,12 +82,18 @@ export const Register = () => {
         }
       )
       Swal.fire({
-        position: "top-center",
+        position: "center",
         icon: 'success',
         title: data.message,
         showConfirmButton: false,
         timer: 1500
       })
+      dataCom.id = await data.data.insertId
+      const idSession = await md5(dataCom.id + dataCom.email+dataCom.username)
+      localStorage.setItem('user',JSON.stringify(dataCom))
+      localStorage.setItem('idSession',(idSession))
+      setGoLogin(true)
+
     }catch(err){
       Swal.fire({
         position: "top-end",
@@ -76,6 +105,11 @@ export const Register = () => {
     }
     limpiarCampos()
   }
+
+  if(goLogin){
+    return <Navigate to="/misOfertas"/>
+  }
+
   return (
     <>
       <Titulo titulo={"Registro de empresas"} />

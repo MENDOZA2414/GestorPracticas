@@ -36,14 +36,14 @@ app.post('/company', upload.single('logo'), (req, res) => {
     const username = req.body.username;
     const email = req.body.email;
     const password = req.body.password;
-    const logo = req.file ? req.file.buffer.toString('base64') : null;
+    const logo = req.file ? req.file.buffer : null;
 
     db.query(`INSERT INTO company (company, username, email, password, logo) VALUES(?, ?, ?, md5(?), ?)`, [company, username, email, password, logo],
         (err, result) => {
             if (err) {
                 res.send({
                     status: 400,
-                    message: err.message
+                    message: err
                 });
             } else {
                 res.status(201).send({
@@ -56,21 +56,23 @@ app.post('/company', upload.single('logo'), (req, res) => {
     );
 });
 
-app.get('/company/:id', (req, res) => {
-    const companyId = req.params.id;
-    db.query(`SELECT company_id, company, username, email, logo FROM company WHERE company_id = ?`, [companyId],
-        (err, result) => {
-            if (err) {
-                res.status(400).send({
-                    message: 'No existe la empresa'
-                });
-            } else {
-                res.status(200).send(result[0]);
-            }
-        }
-    );
-});
 
+app.get('/company/:id',(req,res)=>{
+    const companyId = req.params.id
+    db.query(`SELECT  company_id,company,username,email,logo FROM company WHERE company_id=${companyId}`,
+    (err, result) => {
+        if (result.length >0) {
+            res.status(200)
+            .send(result[0])
+        }else{
+            res.status(400).send({
+                message: 'No existe la empresa'
+            })
+        }
+    }
+    );
+
+})
 
 app.post('/login',(req,res)=>{
     const email = req.body.email
@@ -110,7 +112,6 @@ app.post('/job', (req, res) => {
                     message: err.message
                 });
             } else {
-                console.log("Resultado de la inserción de vacante:", result); // Imprime el resultado en la consola
                 db.query(`SELECT * FROM job WHERE job_id = ?`, [result.insertId], (err2, result2) => {
                     if (err2) {
                         res.status(400).send({
@@ -127,7 +128,6 @@ app.post('/job', (req, res) => {
             }
         });
 });
-
 
 
 app.get('/job/:id',(req,res)=>{

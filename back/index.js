@@ -1,59 +1,61 @@
 const express = require('express');
-const app = express();
+const bodyParser = require('body-parser');
 const cors = require('cors');
 const mysql = require('mysql');
+const multer = require('multer');
 
-const database= "vacantes_react"
-const user= "root"
-const host= "localhost"
-const password= "Jm241410"
+const app = express();
 
+const database = "vacantes_react";
+const user = "root";
+const host = "localhost";
+const password = "Jm241410";
 
 const db = mysql.createConnection({
     host,
     user,
     password,
     database,
-})
+});
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT || 3001;
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 app.use(cors());
-app.use(express.json())
-app.listen(PORT,() =>{
-    console.log('listening on 3001')
-})
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
-app.get('/',(req,res)=>{
-    res.send({status:200});
-})
+app.listen(PORT, () => {
+    console.log('listening on 3001');
+});
 
-//empresa
-app.post('/company',(req,res)=>{
-    const company = req.body.company
-    const username = req.body.username
-    const email = req.body.email
-    const password = req.body.password
-    const logo = req.body.logo
-    db.query(`INSERT INTO company (company,username,email,password,logo) VALUES(?,?,?,md5(?),?)`,[company,username,email,password,logo],
-    (err, result) => {
-        if (err) {
-            res.send({
-                status: 400,
-                message: err
-            })
-        }else{
-            res.status(201)
-            .send({
-                status: 201,
-                message: 'Empresa creada con éxito',
-                data: result
-            })
+app.post('/company', upload.single('logo'), (req, res) => {
+    const company = req.body.company;
+    const username = req.body.username;
+    const email = req.body.email;
+    const password = req.body.password;
+    const logo = req.file ? req.file.buffer : null;
+
+    db.query(`INSERT INTO company (company, username, email, password, logo) VALUES(?, ?, ?, md5(?), ?)`, [company, username, email, password, logo],
+        (err, result) => {
+            if (err) {
+                res.send({
+                    status: 400,
+                    message: err
+                });
+            } else {
+                res.status(201).send({
+                    status: 201,
+                    message: 'Empresa creada con éxito',
+                    data: result
+                });
+            }
         }
-    }
     );
+});
 
-})
 
 app.get('/company/:id',(req,res)=>{
     const companyId = req.params.id

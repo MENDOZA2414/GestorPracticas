@@ -3,21 +3,32 @@ const app = express();
 const cors = require('cors');
 const mysql = require('mysql');
 
-const db = mysql.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: 'Jm241410',
-    database: 'vacantes_react',
-});
+const database= "vacantes_react"
+const user= "root"
+const host= "localhost"
+const password= "Jm241410"
 
-app.use(express.json());
+
+const db = mysql.createConnection({
+    host,
+    user,
+    password,
+    database,
+})
+
+const PORT = process.env.PORT || 3001
+
 app.use(cors());
-
-app.listen(3001, () => {
+app.use(express.json())
+app.listen(PORT,() =>{
     console.log('listening on 3001')
 })
 
-// Registrar empresa
+app.get('/',(req,res)=>{
+    res.send({status:200});
+})
+
+//empresa
 app.post('/company',(req,res)=>{
     const company = req.body.company
     const username = req.body.username
@@ -41,9 +52,9 @@ app.post('/company',(req,res)=>{
         }
     }
     );
+
 })
 
-// Consultar empresa
 app.get('/company/:id',(req,res)=>{
     const companyId = req.params.id
     db.query(`SELECT  company_id,company,username,email,logo FROM company WHERE company_id=${companyId}`,
@@ -58,13 +69,13 @@ app.get('/company/:id',(req,res)=>{
         }
     }
     );
+
 })
 
-// Login
 app.post('/login',(req,res)=>{
     const email = req.body.email
     const password = req.body.password
-    db.query(`SELECT company,username,email,logo FROM company WHERE email=? AND password=?`,[email,password],
+    db.query(`SELECT company_id,company,username,email,logo FROM company WHERE email=? AND password=md5(?)`,[email,password],
     (err, result) => {
         if (err) {
             res.send({
@@ -72,52 +83,54 @@ app.post('/login',(req,res)=>{
                 message: err
             })
         }else{
-            if (result.lenght > 0){
+            if (result.length >0) {
                 res.status(200)
                 .send(result[0])
-            }
-            else{
+            }else{
                 res.status(401).send({
                     status: 401,
                     message: 'Usuario o contraseña incorrectos'
                 })
             }
+            
         }
     }
     );
+
 })
 
-// Registrar vacantes
-app.post('/job',(req,res)=>{
-    const title = req.body.title
-    const from_date = req.body.from_date
-    const until_date = req.body.until_date
-    const city = req.body.city
-    const job_type = req.body.job_type
-    const experience = req.body.experience
-    const company_id = req.body.company_id
-    db.query(`INSERT INTO job (title,from_date,until_date,city,job_type,experience,company_id) VALUES(?,?,?,?,?,?,?)`,[title,from_date,until_date,city,job_type,experience,company_id],
-    (err, result) => {
-        if (err) {
-            res.status(500).send({
-                message: err
-            })
-        }else{
-            res.status(201)
-            .send({
-                status: 201,
-                message: 'Vacante creada con éxito',
-                data: result
-            })
-        }
-    }
-    );
-})
+//vacantes
+app.post('/job', (req, res) => {
+    const { title, from_date, until_date, city, job_type, experience, company_id } = req.body;
+    db.query(`INSERT INTO job (title, from_date, until_date, city, job_type, experience, company_id) VALUES(?,?,?,?,?,?,?)`,
+        [title, from_date, until_date, city, job_type, experience, company_id],
+        (err, result) => {
+            if (err) {
+                res.status(400).send({
+                    message: err.message
+                });
+            } else {
+                db.query(`SELECT * FROM job WHERE job_id = ?`, [result.insertId], (err2, result2) => {
+                    if (err2) {
+                        res.status(400).send({
+                            message: err2.message
+                        });
+                    } else {
+                        res.status(201).send({
+                            status: 201,
+                            message: 'Vacante creada con éxito',
+                            data: result2[0]
+                        });
+                    }
+                });
+            }
+        });
+});
 
-// Consultar vacante
+
 app.get('/job/:id',(req,res)=>{
     const id = req.params.id
-    db.query(`SELECT * FROM job WHERE job_id=${id}`,
+    db.query(`SELECT  * FROM job WHERE job_id=${id}`,
     (err, result) => {
         if (result.length >0) {
             res.status(200)
@@ -129,9 +142,47 @@ app.get('/job/:id',(req,res)=>{
         }
     }
     );
+
 })
 
-// Actualizar vacante
+app.get('/job/all/:company_id/:page/:limit', (req, res) => {
+    const id = req.params.company_id;
+    const page = req.params.page;
+    const limit = req.params.limit;
+    const start = (page - 1) * limit;
+
+    db.query(`SELECT * FROM job WHERE company_id=${id} and deleted=0 order by job_id DESC limit ${start}, ${limit}`, (err, result) => {
+        if (err) {
+            res.status(500).send({
+                message: err.message
+            });
+        } else {
+            res.status(200).send(result);
+        }
+    });
+});
+
+
+app.get('/job/all/:page/:limit',(req,res)=>{
+    const page = req.params.page
+    const limit = req.params.limit
+    const start = (page - 1) * limit 
+
+    db.query(`SELECT DATEDIFF(J.until_date,(select now())) as dias, J.*,C.company,C.logo FROM job J INNER JOIN company C ON C.company_id = J.company_id where deleted=0 order by job_id DESC limit ${start}, ${limit} `,
+    (err, result) => {
+        if (result.length >0) {
+            res.status(200)
+            .send(result)
+        }else{
+            res.status(400).send({
+                message: 'No existe datos'
+            })
+        }
+    }
+    );
+
+})
+
 app.put('/job/:id',(req,res)=>{
     const id = Number(req.params.id)
     const title = req.body.title
@@ -142,8 +193,6 @@ app.put('/job/:id',(req,res)=>{
     const experience = req.body.experience
     const company_id = Number(req.body.company_id)
 
-    switch(id){
-        case company_id :
             db.query(`UPDATE job SET title=?,from_date=?,until_date=?,city=?,job_type=?,experience=? where job_id=? and company_id=?`,[title,from_date,until_date,city,job_type,experience,id,company_id],
             (err, result) => {
                 if (err) {
@@ -158,28 +207,20 @@ app.put('/job/:id',(req,res)=>{
                     })
                 }
             }
-        );
-        break;
-    default :
-        res.status(401).send({
-            message: 'Empresa no autorizada'
-        })
-        break;
-    }
-})
+            );
 
-// Eliminar vacante    //NOTA ACTUALIZAR PARA ELIMINAR POR COMPLETO EN LA TABLA
+    
+
+})
 app.delete('/job/:id',(req,res)=>{
     const id = Number(req.params.id)
     const company_id = Number(req.body.company_id)
 
-    switch(id){
-        case company_id :
             db.query(`UPDATE job SET deleted=1 where job_id=? and company_id=?`,[id,company_id],
             (err, result) => {
                 if (err) {
                     res.status(400).send({
-                        message: err
+                        message: err.message
                     })
                 }else{
                     res.status(200)
@@ -189,65 +230,20 @@ app.delete('/job/:id',(req,res)=>{
                     })
                 }
             }
-        );
-        break;
-    default :
-        res.status(401).send({
-            message: 'Empresa no autorizada'
-        })
-        break;
-    }
+            );
+           
+
+
 })
 
-// Listar vacantes por empresa
-app.get('/job/all/:company_id/:page/:limit',(req,res)=>{
-    const id = req.params.company_id
-    const page = req.params.page
-    const limit = req.params.limit
-    const start = (page - 1) * limit 
-
-    db.query(`SELECT  * FROM job WHERE company_id=${id} order by job_id DESC limit ${start}, ${limit} `,
-    (err, result) => {
-        if (result.length >0) {
-            res.status(200)
-            .send(result)
-        }else{
-            res.status(400).send({
-                message: 'No existe datos'
-            })
-        }
-    }
-    );
-})
-
-// Listar todas las vacantes
-app.get('/job/all/:page/:limit',(req,res)=>{
-    const page = req.params.page
-    const limit = req.params.limit
-    const start = (page - 1) * limit 
-
-    db.query(`SELECT  * FROM job order by job_id DESC limit ${start}, ${limit} `,
-    (err, result) => {
-        if (result.length >0) {
-            res.status(200)
-            .send(result)
-        }else{
-            res.status(400).send({
-                message: 'No existe datos'
-            })
-        }
-    }
-    );
-})
-
-// Registrar persona
+//personas
 app.post('/persons',(req,res)=>{
     const dni = req.body.dni
     const name = req.body.name
     const email = req.body.email
     const img = req.body.img
 
-    // Consultar existencia
+    //consultar existencia
     db.query(`SELECT * FROM persons WHERE dni=?`,[dni],
     (err, result) => {
         if (err) {
@@ -276,11 +272,16 @@ app.post('/persons',(req,res)=>{
                     }
                 })
             }
+            
         }
-    });
+    }
+
+
+    );
+
 })
 
-// Aplicar vacante
+//vacantes
 app.post('/apply',(req,res)=>{
     const job_id = req.body.job_id
     const persons_id = req.body.persons_id
@@ -300,10 +301,11 @@ app.post('/apply',(req,res)=>{
                 data: result
             })
         }
-    });
+    }
+    );
+
 })
 
-// Modificar postulación
 app.put('/apply/:job_id/:person_id',(req,res)=>{
     const job_id = req.params.job_id
     const persons_id = req.params.person_id
@@ -324,27 +326,25 @@ app.put('/apply/:job_id/:person_id',(req,res)=>{
                 data: result
             })
         }
-    });
+    }
+    );
+
 })
 
-// Verificar postulaciones existentes
-app.get('/applications/:jobId',(req,res)=>{
-    const jobId = req.params.jobId
-
-    db.query(`SELECT J.title,P.*,JPA.salary FROM persons P 
-    INNER JOIN job_persons_apply JPA ON JPA.persons_id=P.person_id
-    INNER JOIN job J ON J.job_id=JPA.job_job_id 
-    WHERE J.job_id=${jobId}`,
-    (err, result) => {
-        if (result.length >0) {
-            res.status(200)
-            .send(result)
-        }else{
-            res.status(400).send({
-                message: 'No hay postulaciones'
-            })
-        }
+app.get('/applications/:jobId', (req, res) => {
+    const jobId = req.params.jobId;
+    db.query(`SELECT J.title, P.*, JPA.salary FROM persons P 
+      INNER JOIN job_persons_apply JPA ON JPA.persons_id = P.person_id
+      INNER JOIN job J ON J.job_id = JPA.job_job_id 
+      WHERE J.job_id = ?`, [jobId], (err, result) => {
+      if (err) {
+        return res.status(500).send({ message: 'Error en el servidor' });
+      }
+      if (result.length > 0) {
+        res.status(200).send(result);
+      } else {
+        res.status(400).send({ message: 'No hay postulaciones' });
+      }
     });
-})
-
-
+  });
+  

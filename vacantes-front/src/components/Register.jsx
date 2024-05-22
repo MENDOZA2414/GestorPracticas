@@ -1,111 +1,101 @@
 import React, { useState } from "react";
 import Titulo from "./common/Titulo";
 import axios from 'axios';
-import Swal from 'sweetalert2'
-import Error from './common/Error'
-import md5 from 'md5'
-import{Navigate} from 'react-router-dom'
+import Swal from 'sweetalert2';
+import Error from './common/Error';
+import md5 from 'md5';
+import { Navigate } from 'react-router-dom';
 
 const Register = () => {
-
-  const [logo,setLogo] = useState()
-  const [company,setCompany] = useState('')
-  const [username,setUsername] = useState('')
-  const [email,setEmail] = useState('')
-  const [password,setPassword] = useState('')
-  const [passwordConfirm,setPasswordConfirm] = useState('')
-  const [loading,setLoading] = useState(false)
-  const [error,setError] = useState(false)
-  const [goLogin,setGoLogin] = useState(false)
-
+  const [logo, setLogo] = useState(null); // Cambiado a null
+  const [company, setCompany] = useState('');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [goLogin, setGoLogin] = useState(false);
 
   const prevLogo = (e) => {
     e.preventDefault();
-    let lector = new FileReader()
-    lector.readAsDataURL(e.target.files[0])
+    setLogo(e.target.files[0]);
+    let lector = new FileReader();
+    lector.readAsDataURL(e.target.files[0]);
     lector.onload = () => {
-      document.getElementById('logo').src = lector.result
-      setLogo(lector.result)
-    }
-  }
+      document.getElementById('logo').src = lector.result;
+    };
+  };
 
   const limpiarCampos = () => {
-    setCompany('')
-    setEmail('')
-    setUsername('')
-    setPassword('')
-    setPasswordConfirm('')
-    setLogo('')
-  }
+    setCompany('');
+    setEmail('');
+    setUsername('');
+    setPassword('');
+    setPasswordConfirm('');
+    setLogo(null);
+  };
 
   const registro = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    let dataCom = {logo,company,username,email}
-    //validar 
-    if([logo,company,username,email,password,passwordConfirm].includes('') || [logo,company,username,email,passwordConfirm].includes('#')){
-      setError(true)
+    if ([logo, company, username, email, password, passwordConfirm].includes('') || password !== passwordConfirm) {
+      setError(true);
       Swal.fire({
         position: 'center',
         icon: 'error',
-        title: "Debe llenar todos los campos",
+        title: "Debe llenar todos los campos y las contraseñas deben coincidir",
         showConfirmButton: false,
         timer: 1500
-      })
-      return
-    }else if(password!==passwordConfirm){
-      setPassword('')
-      setPasswordConfirm('')
-      Swal.fire({
-        position: 'center',
-        icon: 'warning',
-        title: "Las contraseñas no coinciden",
-        showConfirmButton: false,
-        timer: 1500
-      })
-      setError(true)
-      return
-    }else setError(false)
+      });
+      return;
+    } else {
+      setError(false);
+    }
 
-    setLoading(true)
-    try{
-      const { data } = await axios.post(
-        `company`,
-        {
-          logo,
-          company,
-          username,
-          email,
-          password
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append('logo', logo);
+      formData.append('company', company);
+      formData.append('username', username);
+      formData.append('email', email);
+      formData.append('password', password);
+
+      const { data } = await axios.post(`http://localhost:3001/company`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
         }
-      )
+      });
+
       Swal.fire({
         position: 'top-end',
         icon: 'success',
         title: data.message,
         showConfirmButton: false,
         timer: 1500
-      })
-      dataCom.id = await data.data.insertId
-      const idSession = await md5(dataCom.id+dataCom.email+dataCom.username)
-      localStorage.setItem('user',JSON.stringify(dataCom))
-      localStorage.setItem('idSession',idSession)
-      setGoLogin(true)
-    }catch(err){
+      });
+
+      const dataCom = { logo, company, username, email, id: data.data.insertId };
+      const idSession = md5(dataCom.id + dataCom.email + dataCom.username);
+      localStorage.setItem('user', JSON.stringify(dataCom));
+      localStorage.setItem('idSession', idSession);
+      setGoLogin(true);
+    } catch (err) {
       Swal.fire({
         position: 'top-end',
         icon: 'error',
         title: err.message,
         showConfirmButton: false,
         timer: 1500
-      })
+      });
     }
-    limpiarCampos()
+    limpiarCampos();
+    setLoading(false);
+  };
 
-  }
-
-  if(goLogin){
-    return <Navigate to="/misOfertas" />
+  if (goLogin) {
+    return <Navigate to="/misOfertas" />;
   }
 
   return (
@@ -114,7 +104,6 @@ const Register = () => {
       <form onSubmit={registro}>
         <div className="container">
           <div className="row">
-            
             <div className="col-md">
               <img width="100%" src="./../../public/slider/slide1.jpg" alt="" />
               <p>Accede a nuestra comunidad de talento y haz un seguimiento de tus candidaturas</p>
@@ -125,7 +114,6 @@ const Register = () => {
               <div className="card border mb-3">
                 <div className="card-body">
                   <h5 className="card-title text-center">Ingrese los datos</h5>
-                  
                   <div className="mb-3 text-center"><img id="logo" width='150px' src="./../../public/vite.svg" alt="" /></div>
                   <div className="mb-3">
                     <label className="form-label">Logo de la empresa</label>
@@ -134,6 +122,7 @@ const Register = () => {
                       className="form-control"
                       aria-describedby="emailHelp"
                       onChange={prevLogo}
+                      accept="image/*"
                     />
                   </div>
                   <div className="mb-3">

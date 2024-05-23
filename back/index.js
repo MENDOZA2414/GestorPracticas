@@ -159,37 +159,31 @@ app.get('/job/all/:company_id/:page/:limit', (req, res) => {
                 message: err.message
             });
         } else {
-            if (result.length > 0) {
-                res.status(200).send(result);
-            } else {
-                res.status(200).send([]); // Devuelve una lista vacía en lugar de un error
-            }
+            res.status(200).send(result);
         }
     });
 });
 
 
+app.get('/job/all/:page/:limit',(req,res)=>{
+    const page = req.params.page
+    const limit = req.params.limit
+    const start = (page - 1) * limit 
 
-app.get('/job/all/:page/:limit', (req, res) => {
-    const page = req.params.page;
-    const limit = req.params.limit;
-    const start = (page - 1) * limit;
-
-    db.query(`SELECT DATEDIFF(J.until_date,(select now())) as dias, J.*,C.company,C.logo FROM job J INNER JOIN company C ON C.company_id = J.company_id where deleted=0 order by job_id DESC limit ${start}, ${limit}`, (err, result) => {
-        if (err) {
-            res.status(500).send({
-                message: err.message
-            });
-        } else {
-            if (result.length > 0) {
-                res.status(200).send(result);
-            } else {
-                res.status(200).send([]); // Devuelve una lista vacía en lugar de un error
-            }
+    db.query(`SELECT DATEDIFF(J.until_date,(select now())) as dias, J.*,C.company,C.logo FROM job J INNER JOIN company C ON C.company_id = J.company_id where deleted=0 order by job_id DESC limit ${start}, ${limit} `,
+    (err, result) => {
+        if (result.length >0) {
+            res.status(200)
+            .send(result)
+        }else{
+            res.status(400).send({
+                message: 'No existe datos'
+            })
         }
-    });
-});
+    }
+    );
 
+})
 
 app.put('/job/:id',(req,res)=>{
     const id = Number(req.params.id)

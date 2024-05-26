@@ -8,14 +8,14 @@ import { Navigate } from 'react-router-dom';
 import imageCompression from 'browser-image-compression';
 
 const Register = () => {
-    const [fotoPerfil, setFotoPerfil] = useState();
+    const [fotoPerfil, setFotoPerfil] = useState(null);
     const [nombreEntidad, setNombreEntidad] = useState('');
     const [nombreUsuario, setNombreUsuario] = useState('');
     const [direccion, setDireccion] = useState('');
     const [categoria, setCategoria] = useState('');
     const [correo, setCorreo] = useState('');
-    const [contraseña, setContraseña] = useState('');
-    const [contraseñaConfirm, setContraseñaConfirm] = useState('');
+    const [password, setPassword] = useState('');
+    const [passwordConfirm, setPasswordConfirm] = useState('');
     const [numCelular, setNumCelular] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
@@ -58,16 +58,16 @@ const Register = () => {
         setDireccion('');
         setCategoria('');
         setCorreo('');
-        setContraseña('');
-        setContraseñaConfirm('');
+        setPassword('');
+        setPasswordConfirm('');
         setNumCelular('');
-        setFotoPerfil('');
+        setFotoPerfil(null);
     };
 
     const registro = async (e) => {
         e.preventDefault();
 
-        if ([fotoPerfil, nombreEntidad, nombreUsuario, direccion, categoria, correo, contraseña, contraseñaConfirm, numCelular].includes('') || [fotoPerfil, nombreEntidad, nombreUsuario, direccion, categoria, correo, contraseñaConfirm, numCelular].includes('#')) {
+        if ([fotoPerfil, nombreEntidad, nombreUsuario, direccion, categoria, correo, password, passwordConfirm, numCelular].includes('')) {
             setError(true);
             Swal.fire({
                 position: 'center',
@@ -77,9 +77,9 @@ const Register = () => {
                 timer: 1500
             });
             return;
-        } else if (contraseña !== contraseñaConfirm) {
-            setContraseña('');
-            setContraseñaConfirm('');
+        } else if (password !== passwordConfirm) {
+            setPassword('');
+            setPasswordConfirm('');
             Swal.fire({
                 position: 'center',
                 icon: 'warning',
@@ -100,7 +100,7 @@ const Register = () => {
             formData.append('direccion', direccion);
             formData.append('categoria', categoria);
             formData.append('correo', correo);
-            formData.append('contraseña', contraseña);
+            formData.append('password', password);
             formData.append('numCelular', numCelular);
 
             const { data } = await axios.post(`http://localhost:3001/register/entidadReceptora`, formData, {
@@ -177,11 +177,11 @@ const Register = () => {
                         </div>
                         <div className="mb-3">
                             <label className="form-label">Contraseña</label>
-                            <input type="password" className="form-control" onChange={(e) => setContraseña(e.target.value)} value={contraseña} />
+                            <input type="password" className="form-control" onChange={(e) => setPassword(e.target.value)} value={password} />
                         </div>
                         <div className="mb-3">
                             <label className="form-label">Confirmar Contraseña</label>
-                            <input type="password" className="form-control" onChange={(e) => setContraseñaConfirm(e.target.value)} value={contraseñaConfirm} />
+                            <input type="password" className="form-control" onChange={(e) => setPasswordConfirm(e.target.value)} value={passwordConfirm} />
                         </div>
                         <div className="mb-3">
                             <label className="form-label">Número Celular</label>
@@ -191,7 +191,7 @@ const Register = () => {
                             <button className="btn btn-success me-md-2" type="submit">Crear cuenta empresa</button>
                             <button onClick={limpiarCampos} className="btn btn-primary" type="button">Cancelar</button>
                         </div>
-                        {error && <Error mensaje='Todos los campos son obligatorios' />}
+                        {error && <Error mensaje='Todos los campos son obligatorios NEGROOOO' />}
                     </div>
                 </div>
             </form>
@@ -200,3 +200,4 @@ const Register = () => {
 };
 
 export default Register;
+

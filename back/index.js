@@ -278,24 +278,35 @@ app.get('/asesorInterno/:id', (req, res) => {
 
 // Ruta para registrar una entidad receptora
 app.post('/register/entidadReceptora', upload.single('fotoPerfil'), (req, res) => {
-    const { nombreEntidad, nombreUsuario, direccion, categoria, correo, contraseña, numCelular } = req.body;
+    const { nombreEntidad, nombreUsuario, direccion, categoria, correo, password, numCelular } = req.body;
     const fotoPerfil = req.file ? req.file.buffer : null;
-    if (!nombreEntidad || !nombreUsuario || !direccion || !categoria || !correo || !contraseña || !numCelular) {
+
+    if (!nombreEntidad || !nombreUsuario || !direccion || !categoria || !correo || !password || !numCelular) {
         return res.status(400).send({
             status: 400,
             message: 'Todos los campos son obligatorios'
         });
     }
-    db.query(`INSERT INTO entidadReceptora (nombreEntidad, nombreUsuario, direccion, categoria, correo, contraseña, numCelular, fotoPerfil) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, 
-    [nombreEntidad, nombreUsuario, direccion, categoria, correo, md5(contraseña), numCelular, fotoPerfil],
-    (err, result) => {
-        if (err) {
-            res.status(400).send({ status: 400, message: err.message });
-        } else {
-            res.status(201).send({ status: 201, message: 'Entidad receptora registrada con éxito', data: { insertId: result.insertId } });
+
+    db.query(`INSERT INTO entidadReceptora (nombreEntidad, nombreUsuario, direccion, categoria, correo, contraseña, numCelular, fotoPerfil) VALUES (?, ?, ?, ?, ?, md5(?), ?, ?)`,
+        [nombreEntidad, nombreUsuario, direccion, categoria, correo, password, numCelular, fotoPerfil],
+        (err, result) => {
+            if (err) {
+                res.status(400).send({
+                    status: 400,
+                    message: err.message
+                });
+            } else {
+                res.status(201).send({
+                    status: 201,
+                    message: 'Entidad receptora registrada con éxito',
+                    data: { insertId: result.insertId }
+                });
+            }
         }
-    });
+    );
 });
+
 
 
 // Registro de alumnos

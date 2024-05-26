@@ -6,6 +6,9 @@ import Register from './components/Register';
 import MisOfertas from './components/MisOfertas';
 import Encabezado from './components/Encabezado';
 import PreRegistro from './components/PreRegistro';
+import Principal from './components/Principal';
+import RegistrarAlumno from './components/RegistrarAlumno';
+import RegistrarAsesor from './components/RegistrarAsesor';
 
 const App = () => {
   const [user, setUser] = useState(undefined);
@@ -23,10 +26,13 @@ const App = () => {
       <Encabezado user={user} logOut={logOut} />
       <div className="container">
         <Routes>
-          <Route path="/" element={<Ofertas />} />
+          <Route path="/" element={<Principal />} />
+          <Route path="/ofertas" element={<Ofertas />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/preRegistro" element={<PreRegistro />} />
+          <Route path="/registrarAlumno" element={<RegistrarAlumno />} />
+          <Route path="/registrarAsesor" element={<RegistrarAsesor />} />
           <Route
             path="/misOfertas"
             element={

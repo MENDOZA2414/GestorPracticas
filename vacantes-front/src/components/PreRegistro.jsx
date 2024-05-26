@@ -9,9 +9,20 @@ const PreRegistro = () => {
     navigate('/register');
   };
 
+  const handleRegisterClick2 = () => {
+    navigate('/registrarAlumno');
+  };
+
+  const handleRegisterClick3 = () => {
+    navigate('/registrarAsesor');
+  };
+
+
   return (
     <div>
+        <div className="mt-5 mb-5">
       <Titulo titulo='Selecciona el tipo de usuario deseado para registrarte' />
+      </div>
       <div className="row row-cols-1 row-cols-md-3 mb-3 text-center">
         <div className="col">
           <div className="card mb-4 rounded-3 shadow-sm">
@@ -52,7 +63,7 @@ const PreRegistro = () => {
               <button 
                 type="button" 
                 className="w-100 btn btn-lg btn-outline-primary"
-                onClick={handleRegisterClick}
+                onClick={handleRegisterClick2}
               >
                 Registrarse
               </button>
@@ -75,7 +86,7 @@ const PreRegistro = () => {
               <button 
                 type="button" 
                 className="w-100 btn btn-lg btn-outline-primary"
-                onClick={handleRegisterClick}
+                onClick={handleRegisterClick3}
               >
                 Registrarse
               </button>

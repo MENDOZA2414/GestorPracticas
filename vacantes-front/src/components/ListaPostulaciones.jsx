@@ -20,7 +20,15 @@ const ListaPostulaciones = ({ postulaciones }) => {
                 {postulaciones.map((item, index) => (
                     <tr key={index}>
                         <td>{item.title}</td>
-                        <td><img src={item.img} width={50} height={50} alt="Foto del postulante" /></td>
+                        <td>
+                            <img 
+                                src={item.img || 'path/to/default/image.png'} 
+                                width={50} 
+                                height={50} 
+                                alt={`Foto de ${item.name}`} 
+                                onError={(e) => { e.target.src = 'path/to/default/image.png'; }}
+                            />
+                        </td>
                         <td>{item.name}</td>
                         <td>{item.dni}</td>
                         <td>{item.email}</td>

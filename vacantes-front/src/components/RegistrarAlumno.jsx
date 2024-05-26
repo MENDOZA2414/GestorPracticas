@@ -109,7 +109,7 @@ const RegistrarAlumno = () => {
             formData.append('celular', celular);
             formData.append('foto', foto);
 
-            const { data } = await axios.post(`http://localhost:3001/alumno`, formData, {
+            const { data } = await axios.post(`http://localhost:3001/register/alumno`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

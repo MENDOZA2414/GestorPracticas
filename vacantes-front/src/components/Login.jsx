@@ -11,6 +11,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
   const [goMisOfertas, setGoMisOfertas] = useState(false);
+  const [userType, setUserType] = useState('entidad'); // Estado para el tipo de usuario
 
   const login = async (e) => {
     e.preventDefault();
@@ -29,20 +30,23 @@ const Login = () => {
     } else setError(false);
 
     try {
-      const { data } = await axios.post(`login`, { email, password });
+      const endpoint = userType === 'alumno' ? 'login/alumno' : 'login/entidad';
+      const { data } = await axios.post(`http://localhost:3001/${endpoint}`, { email, password });
+      
       Swal.fire({
         position: 'top-end',
         icon: 'success',
-        html: `Bienvenido/a <strong>${data.company}</strong>`,
+        html: `Bienvenido/a <strong>${data.nombre || data.company}</strong>`,
         showConfirmButton: false,
         timer: 2000,
       });
-      let dataCom = { email };
-      dataCom.id = await data.company_id;
-      dataCom.company = await data.company;
-      dataCom.username = await data.username;
-      dataCom.email = await data.email;
-      dataCom.logo = await data.logo;
+
+      const dataCom = { email };
+      dataCom.id = await data.entidadID || data.alumnoID;
+      dataCom.company = await data.nombreEntidad || data.nombre;
+      dataCom.username = await data.nombreUsuario;
+      dataCom.email = await data.correo;
+      dataCom.logo = await data.fotoPerfil;
       const idSession = await md5(dataCom.id + dataCom.email + dataCom.username);
       localStorage.setItem('user', JSON.stringify(dataCom));
       localStorage.setItem('idSession', idSession);
@@ -64,8 +68,8 @@ const Login = () => {
 
   return (
     <>
-    <div className="mt-5 mb-5">
-      <Titulo titulo="Iniciar sesión" />
+      <div className="mt-5 mb-5">
+        <Titulo titulo="Iniciar sesión" />
       </div>
       <form onSubmit={login} style={{ maxWidth: '500px', margin: 'auto' }}>
         <div className="card border mb-3">
@@ -73,6 +77,17 @@ const Login = () => {
             <h5 className="card-title text-center">Ingrese los datos</h5>
             <div className="mb-3 text-center">
               <img id="logo" width="150px" src="./../../public/vite.svg" alt="" />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Tipo de usuario</label>
+              <select
+                className="form-control"
+                onChange={(e) => setUserType(e.target.value)}
+                value={userType}
+              >
+                <option value="entidad">Entidad Receptora</option>
+                <option value="alumno">Alumno</option>
+              </select>
             </div>
             <div className="mb-3">
               <label className="form-label">Email</label>

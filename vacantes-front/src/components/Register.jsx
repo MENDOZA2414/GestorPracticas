@@ -8,12 +8,15 @@ import { Navigate } from 'react-router-dom';
 import imageCompression from 'browser-image-compression';
 
 const Register = () => {
-    const [logo, setLogo] = useState();
-    const [company, setCompany] = useState('');
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [passwordConfirm, setPasswordConfirm] = useState('');
+    const [fotoPerfil, setFotoPerfil] = useState();
+    const [nombreEntidad, setNombreEntidad] = useState('');
+    const [nombreUsuario, setNombreUsuario] = useState('');
+    const [direccion, setDireccion] = useState('');
+    const [categoria, setCategoria] = useState('');
+    const [correo, setCorreo] = useState('');
+    const [contraseña, setContraseña] = useState('');
+    const [contraseñaConfirm, setContraseñaConfirm] = useState('');
+    const [numCelular, setNumCelular] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
     const [goLogin, setGoLogin] = useState(false);
@@ -35,7 +38,7 @@ const Register = () => {
             lector.readAsDataURL(compressedFile);
             lector.onload = () => {
                 document.getElementById('logo').src = lector.result;
-                setLogo(compressedFile);
+                setFotoPerfil(compressedFile);
             };
         } catch (error) {
             console.error('Error al comprimir la imagen:', error);
@@ -50,18 +53,21 @@ const Register = () => {
     };
 
     const limpiarCampos = () => {
-        setCompany('');
-        setEmail('');
-        setUsername('');
-        setPassword('');
-        setPasswordConfirm('');
-        setLogo('');
+        setNombreEntidad('');
+        setNombreUsuario('');
+        setDireccion('');
+        setCategoria('');
+        setCorreo('');
+        setContraseña('');
+        setContraseñaConfirm('');
+        setNumCelular('');
+        setFotoPerfil('');
     };
 
     const registro = async (e) => {
         e.preventDefault();
 
-        if ([logo, company, username, email, password, passwordConfirm].includes('') || [logo, company, username, email, passwordConfirm].includes('#')) {
+        if ([fotoPerfil, nombreEntidad, nombreUsuario, direccion, categoria, correo, contraseña, contraseñaConfirm, numCelular].includes('') || [fotoPerfil, nombreEntidad, nombreUsuario, direccion, categoria, correo, contraseñaConfirm, numCelular].includes('#')) {
             setError(true);
             Swal.fire({
                 position: 'center',
@@ -71,9 +77,9 @@ const Register = () => {
                 timer: 1500
             });
             return;
-        } else if (password !== passwordConfirm) {
-            setPassword('');
-            setPasswordConfirm('');
+        } else if (contraseña !== contraseñaConfirm) {
+            setContraseña('');
+            setContraseñaConfirm('');
             Swal.fire({
                 position: 'center',
                 icon: 'warning',
@@ -88,13 +94,16 @@ const Register = () => {
         setLoading(true);
         try {
             const formData = new FormData();
-            formData.append('logo', logo);
-            formData.append('company', company);
-            formData.append('username', username);
-            formData.append('email', email);
-            formData.append('password', password);
+            formData.append('fotoPerfil', fotoPerfil);
+            formData.append('nombreEntidad', nombreEntidad);
+            formData.append('nombreUsuario', nombreUsuario);
+            formData.append('direccion', direccion);
+            formData.append('categoria', categoria);
+            formData.append('correo', correo);
+            formData.append('contraseña', contraseña);
+            formData.append('numCelular', numCelular);
 
-            const { data } = await axios.post(`http://localhost:3001/company`, formData, {
+            const { data } = await axios.post(`http://localhost:3001/register/entidadReceptora`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -108,7 +117,7 @@ const Register = () => {
                 timer: 1500
             });
 
-            const dataCom = { id: data.data.insertId, logo: URL.createObjectURL(logo), company, username, email };
+            const dataCom = { id: data.data.insertId, logo: URL.createObjectURL(fotoPerfil), company: nombreEntidad, username: nombreUsuario, email: correo };
             const idSession = md5(dataCom.id + dataCom.email + dataCom.username);
             localStorage.setItem('user', JSON.stringify(dataCom));
             localStorage.setItem('idSession', idSession);
@@ -143,28 +152,40 @@ const Register = () => {
                             <img id="logo" width='150px' src="./../../public/vite.svg" alt="" />
                         </div>
                         <div className="mb-3">
-                            <label className="form-label">Logo de la empresa</label>
+                            <label className="form-label">Foto de perfil</label>
                             <input type="file" className="form-control" onChange={prevLogo} />
                         </div>
                         <div className="mb-3">
                             <label className="form-label">Nombre de la empresa</label>
-                            <input type="text" className="form-control" onChange={(e) => setCompany(e.target.value)} value={company} />
+                            <input type="text" className="form-control" onChange={(e) => setNombreEntidad(e.target.value)} value={nombreEntidad} />
                         </div>
                         <div className="mb-3">
                             <label className="form-label">Nombre del usuario</label>
-                            <input type="text" className="form-control" onChange={(e) => setUsername(e.target.value)} value={username} />
+                            <input type="text" className="form-control" onChange={(e) => setNombreUsuario(e.target.value)} value={nombreUsuario} />
                         </div>
                         <div className="mb-3">
-                            <label className="form-label">Email</label>
-                            <input type="email" className="form-control" onChange={(e) => setEmail(e.target.value)} value={email} />
+                            <label className="form-label">Dirección</label>
+                            <input type="text" className="form-control" onChange={(e) => setDireccion(e.target.value)} value={direccion} />
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label">Categoría</label>
+                            <input type="text" className="form-control" onChange={(e) => setCategoria(e.target.value)} value={categoria} />
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label">Correo</label>
+                            <input type="email" className="form-control" onChange={(e) => setCorreo(e.target.value)} value={correo} />
                         </div>
                         <div className="mb-3">
                             <label className="form-label">Contraseña</label>
-                            <input type="password" className="form-control" onChange={(e) => setPassword(e.target.value)} value={password} />
+                            <input type="password" className="form-control" onChange={(e) => setContraseña(e.target.value)} value={contraseña} />
                         </div>
                         <div className="mb-3">
                             <label className="form-label">Confirmar Contraseña</label>
-                            <input type="password" className="form-control" onChange={(e) => setPasswordConfirm(e.target.value)} value={passwordConfirm} />
+                            <input type="password" className="form-control" onChange={(e) => setContraseñaConfirm(e.target.value)} value={contraseñaConfirm} />
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label">Número Celular</label>
+                            <input type="text" className="form-control" onChange={(e) => setNumCelular(e.target.value)} value={numCelular} />
                         </div>
                         <div className="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
                             <button className="btn btn-success me-md-2" type="submit">Crear cuenta empresa</button>

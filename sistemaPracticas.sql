@@ -42,7 +42,7 @@ CREATE TABLE asesorInterno (
     correo VARCHAR(255) NOT NULL UNIQUE,
     contraseña VARCHAR(255) NOT NULL,
     numCelular VARCHAR(10) NOT NULL UNIQUE,
-    fotoPerfil LONGBLOB NOT NULL,
+    fotoPerfil LONGBLOB,
     fechaCreacion TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS entidadReceptora (
     contraseña VARCHAR(255) NOT NULL,
     numCelular VARCHAR(10) NOT NULL,
     fechaCreacion TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-    fotoPerfil LONGBLOB
+    fotoPerfil LONGBLOB 
 );
 
 -- Crear tabla para Asesores Externos
@@ -86,8 +86,9 @@ CREATE TABLE asesorExterno (
     apellidoPaterno VARCHAR(255) NOT NULL,
 	apellidoMaterno VARCHAR(255),
     correo VARCHAR(255) NOT NULL UNIQUE,
+    contraseña VARCHAR(255) NOT NULL,
     numCelular VARCHAR(10) NOT NULL,
-    fotoPerfil LONGBLOB NOT NULL,
+    fotoPerfil LONGBLOB,
     fechaCreacion TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     entidadID INT,
     CONSTRAINT fkEntidadID FOREIGN KEY (entidadID) REFERENCES entidadReceptora(entidadID)

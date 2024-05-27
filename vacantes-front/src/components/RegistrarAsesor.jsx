@@ -9,11 +9,11 @@ const RegistrarAsesor = () => {
     const [nombre, setNombre] = useState('');
     const [apellidoPaterno, setApellidoPaterno] = useState('');
     const [apellidoMaterno, setApellidoMaterno] = useState('');
-    const [email, setEmail] = useState('');
+    const [correo, setCorreo] = useState('');
     const [password, setPassword] = useState('');
     const [passwordConfirm, setPasswordConfirm] = useState('');
-    const [celular, setCelular] = useState('');
-    const [foto, setFoto] = useState('');
+    const [numCelular, setNumCelular] = useState('');
+    const [fotoPerfil, setFotoPerfil] = useState('');
     const [error, setError] = useState(false);
 
     const prevFoto = async (e) => {
@@ -32,7 +32,7 @@ const RegistrarAsesor = () => {
             lector.readAsDataURL(compressedFile);
             lector.onload = () => {
                 document.getElementById('foto').src = lector.result;
-                setFoto(compressedFile);
+                setFotoPerfil(compressedFile);
             };
         } catch (error) {
             console.error('Error al comprimir la imagen:', error);
@@ -50,17 +50,17 @@ const RegistrarAsesor = () => {
         setNombre('');
         setApellidoPaterno('');
         setApellidoMaterno('');
-        setEmail('');
+        setCorreo('');
         setPassword('');
         setPasswordConfirm('');
-        setCelular('');
-        setFoto('');
+        setNumCelular('');
+        setFotoPerfil('');
     };
 
     const registro = async (e) => {
         e.preventDefault();
 
-        if ([nombre, apellidoPaterno, apellidoMaterno, email, password, passwordConfirm, celular].includes('') || !foto) {
+        if ([nombre, apellidoPaterno, apellidoMaterno, correo, password, passwordConfirm, numCelular].includes('') || !fotoPerfil) {
             setError(true);
             Swal.fire({
                 position: 'center',
@@ -89,12 +89,12 @@ const RegistrarAsesor = () => {
             formData.append('nombre', nombre);
             formData.append('apellidoPaterno', apellidoPaterno);
             formData.append('apellidoMaterno', apellidoMaterno);
-            formData.append('email', email);
+            formData.append('correo', correo);
             formData.append('password', password);
-            formData.append('celular', celular);
-            formData.append('foto', foto);
+            formData.append('numCelular', numCelular);
+            formData.append('fotoPerfil', fotoPerfil);
 
-            const { data } = await axios.post(`http://localhost:3001/asesor`, formData, {
+            const { data } = await axios.post(`http://localhost:3001/register/asesorInterno`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -150,7 +150,7 @@ const RegistrarAsesor = () => {
                         </div>
                         <div className="mb-3">
                             <label className="form-label">Correo Electrónico</label>
-                            <input type="email" className="form-control" onChange={(e) => setEmail(e.target.value)} value={email} />
+                            <input type="email" className="form-control" onChange={(e) => setCorreo(e.target.value)} value={correo} />
                         </div>
                         <div className="mb-3">
                             <label className="form-label">Contraseña</label>
@@ -162,7 +162,7 @@ const RegistrarAsesor = () => {
                         </div>
                         <div className="mb-3">
                             <label className="form-label">Número Celular</label>
-                            <input type="number" className="form-control" onChange={(e) => setCelular(e.target.value)} value={celular} />
+                            <input type="number" className="form-control" onChange={(e) => setNumCelular(e.target.value)} value={numCelular} />
                         </div>
                         <div className="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
                             <button className="btn btn-success me-md-2" type="submit">Registrar Asesor</button>

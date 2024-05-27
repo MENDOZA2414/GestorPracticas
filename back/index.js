@@ -3,11 +3,10 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mysql = require('mysql');
 const multer = require('multer');
-const md5 = require('md5'); // Agregar esta línea
-
+const md5 = require('md5'); 
 const app = express();
 
-const database = "sistemaPracticas";  // Actualiza el nombre de la base de datos
+const database = "sistemaPracticas";  
 const user = "root";
 const host = "localhost";
 const password = "Jm241410";
@@ -32,87 +31,6 @@ app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
 });
 
-app.post('/entidadReceptora', upload.single('logo'), (req, res) => {
-    const nombreEntidad = req.body.nombreEntidad;
-    const nombreUsuario = req.body.nombreUsuario;
-    const direccion = req.body.direccion;
-    const categoria = req.body.categoria;
-    const correo = req.body.correo;
-    const contraseña = req.body.contraseña;
-    const numCelular = req.body.numCelular;
-    const fotoPerfil = req.file ? req.file.buffer : null;
-
-    db.query(`INSERT INTO entidadReceptora (nombreEntidad, nombreUsuario, direccion, categoria, correo, contraseña, numCelular, fotoPerfil) VALUES (?, ?, ?, ?, ?, md5(?), ?, ?)`, 
-        [nombreEntidad, nombreUsuario, direccion, categoria, correo, contraseña, numCelular, fotoPerfil],
-        (err, result) => {
-            if (err) {
-                res.status(400).send({
-                    status: 400,
-                    message: err.message
-                });
-            } else {
-                res.status(201).send({
-                    status: 201,
-                    message: 'Entidad receptora creada con éxito',
-                    data: { insertId: result.insertId }
-                });
-            }
-        }
-    );
-});
-
-app.get('/entidadReceptora/:id', (req, res) => {
-    const entidadID = req.params.id;
-    db.query(`SELECT * FROM entidadReceptora WHERE entidadID = ?`, [entidadID],
-        (err, result) => {
-            if (result.length > 0) {
-                const entidad = result[0];
-                if (entidad.fotoPerfil) {
-                    entidad.fotoPerfil = entidad.fotoPerfil.toString('base64');
-                }
-                res.status(200).send(entidad);
-            } else {
-                res.status(400).send({
-                    message: 'No existe la entidad receptora'
-                });
-            }
-        }
-    );
-});
-
-app.post('/alumno', upload.single('foto'), (req, res) => {
-    const numControl = req.body.numControl;
-    const nombre = req.body.nombre;
-    const apellidoPaterno = req.body.apellidoPaterno;
-    const apellidoMaterno = req.body.apellidoMaterno;
-    const fechaNacimiento = req.body.fechaNacimiento;
-    const carrera = req.body.carrera;
-    const semestre = req.body.semestre;
-    const turno = req.body.turno;
-    const correo = req.body.correo;
-    const contraseña = req.body.contraseña;
-    const numCelular = req.body.numCelular;
-    const fotoPerfil = req.file ? req.file.buffer : null;
-    const asesorInternoID = req.body.asesorInternoID;
-
-    db.query(`INSERT INTO alumno (numControl, nombre, apellidoPaterno, apellidoMaterno, fechaNacimiento, carrera, semestre, turno, correo, contraseña, numCelular, fotoPerfil, asesorInternoID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, md5(?), ?, ?, ?)`, 
-        [numControl, nombre, apellidoPaterno, apellidoMaterno, fechaNacimiento, carrera, semestre, turno, correo, contraseña, numCelular, fotoPerfil, asesorInternoID],
-        (err, result) => {
-            if (err) {
-                res.status(400).send({
-                    status: 400,
-                    message: err.message
-                });
-            } else {
-                res.status(201).send({
-                    status: 201,
-                    message: 'Alumno registrado con éxito',
-                    data: { insertId: result.insertId }
-                });
-            }
-        }
-    );
-});
 
 app.get('/alumno/:numControl', (req, res) => {
     const numControl = req.params.numControl;
@@ -342,20 +260,66 @@ app.post('/register/alumno', upload.single('foto'), (req, res) => {
 
 
 
-// Ruta para registrar un asesor (interno o externo)
-app.post('/register/asesor', upload.single('fotoPerfil'), (req, res) => {
-    const { tipoAsesor, nombre, apellidoPaterno, apellidoMaterno, correo, contraseña, numCelular, entidadID } = req.body;
+// Ruta para registrar un asesor interno
+app.post('/register/asesorInterno', upload.single('fotoPerfil'), (req, res) => {
+    const { nombre, apellidoPaterno, apellidoMaterno, correo, password, numCelular } = req.body;
     const fotoPerfil = req.file ? req.file.buffer : null;
-    const tabla = tipoAsesor === 'interno' ? 'asesorInterno' : 'asesorExterno';
-    db.query(`INSERT INTO ${tabla} (nombre, apellidoPaterno, apellidoMaterno, correo, contraseña, numCelular, fotoPerfil, entidadID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, 
-    [nombre, apellidoPaterno, apellidoMaterno, correo, md5(contraseña), numCelular, fotoPerfil, entidadID],
-    (err, result) => {
-        if (err) {
-            res.status(400).send({ status: 400, message: err.message });
-        } else {
-            res.status(201).send({ status: 201, message: 'Asesor registrado con éxito', data: { insertId: result.insertId } });
+
+    if (!nombre || !apellidoPaterno || !apellidoMaterno || !correo || !password || !numCelular) {
+        return res.status(400).send({
+            status: 400,
+            message: 'Todos los campos son obligatorios'
+        });
+    }
+
+    db.query(`INSERT INTO asesorInterno (nombre, apellidoPaterno, apellidoMaterno, correo, contraseña, numCelular, fotoPerfil) VALUES (?, ?, ?, ?, md5(?), ?, ?)`,
+        [nombre, apellidoPaterno, apellidoMaterno, correo, password, numCelular, fotoPerfil],
+        (err, result) => {
+            if (err) {
+                return res.status(400).send({
+                    status: 400,
+                    message: err.message
+                });
+            } else {
+                return res.status(201).send({
+                    status: 201,
+                    message: 'Asesor interno registrado con éxito',
+                    data: { insertId: result.insertId }
+                });
+            }
         }
-    });
+    );
+});
+
+// Ruta para registrar un asesor externo
+app.post('/register/asesorExterno', upload.single('fotoPerfil'), (req, res) => {
+    const { nombre, apellidoPaterno, apellidoMaterno, correo, password, numCelular, entidadID } = req.body;
+    const fotoPerfil = req.file ? req.file.buffer : null;
+
+    if (!nombre || !apellidoPaterno || !apellidoMaterno || !correo || !password || !numCelular || !entidadID) {
+        return res.status(400).send({
+            status: 400,
+            message: 'Todos los campos son obligatorios'
+        });
+    }
+
+    db.query(`INSERT INTO asesorExterno (nombre, apellidoPaterno, apellidoMaterno, correo, contraseña, numCelular, fotoPerfil, entidadID) VALUES (?, ?, ?, ?, md5(?), ?, ?, ?)`,
+        [nombre, apellidoPaterno, apellidoMaterno, correo, password, numCelular, fotoPerfil, entidadID],
+        (err, result) => {
+            if (err) {
+                return res.status(400).send({
+                    status: 400,
+                    message: err.message
+                });
+            } else {
+                return res.status(201).send({
+                    status: 201,
+                    message: 'Asesor externo registrado con éxito',
+                    data: { insertId: result.insertId }
+                });
+            }
+        }
+    );
 });
 
 
@@ -393,6 +357,50 @@ app.post('/login/entidad', (req, res) => {
                     entidad.fotoPerfil = entidad.fotoPerfil.toString('base64');
                 }
                 res.status(200).send(entidad);
+            } else {
+                res.status(401).send({ status: 401, message: 'Correo o contraseña incorrectos' });
+            }
+        }
+    );
+});
+
+
+// Ruta para el inicio de sesión de asesor interno
+app.post('/login/asesorInterno', (req, res) => {
+    const { email, password } = req.body;
+    db.query(`SELECT * FROM asesorInterno WHERE correo = ? AND contraseña = md5(?)`, [email, password], 
+      (err, result) => {
+        if (err) {
+          return res.status(500).send({ message: 'Error en el servidor' });
+        }
+        if (result.length > 0) {
+          const asesor = result[0];
+          if (asesor.fotoPerfil) {
+            asesor.fotoPerfil = asesor.fotoPerfil.toString('base64');
+          }
+          res.status(200).send(asesor);
+        } else {
+          res.status(401).send({ status: 401, message: 'Correo o contraseña incorrectos' });
+        }
+      }
+    );
+  });
+  
+
+  // Ruta para el inicio de sesión de asesor externo
+app.post('/login/asesorExterno', (req, res) => {
+    const { email, password } = req.body;
+    db.query(`SELECT * FROM asesorExterno WHERE correo = ? AND contraseña = md5(?)`, [email, password], 
+        (err, result) => {
+            if (err) {
+                return res.status(500).send({ message: 'Error en el servidor' });
+            }
+            if (result.length > 0) {
+                const asesor = result[0];
+                if (asesor.fotoPerfil) {
+                    asesor.fotoPerfil = asesor.fotoPerfil.toString('base64');
+                }
+                res.status(200).send(asesor);
             } else {
                 res.status(401).send({ status: 401, message: 'Correo o contraseña incorrectos' });
             }

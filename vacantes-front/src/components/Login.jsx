@@ -30,7 +30,24 @@ const Login = () => {
     } else setError(false);
 
     try {
-      const endpoint = userType === 'alumno' ? 'login/alumno' : 'login/entidad';
+      let endpoint;
+      switch (userType) {
+        case 'alumno':
+          endpoint = 'login/alumno';
+          break;
+        case 'entidad':
+          endpoint = 'login/entidad';
+          break;
+        case 'asesorInterno':
+          endpoint = 'login/asesorInterno';
+          break;
+        case 'asesorExterno':
+          endpoint = 'login/asesorExterno';
+          break;
+        default:
+          throw new Error('Tipo de usuario no válido');
+      }
+
       const { data } = await axios.post(`http://localhost:3001/${endpoint}`, { email, password });
       
       Swal.fire({
@@ -42,7 +59,7 @@ const Login = () => {
       });
 
       const dataCom = { email };
-      dataCom.id = await data.entidadID || data.alumnoID;
+      dataCom.id = await data.entidadID || data.alumnoID || data.asesorInternoID || data.asesorExternoID;
       dataCom.company = await data.nombreEntidad || data.nombre;
       dataCom.username = await data.nombreUsuario;
       dataCom.email = await data.correo;
@@ -87,6 +104,8 @@ const Login = () => {
               >
                 <option value="entidad">Entidad Receptora</option>
                 <option value="alumno">Alumno</option>
+                <option value="asesorInterno">Asesor Interno</option>
+                <option value="asesorExterno">Asesor Externo</option>
               </select>
             </div>
             <div className="mb-3">

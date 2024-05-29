@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import Titulo from './common/Titulo'; 
+import Titulo from './common/Titulo';
 
 const PreRegistro = () => {
   const navigate = useNavigate();
@@ -17,11 +17,10 @@ const PreRegistro = () => {
     navigate('/registrarAsesor');
   };
 
-
   return (
-    <div>
-        <div className="mt-5 mb-5">
-      <Titulo titulo='Selecciona el tipo de usuario deseado para registrarte' />
+    <div className="container mb-5 p-3">
+      <div className="mt-5 mb-5">
+        <Titulo titulo='Selecciona el tipo de usuario deseado para registrarte' />
       </div>
       <div className="row row-cols-1 row-cols-md-3 mb-3 text-center">
         <div className="col">
@@ -30,7 +29,9 @@ const PreRegistro = () => {
               <h3 className="card-title pricing-card-title">Empresa</h3>
             </div>
             <div className="card-body">
-              <h4 className="my-0 fw-normal"><small className="text-body-secondary fw-medium">Registrate como entidad receptora</small></h4>
+              <h4 className="my-0 fw-normal">
+                <small className="text-body-secondary fw-medium">Registrate como entidad receptora</small>
+              </h4>
               <ul className="list-unstyled mt-3 mb-4">
                 <li>Gestiona vacantes</li>
                 <li>Visualiza postulaciones</li>
@@ -53,7 +54,9 @@ const PreRegistro = () => {
               <h3 className="card-title pricing-card-title">Alumno</h3>
             </div>
             <div className="card-body">
-              <h4 className="my-0 fw-normal"><small className="text-body-secondary fw-medium">Registrate como alumno del DASC</small></h4>
+              <h4 className="my-0 fw-normal">
+                <small className="text-body-secondary fw-medium">Registrate como alumno del DASC</small>
+              </h4>
               <ul className="list-unstyled mt-3 mb-4">
                 <li>Aplica a vacantes</li>
                 <li>Lleva el seguimiento de tu PP</li>
@@ -76,7 +79,9 @@ const PreRegistro = () => {
               <h3 className="card-title pricing-card-title">Asesor</h3>
             </div>
             <div className="card-body">
-              <h4 className="my-0 fw-normal"><small className="text-body-secondary fw-medium">Registrate como asesor interno</small></h4>
+              <h4 className="my-0 fw-normal">
+                <small className="text-body-secondary fw-medium">Registrate como asesor interno</small>
+              </h4>
               <ul className="list-unstyled mt-3 mb-4">
                 <li>Gestiona alumnos</li>
                 <li>Visualiza postulaciones</li>

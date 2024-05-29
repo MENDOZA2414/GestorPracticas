@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { FaHome, FaUser, FaBuilding, FaFileAlt, FaChalkboardTeacher, FaChartLine, FaSignOutAlt, FaBars } from 'react-icons/fa';
 import { Link, Routes, Route, useLocation } from 'react-router-dom';
 import Perfil from './Perfil'; // Asegúrate de importar tu componente Perfil
-import './inicioAlumno.css';
+import './inicioEntidad.css';
 
-const InicioAlumno = ({ user }) => {
+const InicioEntidad = ({ user }) => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
 
@@ -13,10 +13,10 @@ const InicioAlumno = ({ user }) => {
   };
 
   return (
-    <div className={`inicio-alumno ${collapsed ? 'collapsed' : ''}`}>
+    <div className={`inicio-entidad ${collapsed ? 'collapsed' : ''}`}>
       <div className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
-          <Link to="/inicioAlumno">
+          <Link to="/inicioEntidad">
             <img 
               src={collapsed ? "./../public/dasc_icon.png" : "./../public/dasc.png"} 
               className="logo" 
@@ -28,39 +28,39 @@ const InicioAlumno = ({ user }) => {
         {collapsed && <FaBars className="menu-icon" onClick={toggleSidebar} />}
         <ul className="menu-list">
           <li>
-            <Link to="/inicioAlumno" className={location.pathname === '/inicioAlumno' ? 'active' : ''}>
+            <Link to="/inicioEntidad" className={location.pathname === '/inicioEntidad' ? 'active' : ''}>
               <FaHome className="icon" />
               {!collapsed && <span className="menu-text">Inicio</span>}
             </Link>
           </li>
           <li>
-            <Link to="perfil" className={location.pathname === '/inicioAlumno/perfil' ? 'active' : ''}>
+            <Link to="perfil" className={location.pathname === '/inicioEntidad/perfil' ? 'active' : ''}>
               <FaUser className="icon" />
               {!collapsed && <span className="menu-text">Perfil</span>}
             </Link>
           </li>
           <li>
-            <Link to="entidades" className={location.pathname === '/inicioAlumno/entidades' ? 'active' : ''}>
+            <Link to="vacantes" className={location.pathname === '/inicioEntidad/vacantes' ? 'active' : ''}>
               <FaBuilding className="icon" />
               {!collapsed && <span className="menu-text">Vacantes</span>}
             </Link>
           </li>
           <li>
-            <Link to="documentos" className={location.pathname === '/inicioAlumno/documentos' ? 'active' : ''}>
+            <Link to="documentos" className={location.pathname === '/inicioEntidad/documentos' ? 'active' : ''}>
               <FaFileAlt className="icon" />
               {!collapsed && <span className="menu-text">Documentos</span>}
             </Link>
           </li>
           <li>
-            <Link to="asesor" className={location.pathname === '/inicioAlumno/asesor' ? 'active' : ''}>
-              <FaChalkboardTeacher className="icon" />
-              {!collapsed && <span className="menu-text">Asesor</span>}
+            <Link to="reportes" className={location.pathname === '/inicioEntidad/reportes' ? 'active' : ''}>
+              <FaChartLine className="icon" />
+              {!collapsed && <span className="menu-text">Reportes</span>}
             </Link>
           </li>
           <li>
-            <Link to="avance" className={location.pathname === '/inicioAlumno/avance' ? 'active' : ''}>
-              <FaChartLine className="icon" />
-              {!collapsed && <span className="menu-text">Avance</span>}
+            <Link to="asesorExterno" className={location.pathname === '/inicioEntidad/asesorExterno' ? 'active' : ''}>
+              <FaChalkboardTeacher className="icon" />
+              {!collapsed && <span className="menu-text">Asesor Externo</span>}
             </Link>
           </li>
         </ul>
@@ -73,11 +73,11 @@ const InicioAlumno = ({ user }) => {
       </div>
       <div className={`header ${collapsed ? 'collapsed' : ''}`}>
         <span>Bienvenido a tu portal de gestión de prácticas.</span>
-        {user && user.type === 'alumno' && <span>¡Hola {user.company}!</span>}
+        {user && <span>¡Hola {user.company}!</span>}
       </div>
       <div className={`content ${collapsed ? 'collapsed' : ''}`}>
         <Routes>
-          <Route path="/" element={<h1>Resumen de practica profesional</h1>} />
+          <Route path="/" element={<h1>Resumen de la entidad</h1>} />
           <Route path="perfil" element={<Perfil />} />
           {/* Agrega aquí las rutas para las otras secciones */}
         </Routes>
@@ -86,4 +86,4 @@ const InicioAlumno = ({ user }) => {
   );
 };
 
-export default InicioAlumno;
+export default InicioEntidad;

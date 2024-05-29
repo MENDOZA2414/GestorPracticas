@@ -1,10 +1,11 @@
+// InicioAsesorInterno.jsx
 import React, { useState } from 'react';
 import { FaHome, FaUser, FaBuilding, FaFileAlt, FaChalkboardTeacher, FaChartLine, FaSignOutAlt, FaBars } from 'react-icons/fa';
 import { Link, Routes, Route, useLocation } from 'react-router-dom';
 import Perfil from './Perfil'; // Asegúrate de importar tu componente Perfil
-import './inicioAlumno.css';
+import './inicioAsesorInterno.css';
 
-const InicioAlumno = ({ user }) => {
+const InicioAsesorInterno = ({ user }) => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
 
@@ -13,10 +14,10 @@ const InicioAlumno = ({ user }) => {
   };
 
   return (
-    <div className={`inicio-alumno ${collapsed ? 'collapsed' : ''}`}>
+    <div className={`inicio-asesor-interno ${collapsed ? 'collapsed' : ''}`}>
       <div className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
-          <Link to="/inicioAlumno">
+          <Link to="/inicioAsesorInterno">
             <img 
               src={collapsed ? "./../public/dasc_icon.png" : "./../public/dasc.png"} 
               className="logo" 
@@ -28,39 +29,45 @@ const InicioAlumno = ({ user }) => {
         {collapsed && <FaBars className="menu-icon" onClick={toggleSidebar} />}
         <ul className="menu-list">
           <li>
-            <Link to="/inicioAlumno" className={location.pathname === '/inicioAlumno' ? 'active' : ''}>
+            <Link to="/inicioAsesorInterno" className={location.pathname === '/inicioAsesorInterno' ? 'active' : ''}>
               <FaHome className="icon" />
               {!collapsed && <span className="menu-text">Inicio</span>}
             </Link>
           </li>
           <li>
-            <Link to="perfil" className={location.pathname === '/inicioAlumno/perfil' ? 'active' : ''}>
+            <Link to="perfil" className={location.pathname === '/inicioAsesorInterno/perfil' ? 'active' : ''}>
               <FaUser className="icon" />
               {!collapsed && <span className="menu-text">Perfil</span>}
             </Link>
           </li>
           <li>
-            <Link to="entidades" className={location.pathname === '/inicioAlumno/entidades' ? 'active' : ''}>
+            <Link to="entidades" className={location.pathname === '/inicioAsesorInterno/entidades' ? 'active' : ''}>
               <FaBuilding className="icon" />
+              {!collapsed && <span className="menu-text">Entidades</span>}
+            </Link>
+          </li>
+          <li>
+            <Link to="vacantes" className={location.pathname === '/inicioAsesorInterno/vacantes' ? 'active' : ''}>
+              <FaFileAlt className="icon" />
               {!collapsed && <span className="menu-text">Vacantes</span>}
             </Link>
           </li>
           <li>
-            <Link to="documentos" className={location.pathname === '/inicioAlumno/documentos' ? 'active' : ''}>
+            <Link to="documentos" className={location.pathname === '/inicioAsesorInterno/documentos' ? 'active' : ''}>
               <FaFileAlt className="icon" />
               {!collapsed && <span className="menu-text">Documentos</span>}
             </Link>
           </li>
           <li>
-            <Link to="asesor" className={location.pathname === '/inicioAlumno/asesor' ? 'active' : ''}>
+            <Link to="alumnos" className={location.pathname === '/inicioAsesorInterno/alumnos' ? 'active' : ''}>
               <FaChalkboardTeacher className="icon" />
-              {!collapsed && <span className="menu-text">Asesor</span>}
+              {!collapsed && <span className="menu-text">Alumnos</span>}
             </Link>
           </li>
           <li>
-            <Link to="avance" className={location.pathname === '/inicioAlumno/avance' ? 'active' : ''}>
+            <Link to="reportes" className={location.pathname === '/inicioAsesorInterno/reportes' ? 'active' : ''}>
               <FaChartLine className="icon" />
-              {!collapsed && <span className="menu-text">Avance</span>}
+              {!collapsed && <span className="menu-text">Reportes</span>}
             </Link>
           </li>
         </ul>
@@ -73,11 +80,11 @@ const InicioAlumno = ({ user }) => {
       </div>
       <div className={`header ${collapsed ? 'collapsed' : ''}`}>
         <span>Bienvenido a tu portal de gestión de prácticas.</span>
-        {user && user.type === 'alumno' && <span>¡Hola {user.company}!</span>}
+        {user && user.type === 'asesorInterno' && <span>¡Hola {user.company}!</span>}
       </div>
       <div className={`content ${collapsed ? 'collapsed' : ''}`}>
         <Routes>
-          <Route path="/" element={<h1>Resumen de practica profesional</h1>} />
+          <Route path="/" element={<h1>Resumen de actividades</h1>} />
           <Route path="perfil" element={<Perfil />} />
           {/* Agrega aquí las rutas para las otras secciones */}
         </Routes>
@@ -86,4 +93,4 @@ const InicioAlumno = ({ user }) => {
   );
 };
 
-export default InicioAlumno;
+export default InicioAsesorInterno;

@@ -226,7 +226,6 @@ app.post('/register/entidadReceptora', upload.single('fotoPerfil'), (req, res) =
 });
 
 
-
 // Registro de alumnos
 app.post('/register/alumno', upload.single('foto'), (req, res) => {
     const { numeroControl, nombre, apellidoPaterno, apellidoMaterno, fechaNacimiento, carrera, semestre, turno, email, password, celular } = req.body;

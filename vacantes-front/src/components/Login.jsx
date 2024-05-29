@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { Navigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -10,9 +10,8 @@ const Login = ({ setUser }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
-  const [goMisOfertas, setGoMisOfertas] = useState(false);
-  const [goInicioAlumno, setGoInicioAlumno] = useState(false); // Nuevo estado para redirección a InicioAlumno
-  const [userType, setUserType] = useState('entidad');
+  const [goInicio, setGoInicio] = useState(false);
+  const [userType, setUserType] = useState('entidad'); 
 
   const login = async (e) => {
     e.preventDefault();
@@ -64,18 +63,12 @@ const Login = ({ setUser }) => {
       dataCom.username = await data.nombreUsuario;
       dataCom.email = await data.correo;
       dataCom.logo = await data.fotoPerfil;
-      dataCom.type = userType; // Añade el tipo de usuario
+      dataCom.type = userType; // Añadir el tipo de usuario al objeto dataCom
       const idSession = await md5(dataCom.id + dataCom.email + dataCom.username);
       localStorage.setItem('user', JSON.stringify(dataCom));
       localStorage.setItem('idSession', idSession);
-
-      setUser(dataCom); // Actualiza el estado del usuario en el componente principal
-
-      if (userType === 'alumno') {
-        setGoInicioAlumno(true); // Redirige a InicioAlumno si el usuario es de tipo alumno
-      } else {
-        setGoMisOfertas(true);
-      }
+      setUser(dataCom); // Establecer el usuario en el estado de App
+      setGoInicio(true); // Navegar a /inicio
     } catch (err) {
       Swal.fire({
         position: 'top-end',
@@ -87,12 +80,21 @@ const Login = ({ setUser }) => {
     }
   };
 
-  if (goInicioAlumno) {
-    return <Navigate to="/inicioAlumno" />;
-  }
-
-  if (goMisOfertas) {
-    return <Navigate to="/misOfertas" />;
+  if (goInicio) {
+    switch (userType) {
+      case 'alumno':
+        return <Navigate to="/inicioAlumno" />;
+      case 'asesorInterno':
+        return <Navigate to="/inicioAsesorInterno" />;
+      case 'asesorExterno':
+        return <Navigate to="/inicioAsesorExterno" />;
+      case 'entidad':
+        return <Navigate to="/inicioEntidad" />;
+      case 'administrador':
+        return <Navigate to="/inicioAdministrador" />;
+      default:
+        return <Navigate to="/" />;
+    }
   }
 
   return (

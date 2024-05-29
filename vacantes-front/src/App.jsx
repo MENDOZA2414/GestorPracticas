@@ -1,6 +1,5 @@
-// App.jsx
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, useLocation, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import Ofertas from './components/Ofertas';
 import Register from './components/Register';
@@ -11,6 +10,10 @@ import Principal from './components/Principal';
 import RegistrarAlumno from './components/RegistrarAlumno';
 import RegistrarAsesor from './components/RegistrarAsesor';
 import InicioAlumno from './components/inicioAlumno';
+import InicioAsesorInterno from './components/inicioAsesorInterno';
+import InicioAsesorExterno from './components/inicioAsesorExterno';
+import InicioEntidad from './components/inicioEntidad';
+// import InicioAdministrador from './components/InicioAdministrador';
 
 const AppContent = () => {
   const [user, setUser] = useState(undefined);
@@ -49,17 +52,14 @@ const AppContent = () => {
           <Route path="/preRegistro" element={<PreRegistro />} />
           <Route path="/registrarAlumno" element={<RegistrarAlumno />} />
           <Route path="/registrarAsesor" element={<RegistrarAsesor />} />
-          <Route path="/inicioAlumno/*" element={<InicioAlumno user={user} />} />
-          <Route
-            path="/misOfertas"
-            element={
-              <MisOfertas
-                pagina={pagina}
-                setPagina={setPagina}
-                setUser={setUser}
-              />
-            }
-          />
+          <Route path="/misOfertas" element={<MisOfertas pagina={pagina} setPagina={setPagina} setUser={setUser} />} />
+
+          {/* Rutas específicas para cada tipo de usuario */}
+          <Route path="/inicioAlumno/*" element={user?.type === 'alumno' ? <InicioAlumno user={user} /> : <Navigate to="/" />} />
+          <Route path="/inicioAsesorInterno/*" element={user?.type === 'asesorInterno' ? <InicioAsesorInterno user={user} /> : <Navigate to="/" />} />
+          <Route path="/inicioAsesorExterno/*" element={user?.type === 'asesorExterno' ? <InicioAsesorExterno user={user} /> : <Navigate to="/" />} />
+          <Route path="/inicioEntidad/*" element={user?.type === 'entidad' ? <InicioEntidad user={user} /> : <Navigate to="/" />} />
+          {/* <Route path="/inicioAdministrador/*" element={user?.type === 'administrador' ? <InicioAdministrador user={user} /> : <Navigate to="/" />} /> */}
         </Routes>
       </div>
     </>

@@ -106,13 +106,15 @@
   margin-left: 250px;
   margin-right: 0px;
   transition: width 0.3s, margin-left 0.3s;
-  height: 120px; /* Ajusta esta propiedad para cambiar la altura del encabezado */
+  height: 100px; /* Ajusta esta propiedad para cambiar la altura del encabezado */
+  font-size: 20px;
+  font-weight: normal;
 }
 
 .sidebar.collapsed ~ .header {
   width: calc(100% - 80px);
   margin-left: 80px;
-  height: 80px; /* Asegúrate de que la altura del encabezado se mantenga igual */
+  height: 100px; /* Asegúrate de que la altura del encabezado se mantenga igual */
 }
 
 

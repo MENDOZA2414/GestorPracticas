@@ -1,3 +1,4 @@
+// App.jsx
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import Login from './components/Login';
@@ -48,7 +49,7 @@ const AppContent = () => {
           <Route path="/preRegistro" element={<PreRegistro />} />
           <Route path="/registrarAlumno" element={<RegistrarAlumno />} />
           <Route path="/registrarAsesor" element={<RegistrarAsesor />} />
-          <Route path="/inicioAlumno" element={<InicioAlumno user={user} />} />
+          <Route path="/inicioAlumno/*" element={<InicioAlumno user={user} />} />
           <Route
             path="/misOfertas"
             element={

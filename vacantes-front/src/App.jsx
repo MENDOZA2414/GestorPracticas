@@ -14,7 +14,7 @@ import InicioAlumno from './components/inicioAlumno';
 const AppContent = () => {
   const [user, setUser] = useState(undefined);
   const [pagina, setPagina] = useState(1);
-  const location = useLocation(); // Utiliza useLocation para obtener la ruta actual
+  const location = useLocation();
 
   const logOut = () => {
     localStorage.clear();
@@ -32,23 +32,23 @@ const AppContent = () => {
     '/registrarAsesor'
   ];
 
-  const showHeader = showHeaderRoutes.includes(location.pathname); // Verifica si la ruta actual debe mostrar el encabezado
+  const showHeader = showHeaderRoutes.includes(location.pathname);
 
   useEffect(() => {}, [user, pagina]);
 
   return (
     <>
-      {showHeader && <Encabezado user={user} logOut={logOut} />} {/* Renderiza el encabezado solo si la ruta está en showHeaderRoutes */}
+      {showHeader && <Encabezado user={user} logOut={logOut} />}
       <div className="container-fluid">
         <Routes>
           <Route path="/" element={<Principal />} />
           <Route path="/ofertas" element={<Ofertas />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login setUser={setUser} />} />
           <Route path="/register" element={<Register />} />
           <Route path="/preRegistro" element={<PreRegistro />} />
           <Route path="/registrarAlumno" element={<RegistrarAlumno />} />
           <Route path="/registrarAsesor" element={<RegistrarAsesor />} />
-          <Route path="/inicioAlumno" element={<InicioAlumno />} />
+          <Route path="/inicioAlumno" element={<InicioAlumno user={user} />} />
           <Route
             path="/misOfertas"
             element={

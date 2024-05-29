@@ -6,17 +6,17 @@ import Error from './common/Error';
 import md5 from 'md5';
 import Titulo from './common/Titulo';
 
-const Login = () => {
+const Login = ({ setUser }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
   const [goMisOfertas, setGoMisOfertas] = useState(false);
-  const [userType, setUserType] = useState('entidad'); // Estado para el tipo de usuario
+  const [goInicioAlumno, setGoInicioAlumno] = useState(false); // Nuevo estado para redirección a InicioAlumno
+  const [userType, setUserType] = useState('entidad');
 
   const login = async (e) => {
     e.preventDefault();
 
-    // Validar
     if ([email, password].includes('') || [email, password].includes('#')) {
       setError(true);
       Swal.fire({
@@ -64,10 +64,18 @@ const Login = () => {
       dataCom.username = await data.nombreUsuario;
       dataCom.email = await data.correo;
       dataCom.logo = await data.fotoPerfil;
+      dataCom.type = userType; // Añade el tipo de usuario
       const idSession = await md5(dataCom.id + dataCom.email + dataCom.username);
       localStorage.setItem('user', JSON.stringify(dataCom));
       localStorage.setItem('idSession', idSession);
-      setGoMisOfertas(true);
+
+      setUser(dataCom); // Actualiza el estado del usuario en el componente principal
+
+      if (userType === 'alumno') {
+        setGoInicioAlumno(true); // Redirige a InicioAlumno si el usuario es de tipo alumno
+      } else {
+        setGoMisOfertas(true);
+      }
     } catch (err) {
       Swal.fire({
         position: 'top-end',
@@ -78,6 +86,10 @@ const Login = () => {
       });
     }
   };
+
+  if (goInicioAlumno) {
+    return <Navigate to="/inicioAlumno" />;
+  }
 
   if (goMisOfertas) {
     return <Navigate to="/misOfertas" />;

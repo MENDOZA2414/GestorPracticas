@@ -3,7 +3,7 @@ import { FaHome, FaUser, FaBuilding, FaFileAlt, FaChalkboardTeacher, FaChartLine
 import { Link, useLocation } from 'react-router-dom';
 import './inicioAlumno.css';
 
-const InicioAlumno = () => {
+const InicioAlumno = ({ user }) => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
 
@@ -72,7 +72,7 @@ const InicioAlumno = () => {
       </div>
       <div className={`header ${collapsed ? 'collapsed' : ''}`}>
         <span>Bienvenido a tu portal de gestión de prácticas.</span>
-        <span>¡Hola Juan Pérez!</span>
+        {user && user.type === 'alumno' && <span>¡Hola {user.company}!</span>}
       </div>
       <div className={`content ${collapsed ? 'collapsed' : ''}`}>
         <h1>Resumen de practica profesional</h1>

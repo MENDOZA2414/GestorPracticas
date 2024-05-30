@@ -55,10 +55,10 @@ const AppContent = () => {
           <Route path="/misOfertas" element={<MisOfertas pagina={pagina} setPagina={setPagina} setUser={setUser} />} />
 
           {/* Rutas específicas para cada tipo de usuario */}
-          <Route path="/inicioAlumno/*" element={user?.type === 'alumno' ? <InicioAlumno user={user} /> : <Navigate to="/" />} />
-          <Route path="/inicioAsesorInterno/*" element={user?.type === 'asesorInterno' ? <InicioAsesorInterno user={user} /> : <Navigate to="/" />} />
-          <Route path="/inicioAsesorExterno/*" element={user?.type === 'asesorExterno' ? <InicioAsesorExterno user={user} /> : <Navigate to="/" />} />
-          <Route path="/inicioEntidad/*" element={user?.type === 'entidad' ? <InicioEntidad user={user} /> : <Navigate to="/" />} />
+          <Route path="/inicioAlumno/*" element={user?.type === 'alumno' ? <InicioAlumno user={user} logOut={logOut} /> : <Navigate to="/" />} />
+          <Route path="/inicioAsesorInterno/*" element={user?.type === 'asesorInterno' ? <InicioAsesorInterno user={user} logOut={logOut} /> : <Navigate to="/" />} />
+          <Route path="/inicioAsesorExterno/*" element={user?.type === 'asesorExterno' ? <InicioAsesorExterno user={user} logOut={logOut} /> : <Navigate to="/" />} />
+          <Route path="/inicioEntidad/*" element={user?.type === 'entidad' ? <InicioEntidad user={user} logOut={logOut} /> : <Navigate to="/" />} />
           {/* <Route path="/inicioAdministrador/*" element={user?.type === 'administrador' ? <InicioAdministrador user={user} /> : <Navigate to="/" />} /> */}
         </Routes>
       </div>

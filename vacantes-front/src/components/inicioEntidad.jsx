@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { FaHome, FaUser, FaBuilding, FaFileAlt, FaChalkboardTeacher, FaChartLine, FaSignOutAlt, FaBars } from 'react-icons/fa';
+import { FaHome, FaUser, FaFileAlt, FaChartLine, FaBuilding, FaSignOutAlt, FaBars } from 'react-icons/fa';
 import { Link, Routes, Route, useLocation } from 'react-router-dom';
 import Perfil from './Perfil'; // Asegúrate de importar tu componente Perfil
 import './inicioEntidad.css';
 
-const InicioEntidad = ({ user }) => {
+const InicioEntidad = ({ user, logOut }) => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
 
@@ -59,13 +59,13 @@ const InicioEntidad = ({ user }) => {
           </li>
           <li>
             <Link to="asesorExterno" className={location.pathname === '/inicioEntidad/asesorExterno' ? 'active' : ''}>
-              <FaChalkboardTeacher className="icon" />
+              <FaUser className="icon" />
               {!collapsed && <span className="menu-text">Asesor Externo</span>}
             </Link>
           </li>
         </ul>
         <div className="sidebar-footer">
-          <Link to="/" className={location.pathname === '/logout' ? 'active' : ''}>
+          <Link to="/" onClick={logOut} className={location.pathname === '/logout' ? 'active' : ''}>
             <FaSignOutAlt className="icon logout-icon" />
             {!collapsed && <span className="menu-text">Cerrar sesión</span>}
           </Link>

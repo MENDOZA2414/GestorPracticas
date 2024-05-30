@@ -5,7 +5,7 @@ import { Link, Routes, Route, useLocation } from 'react-router-dom';
 import Perfil from './Perfil'; // Asegúrate de importar tu componente Perfil
 import './inicioAsesorInterno.css';
 
-const InicioAsesorInterno = ({ user }) => {
+const InicioAsesorInterno = ({ user, logOut }) => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
 
@@ -72,7 +72,7 @@ const InicioAsesorInterno = ({ user }) => {
           </li>
         </ul>
         <div className="sidebar-footer">
-          <Link to="/" className={location.pathname === '/logout' ? 'active' : ''}>
+          <Link to="/" onClick={logOut} className={location.pathname === '/logout' ? 'active' : ''}>
             <FaSignOutAlt className="icon logout-icon" />
             {!collapsed && <span className="menu-text">Cerrar sesión</span>}
           </Link>

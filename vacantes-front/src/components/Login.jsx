@@ -52,19 +52,19 @@ const Login = ({ setUser }) => {
       Swal.fire({
         position: 'top-end',
         icon: 'success',
-        html: `Bienvenido/a <strong>${data.nombre || data.company}</strong>`,
+        html: `Bienvenido/a <strong>${data.nombreEntidad || data.nombreUsuario || data.nombre}</strong>`, // Ajustado para mostrar nombreEntidad o nombreUsuario
         showConfirmButton: false,
         timer: 2000,
       });
 
       const dataCom = { email };
-      dataCom.id = await data.entidadID || data.alumnoID || data.asesorInternoID || data.asesorExternoID;
-      dataCom.company = await data.nombreEntidad || data.nombre;
-      dataCom.username = await data.nombreUsuario;
-      dataCom.email = await data.correo;
-      dataCom.logo = await data.fotoPerfil;
+      dataCom.id = data.entidadID || data.alumnoID || data.asesorInternoID || data.asesorExternoID;
+      dataCom.company = data.nombreEntidad || data.nombreUsuario || data.nombre; // Ajustado para usar nombreUsuario
+      dataCom.username = data.nombreUsuario;
+      dataCom.email = data.correo;
+      dataCom.logo = data.fotoPerfil;
       dataCom.type = userType; // Añadir el tipo de usuario al objeto dataCom
-      const idSession = await md5(dataCom.id + dataCom.email + dataCom.username);
+      const idSession = md5(dataCom.id + dataCom.email + dataCom.username);
       localStorage.setItem('user', JSON.stringify(dataCom));
       localStorage.setItem('idSession', idSession);
       setUser(dataCom); // Establecer el usuario en el estado de App

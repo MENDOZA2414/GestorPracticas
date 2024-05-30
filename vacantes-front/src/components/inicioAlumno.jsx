@@ -1,10 +1,11 @@
+// InicioAlumno.jsx
 import React, { useState } from 'react';
 import { FaHome, FaUser, FaBuilding, FaFileAlt, FaChalkboardTeacher, FaChartLine, FaSignOutAlt, FaBars } from 'react-icons/fa';
 import { Link, Routes, Route, useLocation } from 'react-router-dom';
 import Perfil from './Perfil'; // Asegúrate de importar tu componente Perfil
 import './inicioAlumno.css';
 
-const InicioAlumno = ({ user }) => {
+const InicioAlumno = ({ user, logOut }) => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
 
@@ -65,7 +66,7 @@ const InicioAlumno = ({ user }) => {
           </li>
         </ul>
         <div className="sidebar-footer">
-          <Link to="/" className={location.pathname === '/logout' ? 'active' : ''}>
+          <Link to="/" onClick={logOut} className={location.pathname === '/logout' ? 'active' : ''}>
             <FaSignOutAlt className="icon logout-icon" />
             {!collapsed && <span className="menu-text">Cerrar sesión</span>}
           </Link>

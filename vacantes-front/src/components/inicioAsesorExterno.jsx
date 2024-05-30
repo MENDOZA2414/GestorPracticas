@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { FaHome, FaUser, FaBuilding, FaFileAlt, FaChalkboardTeacher, FaChartLine, FaSignOutAlt, FaBars } from 'react-icons/fa';
+import { FaHome, FaUser, FaFileAlt, FaChartLine, FaSignOutAlt, FaBars } from 'react-icons/fa';
 import { Link, Routes, Route, useLocation } from 'react-router-dom';
 import Perfil from './Perfil'; // Asegúrate de importar tu componente Perfil
 import './inicioAsesorExterno.css';
 
-const InicioAsesorExterno = ({ user }) => {
+const InicioAsesorExterno = ({ user, logOut }) => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
 
@@ -40,32 +40,26 @@ const InicioAsesorExterno = ({ user }) => {
             </Link>
           </li>
           <li>
+            <Link to="vacantes" className={location.pathname === '/inicioAsesorExterno/vacantes' ? 'active' : ''}>
+              <FaFileAlt className="icon" />
+              {!collapsed && <span className="menu-text">Vacantes</span>}
+            </Link>
+          </li>
+          <li>
             <Link to="documentos" className={location.pathname === '/inicioAsesorExterno/documentos' ? 'active' : ''}>
               <FaFileAlt className="icon" />
               {!collapsed && <span className="menu-text">Documentos</span>}
             </Link>
           </li>
           <li>
-            <Link to="reporte" className={location.pathname === '/inicioAsesorExterno/reporte' ? 'active' : ''}>
+            <Link to="reportes" className={location.pathname === '/inicioAsesorExterno/reportes' ? 'active' : ''}>
               <FaChartLine className="icon" />
-              {!collapsed && <span className="menu-text">Reporte</span>}
-            </Link>
-          </li>
-          <li>
-            <Link to="alumnos" className={location.pathname === '/inicioAsesorExterno/alumnos' ? 'active' : ''}>
-              <FaChalkboardTeacher className="icon" />
-              {!collapsed && <span className="menu-text">Alumnos</span>}
-            </Link>
-          </li>
-          <li>
-            <Link to="vacantes" className={location.pathname === '/inicioAsesorExterno/vacantes' ? 'active' : ''}>
-              <FaBuilding className="icon" />
-              {!collapsed && <span className="menu-text">Vacantes</span>}
+              {!collapsed && <span className="menu-text">Reportes</span>}
             </Link>
           </li>
         </ul>
         <div className="sidebar-footer">
-          <Link to="/" className={location.pathname === '/logout' ? 'active' : ''}>
+          <Link to="/" onClick={logOut} className={location.pathname === '/logout' ? 'active' : ''}>
             <FaSignOutAlt className="icon logout-icon" />
             {!collapsed && <span className="menu-text">Cerrar sesión</span>}
           </Link>
@@ -73,11 +67,11 @@ const InicioAsesorExterno = ({ user }) => {
       </div>
       <div className={`header ${collapsed ? 'collapsed' : ''}`}>
         <span>Bienvenido a tu portal de gestión de prácticas.</span>
-        {user && user.type === 'asesorExterno' && <span>¡Hola {user.company}!</span>}
+        {user && <span>¡Hola {user.company}!</span>}
       </div>
       <div className={`content ${collapsed ? 'collapsed' : ''}`}>
         <Routes>
-          <Route path="/" element={<h1>Resumen de prácticas profesionales</h1>} />
+          <Route path="/" element={<h1>Resumen de prácticas</h1>} />
           <Route path="perfil" element={<Perfil />} />
           {/* Agrega aquí las rutas para las otras secciones */}
         </Routes>

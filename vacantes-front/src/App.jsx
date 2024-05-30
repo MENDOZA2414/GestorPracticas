@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Route, Routes, useLocation, Navigate } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, useLocation, Navigate, useNavigate } from 'react-router-dom';
 import Login from './components/Login';
 import Ofertas from './components/Ofertas';
 import Register from './components/Register';
@@ -13,16 +13,33 @@ import InicioAlumno from './components/inicioAlumno';
 import InicioAsesorInterno from './components/inicioAsesorInterno';
 import InicioAsesorExterno from './components/inicioAsesorExterno';
 import InicioEntidad from './components/inicioEntidad';
+import Swal from 'sweetalert2';
 // import InicioAdministrador from './components/InicioAdministrador';
 
 const AppContent = () => {
-  const [user, setUser] = useState(undefined);
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')) || undefined);
   const [pagina, setPagina] = useState(1);
   const location = useLocation();
+  const navigate = useNavigate();
+  const sessionDuration = 10 * 1000; // 30 segundos para pruebas
 
-  const logOut = () => {
+  const handleSessionExpiration = () => {
+    Swal.fire({
+      icon: 'info',
+      title: 'Sesión expirada',
+      text: 'Tu sesión ha expirado. Por favor, vuelve a iniciar sesión.',
+    });
+    localStorage.setItem('lastPath', location.pathname); // Guarda la ruta actual
     localStorage.clear();
     setUser(undefined);
+    navigate('/login'); // Redirige a la página de inicio de sesión
+  };
+
+  const handleLogout = () => {
+    localStorage.setItem('lastPath', location.pathname); // Guarda la ruta actual
+    localStorage.clear();
+    setUser(undefined);
+    navigate('/login'); // Redirige a la página de inicio de sesión
   };
 
   const showHeaderRoutes = [
@@ -38,11 +55,33 @@ const AppContent = () => {
 
   const showHeader = showHeaderRoutes.includes(location.pathname);
 
-  useEffect(() => {}, [user, pagina]);
+  useEffect(() => {
+    const savedUser = JSON.parse(localStorage.getItem('user'));
+    if (savedUser) {
+      setUser(savedUser);
+      const lastPath = localStorage.getItem('lastPath');
+      if (lastPath) {
+        navigate(lastPath);
+      }
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    let timer;
+    if (user) {
+      timer = setTimeout(() => {
+        handleSessionExpiration();
+      }, sessionDuration);
+    }
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [user, sessionDuration]);
 
   return (
     <>
-      {showHeader && <Encabezado user={user} logOut={logOut} />}
+      {showHeader && <Encabezado user={user} logOut={handleLogout} />}
       <div className="container-fluid">
         <Routes>
           <Route path="/" element={<Principal />} />
@@ -55,11 +94,11 @@ const AppContent = () => {
           <Route path="/misOfertas" element={<MisOfertas pagina={pagina} setPagina={setPagina} setUser={setUser} />} />
 
           {/* Rutas específicas para cada tipo de usuario */}
-          <Route path="/inicioAlumno/*" element={user?.type === 'alumno' ? <InicioAlumno user={user} logOut={logOut} /> : <Navigate to="/" />} />
-          <Route path="/inicioAsesorInterno/*" element={user?.type === 'asesorInterno' ? <InicioAsesorInterno user={user} logOut={logOut} /> : <Navigate to="/" />} />
-          <Route path="/inicioAsesorExterno/*" element={user?.type === 'asesorExterno' ? <InicioAsesorExterno user={user} logOut={logOut} /> : <Navigate to="/" />} />
-          <Route path="/inicioEntidad/*" element={user?.type === 'entidad' ? <InicioEntidad user={user} logOut={logOut} /> : <Navigate to="/" />} />
-          {/* <Route path="/inicioAdministrador/*" element={user?.type === 'administrador' ? <InicioAdministrador user={user} /> : <Navigate to="/" />} /> */}
+          <Route path="/inicioAlumno/*" element={user?.type === 'alumno' ? <InicioAlumno user={user} logOut={handleLogout} /> : <Navigate to="/" />} />
+          <Route path="/inicioAsesorInterno/*" element={user?.type === 'asesorInterno' ? <InicioAsesorInterno user={user} logOut={handleLogout} /> : <Navigate to="/" />} />
+          <Route path="/inicioAsesorExterno/*" element={user?.type === 'asesorExterno' ? <InicioAsesorExterno user={user} logOut={handleLogout} /> : <Navigate to="/" />} />
+          <Route path="/inicioEntidad/*" element={user?.type === 'entidad' ? <InicioEntidad user={user} logOut={handleLogout} /> : <Navigate to="/" />} />
+          {/* <Route path="/inicioAdministrador/*" element={user?.type === 'administrador' ? <InicioAdministrador user={user} logOut={handleLogout} /> : <Navigate to="/" />} /> */}
         </Routes>
       </div>
     </>

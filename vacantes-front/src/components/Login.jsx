@@ -11,7 +11,7 @@ const Login = ({ setUser }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
   const [goInicio, setGoInicio] = useState(false);
-  const [userType, setUserType] = useState('entidad'); 
+  const [userType, setUserType] = useState('entidad');
 
   const login = async (e) => {
     e.preventDefault();
@@ -48,23 +48,23 @@ const Login = ({ setUser }) => {
       }
 
       const { data } = await axios.post(`http://localhost:3001/${endpoint}`, { email, password });
-      
+
       Swal.fire({
         position: 'top-end',
         icon: 'success',
-        html: `Bienvenido/a <strong>${data.nombreEntidad || data.nombreUsuario || data.nombre}</strong>`, // Ajustado para mostrar nombreEntidad o nombreUsuario
+        html: `Bienvenido/a <strong>${data.nombre || data.company}</strong>`,
         showConfirmButton: false,
         timer: 2000,
       });
 
       const dataCom = { email };
-      dataCom.id = data.entidadID || data.alumnoID || data.asesorInternoID || data.asesorExternoID;
-      dataCom.company = data.nombreEntidad || data.nombreUsuario || data.nombre; // Ajustado para usar nombreUsuario
-      dataCom.username = data.nombreUsuario;
-      dataCom.email = data.correo;
-      dataCom.logo = data.fotoPerfil;
+      dataCom.id = await data.entidadID || data.alumnoID || data.asesorInternoID || data.asesorExternoID;
+      dataCom.company = await data.nombreEntidad || data.nombre;
+      dataCom.username = await data.nombreUsuario;
+      dataCom.email = await data.correo;
+      dataCom.logo = await data.fotoPerfil;
       dataCom.type = userType; // Añadir el tipo de usuario al objeto dataCom
-      const idSession = md5(dataCom.id + dataCom.email + dataCom.username);
+      const idSession = await md5(dataCom.id + dataCom.email + dataCom.username);
       localStorage.setItem('user', JSON.stringify(dataCom));
       localStorage.setItem('idSession', idSession);
       setUser(dataCom); // Establecer el usuario en el estado de App
@@ -120,6 +120,7 @@ const Login = ({ setUser }) => {
                 <option value="alumno">Alumno</option>
                 <option value="asesorInterno">Asesor Interno</option>
                 <option value="asesorExterno">Asesor Externo</option>
+                <option value="administrador">Administrador</option>
               </select>
             </div>
             <div className="mb-3">

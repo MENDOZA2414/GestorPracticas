@@ -72,7 +72,7 @@ const InicioAsesorInterno = ({ user, logOut }) => {
           </li>
         </ul>
         <div className="sidebar-footer">
-          <Link to="/" onClick={logOut} className={location.pathname === '/logout' ? 'active' : ''}>
+          <Link to="/" onClick={logOut} className={location.pathname === '/handleLogout' ? 'active' : ''}>
             <FaSignOutAlt className="icon logout-icon" />
             {!collapsed && <span className="menu-text">Cerrar sesión</span>}
           </Link>

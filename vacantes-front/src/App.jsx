@@ -21,7 +21,7 @@ const AppContent = () => {
   const [pagina, setPagina] = useState(1);
   const location = useLocation();
   const navigate = useNavigate();
-  const sessionDuration = 10 * 1000; // 30 segundos para pruebas
+  const sessionDuration = 10 * 60 * 1000; // 30 segundos para pruebas
 
   const handleSessionExpiration = () => {
     Swal.fire({

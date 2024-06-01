@@ -4,6 +4,7 @@ import { FaHome, FaUser, FaBuilding, FaFileAlt, FaChalkboardTeacher, FaChartLine
 import { Link, Routes, Route, useLocation } from 'react-router-dom';
 import Perfil from './Perfil';
 import './inicioAlumno.css';
+import Asesor from './Asesor';
 
 const InicioAlumno = ({ user, logOut }) => {
   const [collapsed, setCollapsed] = useState(false);
@@ -80,6 +81,7 @@ const InicioAlumno = ({ user, logOut }) => {
         <Routes>
           <Route path="/" element={<h1>Resumen de practica profesional</h1>} />
           <Route path="perfil" element={<Perfil />} />
+          <Route path="asesor" element={<Asesor />} />
           {/* Agrega aquí las rutas para las otras secciones */}
         </Routes>
       </div>

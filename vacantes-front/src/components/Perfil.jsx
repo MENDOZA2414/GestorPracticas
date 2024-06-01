@@ -29,15 +29,15 @@ const Perfil = () => {
         console.error('Error fetching data:', error);
         const defaultData = {
           foto: 'path/to/default/photo.jpg',
-          numeroControl: '1234569087',
-          nombre: 'Guillermo',
-          apellidoPaterno: 'Gonzales',
-          apellidoMaterno: 'Cañada',
+          numeroControl: '1234567890',
+          nombre: 'nombre',
+          apellidoPaterno: 'ap paterno',
+          apellidoMaterno: 'Ap materno',
           fechaNacimiento: '2000-01-01',
-          carrera: 'IDS',
-          semestre: '6',
-          turno: 'MT',
-          email: 'guille@gmail.com',
+          carrera: 'carrera',
+          semestre: 'semestre',
+          turno: 'turno',
+          email: 'email@gmail.com',
           celular: '1234567890',
         };
         setAlumno(defaultData);

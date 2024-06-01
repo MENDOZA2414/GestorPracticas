@@ -3,29 +3,55 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mysql = require('mysql');
 const multer = require('multer');
-const md5 = require('md5'); 
+const md5 = require('md5');
 const app = express();
 
-const database = "sistemaPracticas";  
-const user = "root";
-const host = "localhost";
-const password = "Jm241410";
+const dbConfig = {
+    host: 'localhost',
+    user: 'root',
+    password: 'Jm241410',
+    database: 'sistemaPracticas',
+};
 
-const db = mysql.createConnection({
-    host,
-    user,
-    password,
-    database,
-});
+let connection;
 
-const PORT = process.env.PORT || 3001;
+function handleDisconnect() {
+    connection = mysql.createConnection(dbConfig);
+
+    connection.connect((err) => {
+        if (err) {
+            console.error('Error connecting to MySQL:', err);
+            setTimeout(handleDisconnect, 2000); // Reintentar después de 2 segundos
+        }
+    });
+
+    connection.on('error', (err) => {
+        console.error('MySQL error:', err);
+        if (err.code === 'PROTOCOL_CONNECTION_LOST' || err.code === 'ECONNRESET') {
+            handleDisconnect(); // Reconectar
+        } else {
+            throw err;
+        }
+    });
+}
+
+handleDisconnect();
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({
+    storage: storage,
+    limits: {
+        fileSize: 5 * 1024 * 1024, // 5 MB
+        fields: 20, // Número máximo de campos no archivo permitidos
+        fieldSize: 5 * 1024 * 1024, // 5 MB tamaño de un solo campo
+    },
+});
 
 app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+
+const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
@@ -34,7 +60,7 @@ app.listen(PORT, () => {
 
 app.get('/alumno/:numControl', (req, res) => {
     const numControl = req.params.numControl;
-    db.query(`SELECT * FROM alumno WHERE numControl = ?`, [numControl],
+    connection.query(`SELECT * FROM alumno WHERE numControl = ?`, [numControl],
         (err, result) => {
             if (result.length > 0) {
                 const alumno = result[0];
@@ -54,7 +80,7 @@ app.get('/alumno/:numControl', (req, res) => {
 app.post('/vacantePractica', (req, res) => {
     const { titulo, fechaInicio, fechaFinal, ciudad, tipoTrabajo, descripcion, entidadID, asesorExternoID } = req.body;
 
-    db.query(`INSERT INTO vacantePractica (titulo, fechaInicio, fechaFinal, ciudad, tipoTrabajo, descripcion, entidadID, asesorExternoID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    connection.query(`INSERT INTO vacantePractica (titulo, fechaInicio, fechaFinal, ciudad, tipoTrabajo, descripcion, entidadID, asesorExternoID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [titulo, fechaInicio, fechaFinal, ciudad, tipoTrabajo, descripcion, entidadID, asesorExternoID],
         (err, result) => {
             if (err) {
@@ -62,7 +88,7 @@ app.post('/vacantePractica', (req, res) => {
                     message: err.message
                 });
             } else {
-                db.query(`SELECT * FROM vacantePractica WHERE vacantePracticaID = ?`, [result.insertId], (err2, result2) => {
+                connection.query(`SELECT * FROM vacantePractica WHERE vacantePracticaID = ?`, [result.insertId], (err2, result2) => {
                     if (err2) {
                         res.status(400).send({
                             message: err2.message
@@ -81,7 +107,7 @@ app.post('/vacantePractica', (req, res) => {
 
 app.get('/vacantePractica/:id', (req, res) => {
     const vacantePracticaID = req.params.id;
-    db.query(`SELECT * FROM vacantePractica WHERE vacantePracticaID = ?`, [vacantePracticaID],
+    connection.query(`SELECT * FROM vacantePractica WHERE vacantePracticaID = ?`, [vacantePracticaID],
         (err, result) => {
             if (result.length > 0) {
                 res.status(200).send(result[0]);
@@ -100,7 +126,7 @@ app.get('/vacantePractica/all/:entidadID/:page/:limit', (req, res) => {
     const limit = req.params.limit;
     const start = (page - 1) * limit;
 
-    db.query(`SELECT * FROM vacantePractica WHERE entidadID = ? and deleted = 0 ORDER BY vacantePracticaID DESC LIMIT ?, ?`, [entidadID, start, limit], 
+    connection.query(`SELECT * FROM vacantePractica WHERE entidadID = ? and deleted = 0 ORDER BY vacantePracticaID DESC LIMIT ?, ?`, [entidadID, start, limit], 
         (err, result) => {
             if (err) {
                 res.status(500).send({
@@ -116,7 +142,7 @@ app.get('/vacantePractica/all/:entidadID/:page/:limit', (req, res) => {
 app.post('/aplicarVacante', (req, res) => {
     const { vacanteID, alumnoID, cartaPresentacion } = req.body;
 
-    db.query(`INSERT INTO aplicarVacante (vacanteID, alumnoID, cartaPresentacion) VALUES (?, ?, ?)`,
+    connection.query(`INSERT INTO aplicarVacante (vacanteID, alumnoID, cartaPresentacion) VALUES (?, ?, ?)`,
         [vacanteID, alumnoID, cartaPresentacion],
         (err, result) => {
             if (err) {
@@ -135,7 +161,7 @@ app.post('/aplicarVacante', (req, res) => {
 
 app.get('/aplicaciones/:vacanteID', (req, res) => {
     const vacanteID = req.params.vacanteID;
-    db.query(`SELECT A.*, V.titulo, AL.nombre, AL.apellidoPaterno, AL.apellidoMaterno, AL.correo 
+    connection.query(`SELECT A.*, V.titulo, AL.nombre, AL.apellidoPaterno, AL.apellidoMaterno, AL.correo 
               FROM aplicarVacante A 
               INNER JOIN vacantePractica V ON A.vacanteID = V.vacantePracticaID 
               INNER JOIN alumno AL ON A.alumnoID = AL.numControl 
@@ -157,7 +183,7 @@ app.post('/asesorInterno', upload.single('fotoPerfil'), (req, res) => {
     const { nombre, apellidoPaterno, apellidoMaterno, correo, contraseña, numCelular } = req.body;
     const fotoPerfil = req.file ? req.file.buffer : null;
 
-    db.query(`INSERT INTO asesorInterno (nombre, apellidoPaterno, apellidoMaterno, correo, contraseña, numCelular, fotoPerfil) VALUES (?, ?, ?, ?, md5(?), ?, ?)`,
+    connection.query(`INSERT INTO asesorInterno (nombre, apellidoPaterno, apellidoMaterno, correo, contraseña, numCelular, fotoPerfil) VALUES (?, ?, ?, ?, md5(?), ?, ?)`,
         [nombre, apellidoPaterno, apellidoMaterno, correo, contraseña, numCelular, fotoPerfil],
         (err, result) => {
             if (err) {
@@ -176,7 +202,7 @@ app.post('/asesorInterno', upload.single('fotoPerfil'), (req, res) => {
 
 app.get('/asesorInterno/:id', (req, res) => {
     const asesorInternoID = req.params.id;
-    db.query(`SELECT * FROM asesorInterno WHERE asesorInternoID = ?`, [asesorInternoID],
+    connection.query(`SELECT * FROM asesorInterno WHERE asesorInternoID = ?`, [asesorInternoID],
         (err, result) => {
             if (result.length > 0) {
                 const asesor = result[0];
@@ -206,7 +232,7 @@ app.post('/register/entidadReceptora', upload.single('fotoPerfil'), (req, res) =
         });
     }
 
-    db.query(`INSERT INTO entidadReceptora (nombreEntidad, nombreUsuario, direccion, categoria, correo, contraseña, numCelular, fotoPerfil) VALUES (?, ?, ?, ?, ?, md5(?), ?, ?)`,
+    connection.query(`INSERT INTO entidadReceptora (nombreEntidad, nombreUsuario, direccion, categoria, correo, contraseña, numCelular, fotoPerfil) VALUES (?, ?, ?, ?, ?, md5(?), ?, ?)`,
         [nombreEntidad, nombreUsuario, direccion, categoria, correo, password, numCelular, fotoPerfil],
         (err, result) => {
             if (err) {
@@ -238,7 +264,7 @@ app.post('/register/alumno', upload.single('foto'), (req, res) => {
         });
     }
 
-    db.query(`INSERT INTO alumno (numControl, nombre, apellidoPaterno, apellidoMaterno, fechaNacimiento, carrera, semestre, turno, correo, contraseña, numCelular, fotoPerfil) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, md5(?), ?, ?)`,
+    connection.query(`INSERT INTO alumno (numControl, nombre, apellidoPaterno, apellidoMaterno, fechaNacimiento, carrera, semestre, turno, correo, contraseña, numCelular, fotoPerfil) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, md5(?), ?, ?)`,
         [numeroControl, nombre, apellidoPaterno, apellidoMaterno, fechaNacimiento, carrera, semestre, turno, email, password, celular, foto],
         (err, result) => {
             if (err) {
@@ -271,7 +297,7 @@ app.post('/register/asesorInterno', upload.single('fotoPerfil'), (req, res) => {
         });
     }
 
-    db.query(`INSERT INTO asesorInterno (nombre, apellidoPaterno, apellidoMaterno, correo, contraseña, numCelular, fotoPerfil) VALUES (?, ?, ?, ?, md5(?), ?, ?)`,
+    connection.query(`INSERT INTO asesorInterno (nombre, apellidoPaterno, apellidoMaterno, correo, contraseña, numCelular, fotoPerfil) VALUES (?, ?, ?, ?, md5(?), ?, ?)`,
         [nombre, apellidoPaterno, apellidoMaterno, correo, password, numCelular, fotoPerfil],
         (err, result) => {
             if (err) {
@@ -302,7 +328,7 @@ app.post('/register/asesorExterno', upload.single('fotoPerfil'), (req, res) => {
         });
     }
 
-    db.query(`INSERT INTO asesorExterno (nombre, apellidoPaterno, apellidoMaterno, correo, contraseña, numCelular, fotoPerfil, entidadID) VALUES (?, ?, ?, ?, md5(?), ?, ?, ?)`,
+    connection.query(`INSERT INTO asesorExterno (nombre, apellidoPaterno, apellidoMaterno, correo, contraseña, numCelular, fotoPerfil, entidadID) VALUES (?, ?, ?, ?, md5(?), ?, ?, ?)`,
         [nombre, apellidoPaterno, apellidoMaterno, correo, password, numCelular, fotoPerfil, entidadID],
         (err, result) => {
             if (err) {
@@ -325,7 +351,7 @@ app.post('/register/asesorExterno', upload.single('fotoPerfil'), (req, res) => {
 
 app.post('/login/alumno', (req, res) => {
     const { email, password } = req.body;
-    db.query(`SELECT * FROM alumno WHERE correo = ? AND contraseña = md5(?)`, [email, password], 
+    connection.query(`SELECT * FROM alumno WHERE correo = ? AND contraseña = md5(?)`, [email, password], 
         (err, result) => {
             if (err) {
                 return res.status(500).send({ message: 'Error en el servidor' });
@@ -345,7 +371,7 @@ app.post('/login/alumno', (req, res) => {
 
 app.post('/login/entidad', (req, res) => {
     const { email, password } = req.body;
-    db.query(`SELECT * FROM entidadReceptora WHERE correo = ? AND contraseña = md5(?)`, [email, password], 
+    connection.query(`SELECT * FROM entidadReceptora WHERE correo = ? AND contraseña = md5(?)`, [email, password], 
         (err, result) => {
             if (err) {
                 return res.status(500).send({ message: 'Error en el servidor' });
@@ -367,7 +393,7 @@ app.post('/login/entidad', (req, res) => {
 // Ruta para el inicio de sesión de asesor interno
 app.post('/login/asesorInterno', (req, res) => {
     const { email, password } = req.body;
-    db.query(`SELECT * FROM asesorInterno WHERE correo = ? AND contraseña = md5(?)`, [email, password], 
+    connection.query(`SELECT * FROM asesorInterno WHERE correo = ? AND contraseña = md5(?)`, [email, password], 
       (err, result) => {
         if (err) {
           return res.status(500).send({ message: 'Error en el servidor' });
@@ -389,7 +415,7 @@ app.post('/login/asesorInterno', (req, res) => {
   // Ruta para el inicio de sesión de asesor externo
 app.post('/login/asesorExterno', (req, res) => {
     const { email, password } = req.body;
-    db.query(`SELECT * FROM asesorExterno WHERE correo = ? AND contraseña = md5(?)`, [email, password], 
+    connection.query(`SELECT * FROM asesorExterno WHERE correo = ? AND contraseña = md5(?)`, [email, password], 
         (err, result) => {
             if (err) {
                 return res.status(500).send({ message: 'Error en el servidor' });
@@ -405,4 +431,40 @@ app.post('/login/asesorExterno', (req, res) => {
             }
         }
     );
+});
+
+app.put('/alumno/:numControl', upload.single('foto'), (req, res) => {
+    const numControl = req.params.numControl;
+    const { nombre, apellidoPaterno, apellidoMaterno, fechaNacimiento, carrera, semestre, turno, correo, numCelular } = req.body;
+    const fotoPerfil = req.file ? req.file.buffer : null;
+
+    let query = 'UPDATE alumno SET ';
+    let fields = [];
+    let values = [];
+
+    if (nombre) fields.push('nombre = ?'), values.push(nombre);
+    if (apellidoPaterno) fields.push('apellidoPaterno = ?'), values.push(apellidoPaterno);
+    if (apellidoMaterno) fields.push('apellidoMaterno = ?'), values.push(apellidoMaterno);
+    if (fechaNacimiento) fields.push('fechaNacimiento = ?'), values.push(fechaNacimiento);
+    if (carrera) fields.push('carrera = ?'), values.push(carrera);
+    if (semestre) fields.push('semestre = ?'), values.push(semestre);
+    if (turno) fields.push('turno = ?'), values.push(turno);
+    if (correo) fields.push('correo = ?'), values.push(correo);
+    if (numCelular) fields.push('numCelular = ?'), values.push(numCelular);
+    if (fotoPerfil) fields.push('fotoPerfil = ?'), values.push(fotoPerfil);
+
+    if (fields.length === 0) {
+        return res.status(400).send({ message: 'No fields to update' });
+    }
+
+    query += fields.join(', ') + ' WHERE numControl = ?';
+    values.push(numControl);
+
+    connection.query(query, values, (err, result) => {
+        if (err) {
+            console.error('Error updating data:', err);
+            return res.status(500).send({ message: 'Error en el servidor' });
+        }
+        res.status(200).send({ message: 'Alumno actualizado con éxito' });
+    });
 });

@@ -57,14 +57,16 @@ const Login = ({ setUser }) => {
         timer: 2000,
       });
 
-      const dataCom = { email };
-      dataCom.id = await data.entidadID || data.alumnoID || data.asesorInternoID || data.asesorExternoID;
-      dataCom.company = await data.nombreEntidad || data.nombre;
-      dataCom.username = await data.nombreUsuario;
-      dataCom.email = await data.correo;
-      dataCom.logo = await data.fotoPerfil;
-      dataCom.type = userType; // Añadir el tipo de usuario al objeto dataCom
-      const idSession = await md5(dataCom.id + dataCom.email + dataCom.username);
+      const dataCom = {
+        id: data.numControl || data.entidadID || data.alumnoID || data.asesorInternoID || data.asesorExternoID,
+        company: data.nombreEntidad || data.nombre,
+        username: data.nombreUsuario,
+        email: data.correo,
+        logo: data.fotoPerfil,
+        type: userType,
+      };
+
+      const idSession = md5(dataCom.id + dataCom.email + dataCom.username);
       localStorage.setItem('user', JSON.stringify(dataCom));
       localStorage.setItem('idSession', idSession);
       setUser(dataCom); // Establecer el usuario en el estado de App

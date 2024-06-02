@@ -5,6 +5,7 @@ import { Link, Routes, Route, useLocation } from 'react-router-dom';
 import Perfil from './Perfil';
 import Asesor from './Asesor';
 import Documentos from './Documentos';
+import Avance from './Avance'; // Importa el nuevo componente
 import './inicioAlumno.css';
 
 const InicioAlumno = ({ user, logOut }) => {
@@ -84,7 +85,7 @@ const InicioAlumno = ({ user, logOut }) => {
           <Route path="perfil" element={<Perfil />} />
           <Route path="asesor" element={<Asesor />} />
           <Route path="documentos" element={<Documentos />} />
-          {/* Agrega aquí las rutas para las otras secciones */}
+          <Route path="avance" element={<Avance />} /> {/* Añade la nueva ruta */}
         </Routes>
       </div>
     </div>

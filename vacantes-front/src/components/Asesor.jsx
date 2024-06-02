@@ -9,25 +9,30 @@ const Asesor = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const responseInterno = await axios.get('http://localhost:3001/asesor/interno');
-        setAsesorInterno(responseInterno.data);
-      } catch (error) {
-        console.error('Error fetching data for Asesor Interno:', error);
-        setAsesorInterno({
-          foto: 'https://via.placeholder.com/150',
-          nombre: 'Nombre',
-          apellidoPaterno: 'ApellidoPaterno',
-          apellidoMaterno: 'ApellidoMaterno',
-          correo: 'nombre.apellido@example.com',
-          numCelular: '123-456-7890',
-        });
-      }
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        const numControl = storedUser ? storedUser.id : null;
 
-      try {
-        const responseExterno = await axios.get('http://localhost:3001/asesor/externo');
-        setAsesorExterno(responseExterno.data);
-      } catch (error) {
-        console.error('Error fetching data for Asesor Externo:', error);
+        if (!numControl) {
+          throw new Error('No se encontró el número de control del alumno logueado');
+        }
+
+        // Obtener datos del alumno
+        const responseAlumno = await axios.get(`http://localhost:3001/alumno/${numControl}`);
+        const alumnoData = responseAlumno.data;
+        console.log('Datos del alumno:', alumnoData);
+
+        if (!alumnoData.asesorInternoID) {
+          throw new Error('El alumno no tiene asesor interno asignado.');
+        }
+
+        // Obtener datos del asesor interno
+        const responseInterno = await axios.get(`http://localhost:3001/asesorInterno/${alumnoData.asesorInternoID}`);
+        const asesorInternoData = responseInterno.data;
+        asesorInternoData.foto = `data:image/jpeg;base64,${asesorInternoData.fotoPerfil}`;
+        setAsesorInterno(asesorInternoData);
+        console.log('Datos del asesor interno:', responseInterno.data);
+
+        // Simular datos del asesor externo
         setAsesorExterno({
           foto: 'https://via.placeholder.com/150',
           nombre: 'Nombre',
@@ -36,6 +41,29 @@ const Asesor = () => {
           correo: 'nombre.apellido@example.com',
           numCelular: '123-456-7890',
         });
+
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        if (!asesorInterno) {
+          setAsesorInterno({
+            foto: 'https://via.placeholder.com/150',
+            nombre: 'Nombre',
+            apellidoPaterno: 'ApellidoPaterno',
+            apellidoMaterno: 'ApellidoMaterno',
+            correo: 'nombre.apellido@example.com',
+            numCelular: '123-456-7890',
+          });
+        }
+        if (!asesorExterno) {
+          setAsesorExterno({
+            foto: 'https://via.placeholder.com/150',
+            nombre: 'Nombre',
+            apellidoPaterno: 'ApellidoPaterno',
+            apellidoMaterno: 'ApellidoMaterno',
+            correo: 'nombre.apellido@example.com',
+            numCelular: '123-456-7890',
+          });
+        }
       }
     };
     fetchData();
@@ -86,3 +114,4 @@ const Asesor = () => {
 };
 
 export default Asesor;
+

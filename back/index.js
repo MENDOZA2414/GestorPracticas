@@ -77,6 +77,7 @@ app.get('/alumno/:numControl', (req, res) => {
     );
 });
 
+
 app.post('/vacantePractica', (req, res) => {
     const { titulo, fechaInicio, fechaFinal, ciudad, tipoTrabajo, descripcion, entidadID, asesorExternoID } = req.body;
 
@@ -200,6 +201,7 @@ app.post('/asesorInterno', upload.single('fotoPerfil'), (req, res) => {
         });
 });
 
+// Ruta para obtener un asesor interno por ID
 app.get('/asesorInterno/:id', (req, res) => {
     const asesorInternoID = req.params.id;
     connection.query(`SELECT * FROM asesorInterno WHERE asesorInternoID = ?`, [asesorInternoID],
@@ -466,5 +468,26 @@ app.put('/alumno/:numControl', upload.single('foto'), (req, res) => {
             return res.status(500).send({ message: 'Error en el servidor' });
         }
         res.status(200).send({ message: 'Alumno actualizado con éxito' });
+    });
+});
+
+
+app.post('/practicasProfesionales', (req, res) => {
+    const { alumnoID, entidadID, asesorExternoID, asesorInternoID, fechaInicio, fechaFin, estado } = req.body;
+    
+    const query = `INSERT INTO practicasProfesionales (alumnoID, entidadID, asesorExternoID, asesorInternoID, fechaInicio, fechaFin, estado) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+    
+    connection.query(query, [alumnoID, entidadID, asesorExternoID, asesorInternoID, fechaInicio, fechaFin, estado], (err, result) => {
+        if (err) {
+            return res.status(500).send({
+                status: 500,
+                message: err.message,
+            });
+        }
+        return res.status(201).send({
+            status: 201,
+            message: 'Práctica profesional registrada con éxito',
+            data: result.insertId,
+        });
     });
 });

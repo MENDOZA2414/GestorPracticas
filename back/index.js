@@ -491,3 +491,42 @@ app.post('/practicasProfesionales', (req, res) => {
         });
     });
 });
+
+app.get('/practicaProfesional/alumno/:numControl', (req, res) => {
+    const numControl = req.params.numControl;
+    const query = `
+        SELECT * FROM practicasProfesionales 
+        WHERE alumnoID = ? 
+        ORDER BY fechaCreacion DESC LIMIT 1
+    `;
+    connection.query(query, [numControl], (err, result) => {
+        if (err) {
+            return res.status(500).send({ message: err.message });
+        }
+        if (result.length > 0) {
+            res.status(200).send(result[0]);
+        } else {
+            res.status(404).send({ message: 'No se encontró una práctica profesional para este alumno' });
+        }
+    });
+});
+
+
+app.get('/asesorExterno/:id', (req, res) => {
+    const asesorExternoID = req.params.id;
+    connection.query(`SELECT * FROM asesorExterno WHERE asesorExternoID = ?`, [asesorExternoID],
+        (err, result) => {
+            if (result.length > 0) {
+                const asesor = result[0];
+                if (asesor.fotoPerfil) {
+                    asesor.fotoPerfil = asesor.fotoPerfil.toString('base64');
+                }
+                res.status(200).send(asesor);
+            } else {
+                res.status(400).send({
+                    message: 'No existe el asesor externo'
+                });
+            }
+        }
+    );
+});

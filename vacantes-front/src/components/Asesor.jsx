@@ -32,15 +32,16 @@ const Asesor = () => {
         setAsesorInterno(asesorInternoData);
         console.log('Datos del asesor interno:', responseInterno.data);
 
-        // Simular datos del asesor externo
-        setAsesorExterno({
-          foto: 'https://via.placeholder.com/150',
-          nombre: 'Nombre',
-          apellidoPaterno: 'ApellidoPaterno',
-          apellidoMaterno: 'ApellidoMaterno',
-          correo: 'nombre.apellido@example.com',
-          numCelular: '123-456-7890',
-        });
+        // Obtener la práctica profesional del alumno
+        const responsePractica = await axios.get(`http://localhost:3001/practicaProfesional/alumno/${numControl}`);
+        const practicaData = responsePractica.data;
+
+        // Obtener datos del asesor externo
+        const responseExterno = await axios.get(`http://localhost:3001/asesorExterno/${practicaData.asesorExternoID}`);
+        const asesorExternoData = responseExterno.data;
+        asesorExternoData.foto = `data:image/jpeg;base64,${asesorExternoData.fotoPerfil}`;
+        setAsesorExterno(asesorExternoData);
+        console.log('Datos del asesor externo:', responseExterno.data);
 
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -114,4 +115,3 @@ const Asesor = () => {
 };
 
 export default Asesor;
-

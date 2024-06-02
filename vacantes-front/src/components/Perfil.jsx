@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import imageCompression from 'browser-image-compression';
 import './perfil.css';
+import moment from 'moment';
+import imageCompression from 'browser-image-compression';
 
 const Perfil = () => {
   const [alumno, setAlumno] = useState(null);
@@ -22,7 +23,7 @@ const Perfil = () => {
     fotoFile: null,
   });
 
-  const defaultImage = 'ruta/a/imagen/predeterminada.png';
+  const defaultImage = 'ruta/a/imagen/predeterminada.png'; // Cambia esta ruta por la de tu imagen predeterminada
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,6 +38,7 @@ const Perfil = () => {
         const response = await axios.get(`http://localhost:3001/alumno/${numControl}`);
         const alumnoData = response.data;
         alumnoData.foto = alumnoData.fotoPerfil ? `data:image/jpeg;base64,${alumnoData.fotoPerfil}` : defaultImage;
+        alumnoData.fechaNacimiento = moment(alumnoData.fechaNacimiento).format('YYYY-MM-DD');
         setAlumno(alumnoData);
         setFormValues(alumnoData);
       } catch (error) {
@@ -155,21 +157,33 @@ const Perfil = () => {
       {editing ? (
         <>
           <img src={formValues.foto} alt="Foto del Alumno" className="perfil-foto" />
-          <input type="file" name="foto" onChange={handleChange} />
+          <input type="file" name="foto" onChange={handleChange} className="form-control mb-3" />
           <div className="perfil-form">
-            <input type="text" name="numControl" value={formValues.numControl} onChange={handleChange} placeholder="Número de Control" readOnly />
-            <input type="text" name="nombre" value={formValues.nombre} onChange={handleChange} placeholder="Nombre" />
-            <input type="text" name="apellidoPaterno" value={formValues.apellidoPaterno} onChange={handleChange} placeholder="Apellido Paterno" />
-            <input type="text" name="apellidoMaterno" value={formValues.apellidoMaterno} onChange={handleChange} placeholder="Apellido Materno" />
-            <input type="date" name="fechaNacimiento" value={formValues.fechaNacimiento} onChange={handleChange} />
-            <input type="text" name="carrera" value={formValues.carrera} onChange={handleChange} placeholder="Carrera" />
-            <input type="text" name="semestre" value={formValues.semestre} onChange={handleChange} placeholder="Semestre" />
-            <input type="text" name="turno" value={formValues.turno} onChange={handleChange} placeholder="Turno" />
-            <input type="email" name="correo" value={formValues.correo} onChange={handleChange} placeholder="Correo Electrónico" />
-            <input type="text" name="numCelular" value={formValues.numCelular} onChange={handleChange} placeholder="Número Celular" />
+            <input type="text" name="numControl" value={formValues.numControl} onChange={handleChange} placeholder="Número de Control" readOnly className="form-control mb-3" disabled />
+            <input type="text" name="nombre" value={formValues.nombre} onChange={handleChange} placeholder="Nombre" className="form-control mb-3" />
+            <input type="text" name="apellidoPaterno" value={formValues.apellidoPaterno} onChange={handleChange} placeholder="Apellido Paterno" className="form-control mb-3" />
+            <input type="text" name="apellidoMaterno" value={formValues.apellidoMaterno} onChange={handleChange} placeholder="Apellido Materno" className="form-control mb-3" />
+            <input type="date" name="fechaNacimiento" value={formValues.fechaNacimiento} onChange={handleChange} className="form-control mb-3" />
+            <select name="carrera" value={formValues.carrera} onChange={handleChange} className="form-control mb-3">
+              <option value="IDS">IDS</option>
+              <option value="ITC">ITC</option>
+              <option value="LATI">LATI</option>
+              <option value="LITI">LITI</option>
+            </select>
+            <select name="semestre" value={formValues.semestre} onChange={handleChange} className="form-control mb-3">
+              {Array.from({ length: 9 }, (_, i) => i + 1).map(sem => (
+                <option key={sem} value={sem}>{sem}</option>
+              ))}
+            </select>
+            <select name="turno" value={formValues.turno} onChange={handleChange} className="form-control mb-3">
+              <option value="TM">TM</option>
+              <option value="TV">TV</option>
+            </select>
+            <input type="email" name="correo" value={formValues.correo} onChange={handleChange} placeholder="Correo Electrónico" className="form-control mb-3" />
+            <input type="text" name="numCelular" value={formValues.numCelular} onChange={handleChange} placeholder="Número Celular" className="form-control mb-3" />
             <div className="perfil-buttons">
-              <button onClick={handleSave}>Guardar</button>
-              <button onClick={handleCancel} className="cancel-button">Cancelar</button>
+              <button onClick={handleSave} className="btn btn-primary me-2">Guardar</button>
+              <button onClick={handleCancel} className="btn btn-secondary cancel-button">Cancelar</button>
             </div>
           </div>
         </>
@@ -185,7 +199,7 @@ const Perfil = () => {
               </div>
               <div>
                 <p><strong>Fecha de Nacimiento:</strong></p>
-                <p>{alumno.fechaNacimiento}</p>
+                <p>{moment(alumno.fechaNacimiento).format('DD/MM/YYYY')}</p>
               </div>
               <div>
                 <p><strong>Carrera:</strong></p>
@@ -208,7 +222,7 @@ const Perfil = () => {
                 <p>{alumno.numCelular}</p>
               </div>
             </div>
-            <button onClick={handleEdit}>Editar</button>
+            <button onClick={handleEdit} className="btn btn-primary">Editar</button>
           </div>
         </>
       )}

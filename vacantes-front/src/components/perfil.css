@@ -93,9 +93,26 @@ button:hover {
     background-color: #c82333;
 }
 
+input[type="file"] {
+    width: 74%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box; /* Asegura que el relleno se incluya en el ancho total */
+}
+
 @media (max-width: 767px) {
     .perfil-buttons {
         flex-direction: column;
+    }
+    input[type="file"] {
+        width: 45%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box; /* Asegura que el relleno se incluya en el ancho total */
     }
 
     .perfil-buttons button {
@@ -133,4 +150,8 @@ button:hover {
     .perfil-buttons {
         grid-column: span 2;
     }
+    
+  
+    
+    
 }

@@ -3,8 +3,9 @@ import React, { useState } from 'react';
 import { FaHome, FaUser, FaBuilding, FaFileAlt, FaChalkboardTeacher, FaChartLine, FaSignOutAlt, FaBars } from 'react-icons/fa';
 import { Link, Routes, Route, useLocation } from 'react-router-dom';
 import Perfil from './Perfil';
-import './inicioAlumno.css';
 import Asesor from './Asesor';
+import Documentos from './Documentos';
+import './inicioAlumno.css';
 
 const InicioAlumno = ({ user, logOut }) => {
   const [collapsed, setCollapsed] = useState(false);
@@ -82,6 +83,7 @@ const InicioAlumno = ({ user, logOut }) => {
           <Route path="/" element={<h1>Resumen de practica profesional</h1>} />
           <Route path="perfil" element={<Perfil />} />
           <Route path="asesor" element={<Asesor />} />
+          <Route path="documentos" element={<Documentos />} />
           {/* Agrega aquí las rutas para las otras secciones */}
         </Routes>
       </div>

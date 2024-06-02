@@ -5,6 +5,7 @@ import './asesor.css';
 const Asesor = () => {
   const [asesorInterno, setAsesorInterno] = useState(null);
   const [asesorExterno, setAsesorExterno] = useState(null);
+  const [alumnoCorreo, setAlumnoCorreo] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -19,6 +20,7 @@ const Asesor = () => {
         // Obtener datos del alumno
         const responseAlumno = await axios.get(`http://localhost:3001/alumno/${numControl}`);
         const alumnoData = responseAlumno.data;
+        setAlumnoCorreo(alumnoData.correo);
         console.log('Datos del alumno:', alumnoData);
 
         if (!alumnoData.asesorInternoID) {
@@ -70,6 +72,15 @@ const Asesor = () => {
     fetchData();
   }, []);
 
+  const getMailLink = (correo, asesorCorreo) => {
+    if (correo.includes('@gmail.com')) {
+      return `https://mail.google.com/mail/?view=cm&fs=1&to=${asesorCorreo}`;
+    } else if (correo.includes('@hotmail.com') || correo.includes('@outlook.com')) {
+      return `https://outlook.live.com/owa/?path=/mail/action/compose&to=${asesorCorreo}`;
+    }
+    return `mailto:${asesorCorreo}`;
+  };
+
   if (!asesorInterno || !asesorExterno) return <div>Loading...</div>;
 
   return (
@@ -89,7 +100,9 @@ const Asesor = () => {
               <p>{asesorInterno.numCelular}</p>
             </div>
           </div>
-          <button className="contact-button">Contactar</button>
+          <a href={getMailLink(alumnoCorreo, asesorInterno.correo)} target="_blank" rel="noopener noreferrer">
+            <button className="contact-button">Contactar</button>
+          </a>
         </div>
       </div>
       <div className="asesor-card">
@@ -107,7 +120,9 @@ const Asesor = () => {
               <p>{asesorExterno.numCelular}</p>
             </div>
           </div>
-          <button className="contact-button">Contactar</button>
+          <a href={getMailLink(alumnoCorreo, asesorExterno.correo)} target="_blank" rel="noopener noreferrer">
+            <button className="contact-button">Contactar</button>
+          </a>
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ const mysql = require('mysql');
 const multer = require('multer');
 const md5 = require('md5');
 const app = express();
+const zlib = require('zlib'); // Asegúrate de importar el módulo zlib
 
 const dbConfig = {
     host: 'localhost',
@@ -530,3 +531,75 @@ app.get('/asesorExterno/:id', (req, res) => {
         }
     );
 });
+
+app.post('/uploadDocumentoAlumno', upload.single('file'), (req, res) => {
+    const { alumnoID, nombreArchivo } = req.body;
+    const archivo = req.file.buffer;
+
+    // Log del archivo antes de comprimir
+    console.log('Archivo recibido:', archivo);
+
+    const query = `INSERT INTO documentoAlumno (alumnoID, nombreArchivo, archivo) VALUES (?, ?, ?)`;
+    connection.query(query, [alumnoID, nombreArchivo, archivo], (err, result) => {
+        if (err) {
+            console.error('Error al guardar el documento en la base de datos:', err); // Detalles de depuración
+            return res.status(500).send({
+                status: 500,
+                message: 'Error al guardar el documento en la base de datos: ' + err.message,
+            });
+        }
+        return res.status(201).send({
+            status: 201,
+            message: 'Documento subido con éxito',
+            documentoID: result.insertId,
+        });
+    });
+});
+
+
+
+
+// Ruta para obtener todos los documentos de un alumno
+app.get('/documentosAlumno/:alumnoID', (req, res) => {
+    const alumnoID = req.params.alumnoID;
+    const query = 'SELECT documentoID AS id, nombreArchivo FROM documentoAlumno WHERE alumnoID = ?';
+
+    connection.query(query, [alumnoID], (err, result) => {
+        if (err) {
+            return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
+        }
+        if (result.length > 0) {
+            res.status(200).send(result);
+        } else {
+            res.status(404).send({ message: 'No se encontraron documentos para este alumno' });
+        }
+    });
+});
+
+// Ruta para obtener un documento PDF
+app.get('/documentoAlumno/:id', (req, res) => {
+    const documentoID = req.params.id;
+    const query = 'SELECT archivo, nombreArchivo FROM documentoAlumno WHERE documentoID = ?';
+
+    connection.query(query, [documentoID], (err, result) => {
+        if (err) {
+            return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
+        }
+        if (result.length > 0) {
+            const documento = result[0];
+            // Log del archivo recuperado
+            console.log('Archivo recuperado:', documento.archivo);
+
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `inline; filename="${documento.nombreArchivo}"`);
+            res.send(Buffer.from(documento.archivo, 'binary'));
+        } else {
+            res.status(404).send({ message: 'Documento no encontrado' });
+        }
+    });
+});
+
+
+
+
+

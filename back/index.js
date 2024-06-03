@@ -597,6 +597,21 @@ app.get('/documentoAlumno/:id', (req, res) => {
     });
 });
 
+app.delete('/documentoAlumno/:id', (req, res) => {
+    const documentoID = req.params.id;
+    const query = 'DELETE FROM documentoAlumno WHERE documentoID = ?';
+
+    connection.query(query, [documentoID], (err, result) => {
+        if (err) {
+            return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
+        }
+        if (result.affectedRows > 0) {
+            res.status(200).send({ message: 'Documento eliminado con éxito' });
+        } else {
+            res.status(404).send({ message: 'Documento no encontrado' });
+        }
+    });
+});
 
 
 

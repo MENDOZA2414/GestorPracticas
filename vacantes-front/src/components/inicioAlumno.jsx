@@ -1,11 +1,11 @@
-// InicioAlumno.jsx
 import React, { useState } from 'react';
-import { FaHome, FaUser, FaBuilding, FaFileAlt, FaChalkboardTeacher, FaChartLine, FaSignOutAlt, FaBars } from 'react-icons/fa';
 import { Link, Routes, Route, useLocation } from 'react-router-dom';
+import { FaHome, FaUser, FaBuilding, FaFileAlt, FaChalkboardTeacher, FaChartLine, FaSignOutAlt, FaBars } from 'react-icons/fa';
 import Perfil from './Perfil';
 import Asesor from './Asesor';
 import Documentos from './Documentos';
-import Avance from './Avance'; // Importa el nuevo componente
+import Avance from './Avance';
+import Vacantes from './Vacantes'; // Importa el nuevo componente
 import './inicioAlumno.css';
 
 const InicioAlumno = ({ user, logOut }) => {
@@ -44,7 +44,7 @@ const InicioAlumno = ({ user, logOut }) => {
             </Link>
           </li>
           <li>
-            <Link to="entidades" className={location.pathname === '/inicioAlumno/entidades' ? 'active' : ''}>
+            <Link to="vacantes" className={location.pathname === '/inicioAlumno/vacantes' ? 'active' : ''}>
               <FaBuilding className="icon" />
               {!collapsed && <span className="menu-text">Vacantes</span>}
             </Link>
@@ -85,7 +85,8 @@ const InicioAlumno = ({ user, logOut }) => {
           <Route path="perfil" element={<Perfil />} />
           <Route path="asesor" element={<Asesor />} />
           <Route path="documentos" element={<Documentos />} />
-          <Route path="avance" element={<Avance />} /> {/* Añade la nueva ruta */}
+          <Route path="avance" element={<Avance />} />
+          <Route path="vacantes" element={<Vacantes />} /> {/* Añade la ruta para Vacantes */}
         </Routes>
       </div>
     </div>

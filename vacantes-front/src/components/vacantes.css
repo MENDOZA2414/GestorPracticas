@@ -69,7 +69,7 @@
 }
 
 .vacancy-details {
-    text-align: center;
+    text-align: left;
     margin-bottom: 20px;
 }
 
@@ -85,8 +85,8 @@
     justify-content: center;
     gap: 5px;
     margin-top: 10px;
-    margin-left: auto;  /* Centrar horizontalmente */
-    margin-right: auto; /* Centrar horizontalmente */
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .upload-button .pdf-icon {
@@ -101,8 +101,8 @@
     border-radius: 5px;
     cursor: pointer;
     margin-top: 10px;
-    margin-left: auto;  /* Centrar horizontalmente */
-    margin-right: auto; /* Centrar horizontalmente */
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .confirm-button:disabled {

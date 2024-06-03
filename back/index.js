@@ -129,16 +129,30 @@ app.get('/vacantePractica/all/:entidadID/:page/:limit', (req, res) => {
     const limit = req.params.limit;
     const start = (page - 1) * limit;
 
-    connection.query(`SELECT * FROM vacantePractica WHERE entidadID = ? and deleted = 0 ORDER BY vacantePracticaID DESC LIMIT ?, ?`, [entidadID, start, limit], 
-        (err, result) => {
-            if (err) {
-                res.status(500).send({
-                    message: err.message
-                });
-            } else {
-                res.status(200).send(result);
-            }
-        });
+    const query = `
+        SELECT vp.*, ae.nombre AS nombreAsesorExterno, er.nombreEntidad AS nombreEmpresa, er.fotoPerfil AS logoEmpresa 
+        FROM vacantePractica vp
+        JOIN asesorExterno ae ON vp.asesorExternoID = ae.asesorExternoID
+        JOIN entidadReceptora er ON vp.entidadID = er.entidadID
+        WHERE vp.entidadID = ? 
+        ORDER BY vp.vacantePracticaID DESC 
+        LIMIT ?, ?
+    `;
+
+    connection.query(query, [entidadID, start, parseInt(limit)], (err, result) => {
+        if (err) {
+            res.status(500).send({
+                message: err.message
+            });
+        } else {
+            result.forEach(row => {
+                if (row.logoEmpresa) {
+                    row.logoEmpresa = `data:image/jpeg;base64,${Buffer.from(row.logoEmpresa).toString('base64')}`;
+                }
+            });
+            res.status(200).send(result);
+        }
+    });
 });
 
 
@@ -180,6 +194,57 @@ app.get('/aplicaciones/:vacanteID', (req, res) => {
             }
         });
 });
+
+// Ruta para registrar una postulación
+app.post('/registerPostulacion', upload.single('cartaPresentacion'), (req, res) => {
+    const { alumnoID, vacanteID } = req.body;
+    const cartaPresentacion = req.file ? req.file.buffer : null;
+
+    if (!alumnoID || !vacanteID || !cartaPresentacion) {
+        return res.status(400).send({
+            status: 400,
+            message: 'Todos los campos son obligatorios'
+        });
+    }
+
+    connection.query(`SELECT nombre, correo FROM alumno WHERE numControl = ?`, [alumnoID], (err, result) => {
+        if (err) {
+            return res.status(400).send({
+                status: 400,
+                message: err.message
+            });
+        }
+
+        if (result.length === 0) {
+            return res.status(404).send({
+                status: 404,
+                message: 'Alumno no encontrado'
+            });
+        }
+
+        const { nombre, correo } = result[0];
+
+        connection.query(`INSERT INTO postulacionAlumno (alumnoID, vacanteID, nombreAlumno, correoAlumno, cartaPresentacion) VALUES (?, ?, ?, ?, ?)`,
+            [alumnoID, vacanteID, nombre, correo, cartaPresentacion],
+            (err, result) => {
+                if (err) {
+                    return res.status(400).send({
+                        status: 400,
+                        message: err.message
+                    });
+                } else {
+                    return res.status(201).send({
+                        status: 201,
+                        message: 'Postulación registrada con éxito',
+                        data: { insertId: result.insertId }
+                    });
+                }
+            }
+        );
+    });
+});
+
+
 
 
 app.post('/asesorInterno', upload.single('fotoPerfil'), (req, res) => {

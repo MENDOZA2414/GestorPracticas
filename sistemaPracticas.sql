@@ -110,24 +110,15 @@ CREATE TABLE IF NOT EXISTS vacantePractica (
     CONSTRAINT fkAsesorExternoVacante FOREIGN KEY (asesorExternoID) REFERENCES asesorExterno(asesorExternoID)
 );
 
-
-CREATE TABLE IF NOT EXISTS aplicarVacante (
-	aplicarVacanteID INT AUTO_INCREMENT PRIMARY KEY,
-    vacanteID INT NOT NULL,
-    alumnoID VARCHAR(10) NOT NULL,
-    fechaAplicacion TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-    KEY fkVacanteAlumnoIdx (alumnoID),
-    KEY fkVacanteVacanteIdx (vacanteID),
-    CONSTRAINT fkVacante FOREIGN KEY (vacanteID) REFERENCES vacantePractica (vacantePracticaID),
-    CONSTRAINT fkAlumno FOREIGN KEY (alumnoID) REFERENCES alumno (numControl)
-);
-
 CREATE TABLE IF NOT EXISTS postulacionAlumno (
     postulacionID INT AUTO_INCREMENT PRIMARY KEY,
     alumnoID VARCHAR(10) NOT NULL,
-    nombreAlumno VARCHAR(255) NOT NULL,
+    vacanteID INT NOT NULL,
+	nombreAlumno VARCHAR(255) NOT NULL,
     correoAlumno VARCHAR(255) NOT NULL,
-    cartaPresentacion LONGBLOB,
+    cartaPresentacion LONGBLOB NOT NULL,
+    fechaAplicacion TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT fkVacante FOREIGN KEY (vacanteID) REFERENCES vacantePractica (vacantePracticaID),
     CONSTRAINT fkAlumnoPostulacion FOREIGN KEY (alumnoID) REFERENCES alumno (numControl)
 );
 

@@ -1,18 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaFilePdf, FaEye, FaDownload, FaPaperPlane } from 'react-icons/fa';
+import Swal from 'sweetalert2'; // Importar SweetAlert2
 import './documentos.css';
 
 const Documentos = () => {
     const [documents, setDocuments] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchDocuments = async () => {
             try {
                 const response = await axios.get('http://localhost:3001/documentosAlumno/1235767');
                 setDocuments(response.data);
+                if (response.data.length === 0) {
+                    setError('No se encontraron documentos.');
+                }
             } catch (error) {
-                console.error('Error fetching documents:', error);
+                setError('Error fetching documents');
+            } finally {
+                setLoading(false);
             }
         };
         fetchDocuments();
@@ -39,34 +47,57 @@ const Documentos = () => {
                     id: response.data.documentoID,
                 };
                 setDocuments([...documents, newDocument]);
-                alert(response.data.message);
+                setError(null); // Clear error if new document is uploaded
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'success',
+                    title: response.data.message,
+                    showConfirmButton: false,
+                    timer: 2000
+                });
             } catch (error) {
                 console.error('Error uploading file:', error);
-                alert('Error uploading file');
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: 'Error uploading file',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
             }
         } else {
-            alert('Por favor, sube solo archivos PDF.');
+            Swal.fire({
+                position: 'top-end',
+                icon: 'warning',
+                title: 'Por favor, sube solo archivos PDF.',
+                showConfirmButton: false,
+                timer: 2000
+            });
         }
     };
 
     const handleView = (id) => {
-        window.open(`http://localhost:3001/documentoAlumno/${id}`, '_blank');
+        if (id) {
+            window.open(`http://localhost:3001/documentoAlumno/${id}`, '_blank');
+        }
     };
 
     const handleDownload = (id, nombreArchivo) => {
-        axios.get(`http://localhost:3001/documentoAlumno/${id}`, {
-            responseType: 'blob',
-        }).then((response) => {
-            const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', nombreArchivo);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-        }).catch((error) => {
-            console.error('Error downloading file:', error);
-        });
+        if (id) {
+            axios.get(`http://localhost:3001/documentoAlumno/${id}`, {
+                responseType: 'blob',
+            }).then((response) => {
+                const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', nombreArchivo);
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            }).catch((error) => {
+                console.error('Error downloading file:', error);
+            });
+        }
     };
 
     return (
@@ -89,18 +120,24 @@ const Documentos = () => {
             <div className="card-body">
                 <div className="documents-list">
                     <h3>Documentos Subidos</h3>
-                    <ul>
-                        {documents.map((doc) => (
-                            <li key={doc.id}>
-                                <div className="document-name">{doc.nombreArchivo}</div>
-                                <div className="document-actions">
-                                    <FaEye className="action-icon" title="Ver" onClick={() => handleView(doc.id)} />
-                                    <FaDownload className="action-icon" title="Descargar" onClick={() => handleDownload(doc.id, doc.nombreArchivo)} />
-                                    <FaPaperPlane className="action-icon" title="Enviar" />
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
+                    {loading ? (
+                        <p>Cargando...</p>
+                    ) : error ? (
+                        <p>{error}</p>
+                    ) : (
+                        <ul>
+                            {documents.map((doc) => (
+                                <li key={doc.id}>
+                                    <div className="document-name">{doc.nombreArchivo}</div>
+                                    <div className="document-actions">
+                                        <FaEye className="action-icon" title="Ver" onClick={() => handleView(doc.id)} />
+                                        <FaDownload className="action-icon" title="Descargar" onClick={() => handleDownload(doc.id, doc.nombreArchivo)} />
+                                        <FaPaperPlane className="action-icon" title="Enviar" />
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </div>
             </div>
         </div>

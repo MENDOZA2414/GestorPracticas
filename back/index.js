@@ -568,13 +568,11 @@ app.get('/documentosAlumno/:alumnoID', (req, res) => {
         if (err) {
             return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
         }
-        if (result.length > 0) {
-            res.status(200).send(result);
-        } else {
-            res.status(404).send({ message: 'No se encontraron documentos para este alumno' });
-        }
+        res.status(200).send(result.length > 0 ? result : []); // Enviar un arreglo vacío si no hay documentos
     });
 });
+
+
 
 // Ruta para obtener un documento PDF
 app.get('/documentoAlumno/:id', (req, res) => {

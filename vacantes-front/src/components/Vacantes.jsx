@@ -13,7 +13,7 @@ const Vacantes = () => {
   useEffect(() => {
     const fetchVacantes = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/vacantePractica/all/1/1/10');
+        const response = await axios.get('http://localhost:3001/vacantePractica/all/1/200');
         setVacantes(response.data);
       } catch (error) {
         console.error('Error fetching vacantes:', error);

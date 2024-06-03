@@ -155,6 +155,35 @@ app.get('/vacantePractica/all/:entidadID/:page/:limit', (req, res) => {
     });
 });
 
+app.get('/vacantePractica/all/:page/:limit', (req, res) => {
+    const page = req.params.page;
+    const limit = req.params.limit;
+    const start = (page - 1) * limit;
+
+    const query = `
+        SELECT vp.*, ae.nombre AS nombreAsesorExterno, er.nombreEntidad AS nombreEmpresa, er.fotoPerfil AS logoEmpresa 
+        FROM vacantePractica vp
+        JOIN asesorExterno ae ON vp.asesorExternoID = ae.asesorExternoID
+        JOIN entidadReceptora er ON vp.entidadID = er.entidadID
+        ORDER BY vp.vacantePracticaID DESC 
+        LIMIT ?, ?
+    `;
+
+    connection.query(query, [start, parseInt(limit)], (err, result) => {
+        if (err) {
+            res.status(500).send({
+                message: err.message
+            });
+        } else {
+            result.forEach(row => {
+                if (row.logoEmpresa) {
+                    row.logoEmpresa = `data:image/jpeg;base64,${Buffer.from(row.logoEmpresa).toString('base64')}`;
+                }
+            });
+            res.status(200).send(result);
+        }
+    });
+});
 
 app.post('/aplicarVacante', (req, res) => {
     const { vacanteID, alumnoID, cartaPresentacion } = req.body;

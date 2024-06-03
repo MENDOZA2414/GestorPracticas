@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaFilePdf } from 'react-icons/fa';
 import Swal from 'sweetalert2';
+import moment from 'moment';
 import './vacantes.css';
 
 const Vacantes = () => {
@@ -13,7 +14,7 @@ const Vacantes = () => {
   useEffect(() => {
     const fetchVacantes = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/vacantePractica/all/1/200');
+        const response = await axios.get('http://localhost:3001/vacantePractica/all/1/10');
         setVacantes(response.data);
       } catch (error) {
         console.error('Error fetching vacantes:', error);
@@ -62,7 +63,7 @@ const Vacantes = () => {
     if (file) {
       const formData = new FormData();
       const storedUser = JSON.parse(localStorage.getItem('user'));
-      const alumnoID = storedUser ? storedUser.id : '12343'; // Debes ajustar esto para que sea dinámico según el alumno logueado
+      const alumnoID = storedUser ? storedUser.id : ''; 
       const vacanteID = selectedVacante.vacantePracticaID;
 
       formData.append('alumnoID', alumnoID);
@@ -105,20 +106,25 @@ const Vacantes = () => {
       <h1>Vacantes Disponibles</h1>
       {vacantes.map((vacante, index) => (
         <div key={index} className="vacante-card">
-          <div className="vacante-card-header">
-            <img src={vacante.logoEmpresa || 'https://via.placeholder.com/150'} alt="Logo de la empresa" className="company-logo" />
-            <div>
-              <h2>{vacante.titulo}</h2>
-              <h3>{vacante.nombreEmpresa || 'Empresa Desconocida'}</h3>
+          <div style={{ flex: '70%' }}>
+            <div className="vacante-card-header">
+              <img src={vacante.logoEmpresa || 'https://via.placeholder.com/150'} alt="Logo de la empresa" className="company-logo" />
+              <div>
+                <h2>{vacante.titulo}</h2>
+                <h3>{vacante.nombreEmpresa || 'Empresa Desconocida'}</h3>
+              </div>
+            </div>
+            <p>{vacante.descripcion}</p>
+            <div className="vacante-info-horizontal">
+              <p><strong>Ubicación:</strong> {vacante.ciudad}</p>
+              <p><strong>Duración:</strong> {moment(vacante.fechaInicio).format('DD/MM/YYYY')} - {moment(vacante.fechaFinal).format('DD/MM/YYYY')}</p>
+              <p><strong>Tipo de Trabajo:</strong> {vacante.tipoTrabajo}</p>
+              <p><strong>Asesor Externo:</strong> {vacante.nombreAsesorExterno}</p>
             </div>
           </div>
-          <p>{vacante.descripcion}</p>
-          <p><strong>Ubicación:</strong> {vacante.ciudad}</p>
-          <p><strong>Fecha de Inicio:</strong> {vacante.fechaInicio}</p>
-          <p><strong>Fecha Final:</strong> {vacante.fechaFinal}</p>
-          <p><strong>Tipo de Trabajo:</strong> {vacante.tipoTrabajo}</p>
-          <p><strong>Asesor Externo:</strong> {vacante.nombreAsesorExterno}</p>
-          <button className="apply-button" onClick={() => handleApplyClick(vacante)}>Aplicar a vacante</button>
+          <div className="vacante-footer" style={{ flex: '30%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <button className="apply-button" onClick={() => handleApplyClick(vacante)}>Aplicar a vacante</button>
+          </div>
         </div>
       ))}
 
@@ -131,11 +137,12 @@ const Vacantes = () => {
               <h3>{selectedVacante?.titulo}</h3>
               <h4>{selectedVacante?.nombreEmpresa || 'Empresa Desconocida'}</h4>
               <p>{selectedVacante?.descripcion}</p>
-              <p><strong>Ubicación:</strong> {selectedVacante?.ciudad}</p>
-              <p><strong>Fecha de Inicio:</strong> {selectedVacante?.fechaInicio}</p>
-              <p><strong>Fecha Final:</strong> {selectedVacante?.fechaFinal}</p>
-              <p><strong>Tipo de Trabajo:</strong> {selectedVacante?.tipoTrabajo}</p>
-              <p><strong>Asesor Externo:</strong> {selectedVacante?.nombreAsesorExterno}</p>
+              <div className="vacante-info-horizontal">
+                <p><strong>Ubicación:</strong> {selectedVacante?.ciudad}</p>
+                <p><strong>Duración:</strong> {moment(selectedVacante?.fechaInicio).format('DD/MM/YYYY')} - {moment(selectedVacante?.fechaFinal).format('DD/MM/YYYY')}</p>
+                <p><strong>Tipo de Trabajo:</strong> {selectedVacante?.tipoTrabajo}</p>
+                <p><strong>Asesor Externo:</strong> {selectedVacante?.nombreAsesorExterno}</p>
+              </div>
             </div>
             <input 
               type="file" 

@@ -1,9 +1,12 @@
 // Avance.jsx
 import React, { useState } from 'react';
 import './avance.css';
+import { useNavigate } from 'react-router-dom';
 
 const Avance = () => {
   const [estado, setEstado] = useState(0);
+  const [mostrarModal, setMostrarModal] = useState(false);
+  const navigate = useNavigate();
 
   const estados = [
     {
@@ -31,7 +34,17 @@ const Avance = () => {
   const avanzarEstado = () => {
     if (estado < estados.length - 1) {
       setEstado(estado + 1);
+      setMostrarModal(true);
     }
+  };
+
+  const handleCloseModal = () => {
+    setMostrarModal(false);
+  };
+
+  const handleContinue = () => {
+    setMostrarModal(false);
+    navigate('/inicioAlumno/documentos');
   };
 
   return (
@@ -45,6 +58,19 @@ const Avance = () => {
         <p>{estados[estado].descripcion}</p>
       </div>
       <button onClick={avanzarEstado} disabled={estado >= estados.length - 1} className='button-avance'>Ir al siguiente paso</button>
+
+      {mostrarModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <span className="close-button" onClick={handleCloseModal}>&times;</span>
+            <h2>Pasos a seguir</h2>
+            <p>A continuación, se te redirigirá a la página de documentos. Por favor, asegúrate de haber completado todas las tareas requeridas antes de continuar.</p>
+            <div className="modal-buttons">
+              <button className="modal-button-continue" onClick={handleContinue}>Continuar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -173,3 +173,7 @@ CREATE TABLE IF NOT EXISTS reporte (
 );
 
 
+[mysqld]
+max_allowed_packet=100M
+innodb_log_file_size=256M
+innodb_buffer_pool_size=512M

@@ -5,13 +5,14 @@ const mysql = require('mysql');
 const multer = require('multer');
 const md5 = require('md5');
 const app = express();
-const zlib = require('zlib'); // Asegúrate de importar el módulo zlib
 
 const dbConfig = {
     host: 'localhost',
     user: 'root',
     password: 'Jm241410',
     database: 'sistemaPracticas',
+    connectTimeout: 100000,
+    acquireTimeout: 100000,
 };
 
 let connection;
@@ -42,15 +43,15 @@ const storage = multer.memoryStorage();
 const upload = multer({
     storage: storage,
     limits: {
-        fileSize: 5 * 1024 * 1024, // 5 MB
+        fileSize: 100 * 1024 * 1024, // 100 MB
         fields: 20, // Número máximo de campos no archivo permitidos
-        fieldSize: 5 * 1024 * 1024, // 5 MB tamaño de un solo campo
+        fieldSize: 100 * 1024 * 1024, // 100 MB tamaño de un solo campo
     },
 });
 
 app.use(cors());
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+app.use(bodyParser.json({ limit: '100mb' }));
+app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
 
 const PORT = process.env.PORT || 3001;
 
@@ -536,13 +537,10 @@ app.post('/uploadDocumentoAlumno', upload.single('file'), (req, res) => {
     const { alumnoID, nombreArchivo } = req.body;
     const archivo = req.file.buffer;
 
-    // Log del archivo antes de comprimir
-    console.log('Archivo recibido:', archivo);
-
     const query = `INSERT INTO documentoAlumno (alumnoID, nombreArchivo, archivo) VALUES (?, ?, ?)`;
     connection.query(query, [alumnoID, nombreArchivo, archivo], (err, result) => {
         if (err) {
-            console.error('Error al guardar el documento en la base de datos:', err); // Detalles de depuración
+            console.error('Error al guardar el documento en la base de datos:', err);
             return res.status(500).send({
                 status: 500,
                 message: 'Error al guardar el documento en la base de datos: ' + err.message,

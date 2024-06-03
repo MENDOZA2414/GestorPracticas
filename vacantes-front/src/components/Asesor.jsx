@@ -73,12 +73,15 @@ const Asesor = () => {
   }, []);
 
   const getMailLink = (correo, asesorCorreo) => {
+    const subject = encodeURIComponent('Consulta sobre las prácticas profesionales');
+    const body = encodeURIComponent('Estimado Asesor,\n\nQuisiera obtener más información sobre las prácticas profesionales.\n\nSaludos,\nNombre del Alumno');
+
     if (correo.includes('@gmail.com')) {
-      return `https://mail.google.com/mail/?view=cm&fs=1&to=${asesorCorreo}`;
+      return `https://mail.google.com/mail/?view=cm&fs=1&to=${asesorCorreo}&su=${subject}&body=${body}`;
     } else if (correo.includes('@hotmail.com') || correo.includes('@outlook.com')) {
-      return `https://outlook.live.com/owa/?path=/mail/action/compose&to=${asesorCorreo}`;
+      return `https://outlook.live.com/owa/?path=/mail/action/compose&to=${asesorCorreo}&subject=${subject}&body=${body}`;
     }
-    return `mailto:${asesorCorreo}`;
+    return `mailto:${asesorCorreo}?subject=${subject}&body=${body}`;
   };
 
   if (!asesorInterno || !asesorExterno) return <div>Loading...</div>;

@@ -168,8 +168,9 @@ const Documentos = () => {
                                     <div className="document-actions">
                                         <FaEye className="action-icon" title="Ver" onClick={() => handleView(doc.id)} />
                                         <FaDownload className="action-icon" title="Descargar" onClick={() => handleDownload(doc.id, doc.nombreArchivo)} />
-                                        <FaPaperPlane className="action-icon" title="Enviar" />
-                                        <FaTrash className="action-icon" title="Eliminar" onClick={() => handleDelete(doc.id)} />
+                                        <FaPaperPlane className="action-icon" title="Enviar"/>
+                                        <h5 className='barrita'>|</h5>
+                                        <FaTrash className="action-icon trash-icon" title="Eliminar" onClick={() => handleDelete(doc.id)} />
                                     </div>
                                 </li>
                             ))}

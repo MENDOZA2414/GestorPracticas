@@ -8,11 +8,19 @@ const Documentos = () => {
     const [documents, setDocuments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [selectedDocument, setSelectedDocument] = useState(null);
 
     useEffect(() => {
         const fetchDocuments = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/documentosAlumno/1235767');
+                const storedUser = JSON.parse(localStorage.getItem('user'));
+                const numControl = storedUser ? storedUser.id : null;
+
+                if (!numControl) {
+                    throw new Error('No se encontró el número de control del alumno logueado');
+                }
+
+                const response = await axios.get(`http://localhost:3001/documentosAlumno/${numControl}`);
                 setDocuments(response.data);
                 if (response.data.length === 0) {
                     setError('No se encontraron documentos.');
@@ -28,10 +36,13 @@ const Documentos = () => {
 
     const handleFileUpload = async (event) => {
         const file = event.target.files[0];
-        if (file && file.type === 'application/pdf') {
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        const numControl = storedUser ? storedUser.id : null;
+
+        if (file && file.type === 'application/pdf' && numControl) {
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('alumnoID', '1235767');
+            formData.append('alumnoID', numControl);
             formData.append('nombreArchivo', file.name);
 
             try {
@@ -136,6 +147,19 @@ const Documentos = () => {
         }
     };
 
+    const handleSend = (doc) => {
+        setSelectedDocument(doc);
+    };
+
+    const handleCloseModal = () => {
+        setSelectedDocument(null);
+    };
+
+    const handleConfirmSend = () => {
+        alert(`Enviando el documento: ${selectedDocument.nombreArchivo}`);
+        handleCloseModal();
+    };
+
     return (
         <div className="card">
             <div className="card-header">
@@ -168,7 +192,7 @@ const Documentos = () => {
                                     <div className="document-actions">
                                         <FaEye className="action-icon" title="Ver" onClick={() => handleView(doc.id)} />
                                         <FaDownload className="action-icon" title="Descargar" onClick={() => handleDownload(doc.id, doc.nombreArchivo)} />
-                                        <FaPaperPlane className="action-icon" title="Enviar"/>
+                                        <FaPaperPlane className="action-icon" title="Enviar" onClick={() => handleSend(doc)} />
                                         <h5 className='barrita'>|</h5>
                                         <FaTrash className="action-icon trash-icon" title="Eliminar" onClick={() => handleDelete(doc.id)} />
                                     </div>
@@ -178,6 +202,19 @@ const Documentos = () => {
                     )}
                 </div>
             </div>
+            {selectedDocument && (
+                <div className="modal">
+                    <div className="modal-content">
+                        <span className="close-button" onClick={handleCloseModal}>&times;</span>
+                        <div className="modal-body">
+                            <FaFilePdf className="modal-icon" />
+                            <p>¿Deseas enviar este PDF para continuar con tu práctica profesional?</p>
+                            <p>{selectedDocument.nombreArchivo}</p>
+                            <button className="confirm-button" onClick={handleConfirmSend}>Enviar a asesor interno</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

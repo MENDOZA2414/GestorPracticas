@@ -1,0 +1,117 @@
+.documentos-interno {
+    padding: 20px;
+}
+
+.search-bar {
+    display: flex;
+    margin-bottom: 20px;
+    justify-content: center; /* Centrar la barra de búsqueda */
+}
+
+.search-bar input {
+    width: 300px; /* Ancho fijo para la barra de búsqueda en modo escritorio */
+    padding: 5px 10px; /* Asegurar un padding consistente */
+    border: 1px solid #ccc;
+    border-radius: 5px 0 0 5px;
+    border-right: none;
+    font-size: 0.9em; /* Reducing font size */
+    height: 35px; /* Ajustar la altura */
+    box-sizing: border-box;
+}
+
+.search-bar select {
+    padding: 5px 10px; /* Asegurar un padding consistente */
+    border: 1px solid #ccc;
+    border-radius: 0 5px 5px 0;
+    font-size: 0.9em; /* Reducing font size */
+    height: 35px; /* Ajustar la altura */
+    box-sizing: border-box;
+}
+
+.cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.student-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: calc(33.333% - 40px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.student-photo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+.student-info {
+    text-align: center;
+}
+
+.student-details {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.folder-icon-container {
+    display: inline-block;
+    padding: 10px;
+    border-radius: 50%; /* Forma circular */
+    transition: background-color 0.3s; /* Efecto de transición */
+    cursor: pointer; /* Cursor de pointer */
+}
+
+.folder-icon-container:hover {
+    background-color: #ccc; /* Color de fondo al pasar el mouse */
+}
+
+.folder-icon {
+    font-size: 1.5em;
+}
+
+.documents-list {
+    margin-top: 20px;
+}
+
+.documents-list ul {
+    list-style: none;
+    padding: 0;
+}
+
+.documents-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.approve-icon {
+    cursor: pointer;
+    font-size: 1.2em;
+    color: green;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    .student-card {
+        width: 100%;
+    }
+
+    .search-bar {
+        justify-content: space-between;
+    }
+
+    .search-bar input, .search-bar select {
+        width: 50%;
+    }
+}

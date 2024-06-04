@@ -1,8 +1,8 @@
-// InicioAsesorInterno.jsx
 import React, { useState } from 'react';
-import { FaHome, FaUser, FaBuilding, FaFileAlt, FaChalkboardTeacher, FaChartLine, FaSignOutAlt, FaBars } from 'react-icons/fa';
+import { FaHome, FaUser, FaFileAlt, FaChartLine, FaSignOutAlt, FaBars } from 'react-icons/fa';
 import { Link, Routes, Route, useLocation } from 'react-router-dom';
 import Perfil from './Perfil'; // Asegúrate de importar tu componente Perfil
+import DocumentosInterno from './DocumentosInterno'; // Importa el nuevo componente
 import './inicioAsesorInterno.css';
 
 const InicioAsesorInterno = ({ user, logOut }) => {
@@ -41,12 +41,6 @@ const InicioAsesorInterno = ({ user, logOut }) => {
             </Link>
           </li>
           <li>
-            <Link to="entidades" className={location.pathname === '/inicioAsesorInterno/entidades' ? 'active' : ''}>
-              <FaBuilding className="icon" />
-              {!collapsed && <span className="menu-text">Entidades</span>}
-            </Link>
-          </li>
-          <li>
             <Link to="vacantes" className={location.pathname === '/inicioAsesorInterno/vacantes' ? 'active' : ''}>
               <FaFileAlt className="icon" />
               {!collapsed && <span className="menu-text">Vacantes</span>}
@@ -56,12 +50,6 @@ const InicioAsesorInterno = ({ user, logOut }) => {
             <Link to="documentos" className={location.pathname === '/inicioAsesorInterno/documentos' ? 'active' : ''}>
               <FaFileAlt className="icon" />
               {!collapsed && <span className="menu-text">Documentos</span>}
-            </Link>
-          </li>
-          <li>
-            <Link to="alumnos" className={location.pathname === '/inicioAsesorInterno/alumnos' ? 'active' : ''}>
-              <FaChalkboardTeacher className="icon" />
-              {!collapsed && <span className="menu-text">Alumnos</span>}
             </Link>
           </li>
           <li>
@@ -80,13 +68,14 @@ const InicioAsesorInterno = ({ user, logOut }) => {
       </div>
       <div className={`header ${collapsed ? 'collapsed' : ''}`}>
         <span>Bienvenido a tu portal de gestión de prácticas.</span>
-        {user && user.type === 'asesorInterno' && <span>¡Hola {user.company}!</span>}
+        {user && <span>¡Hola {user.company}!</span>}
       </div>
       <div className={`content ${collapsed ? 'collapsed' : ''}`}>
         <Routes>
-          <Route path="/" element={<h1>Resumen de actividades</h1>} />
+          <Route path="/" element={<div>Contenido de inicio</div>} />
           <Route path="perfil" element={<Perfil />} />
-          {/* Agrega aquí las rutas para las otras secciones */}
+          <Route path="documentos" element={<DocumentosInterno />} /> {/* Añade esta línea */}
+          {/* Rutas adicionales aquí */}
         </Routes>
       </div>
     </div>

@@ -1,13 +1,14 @@
-import React, { useState } from "react";
-import Titulo from "./common/Titulo";
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import Error from './common/Error';
 import { Navigate } from 'react-router-dom';
 import imageCompression from 'browser-image-compression';
+import { FaEye, FaEyeSlash, FaUser } from 'react-icons/fa';
+import './RegistrarEntidad.css';
 
 const RegistrarEntidad = () => {
     const [fotoPerfil, setFotoPerfil] = useState(null);
+    const [fotoPerfilUrl, setFotoPerfilUrl] = useState(null);
     const [nombreEntidad, setNombreEntidad] = useState('');
     const [nombreUsuario, setNombreUsuario] = useState('');
     const [direccion, setDireccion] = useState('');
@@ -18,13 +19,41 @@ const RegistrarEntidad = () => {
     const [numCelular, setNumCelular] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
     const [goLogin, setGoLogin] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+    const [step, setStep] = useState(1);
+    const fileInputRef = useRef(null);
 
     const prevLogo = async (e) => {
         e.preventDefault();
 
-        // Compresión de imagen
         const file = e.target.files[0];
+        if (!file) return;
+
+        if (!['image/jpeg', 'image/png'].includes(file.type)) {
+            Swal.fire({
+                position: 'center',
+                icon: 'error',
+                title: 'Solo se permiten archivos JPG, JPEG y PNG',
+                showConfirmButton: false,
+                timer: 1500
+            });
+            return;
+        }
+
+        if (file.size > 50 * 1024 * 1024) {
+            Swal.fire({
+                position: 'center',
+                icon: 'error',
+                title: 'El tamaño máximo de la foto es 50 MB',
+                showConfirmButton: false,
+                timer: 1500
+            });
+            return;
+        }
+
         const options = {
             maxSizeMB: 1,
             maxWidthOrHeight: 500,
@@ -36,7 +65,7 @@ const RegistrarEntidad = () => {
             const lector = new FileReader();
             lector.readAsDataURL(compressedFile);
             lector.onload = () => {
-                document.getElementById('logo').src = lector.result;
+                setFotoPerfilUrl(lector.result);
                 setFotoPerfil(compressedFile);
             };
         } catch (error) {
@@ -44,7 +73,7 @@ const RegistrarEntidad = () => {
             Swal.fire({
                 position: 'center',
                 icon: 'error',
-                title: "Error al comprimir la imagen",
+                title: 'Error al comprimir la imagen',
                 showConfirmButton: false,
                 timer: 1500
             });
@@ -61,11 +90,16 @@ const RegistrarEntidad = () => {
         setPasswordConfirm('');
         setNumCelular('');
         setFotoPerfil(null);
+        setFotoPerfilUrl(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = null;
+        }
+        document.querySelectorAll('input[name="categoria"]').forEach(input => input.checked = false);
     };
 
     const verificarCorreoDuplicado = async () => {
         try {
-            const { data } = await axios.post(`http://localhost:3001/checkDuplicateEmail`, { correo });
+            const { data } = await axios.post('http://localhost:3001/checkDuplicateEmail', { correo });
             return data.exists;
         } catch (err) {
             Swal.fire({
@@ -75,13 +109,13 @@ const RegistrarEntidad = () => {
                 showConfirmButton: false,
                 timer: 1500
             });
-            return true; // Asumir que existe para prevenir registro si hay error
+            return true;
         }
     };
 
     const verificarCelularDuplicado = async () => {
         try {
-            const { data } = await axios.post(`http://localhost:3001/checkDuplicatePhone`, { numCelular });
+            const { data } = await axios.post('http://localhost:3001/checkDuplicatePhone', { numCelular });
             return data.exists;
         } catch (err) {
             Swal.fire({
@@ -91,36 +125,81 @@ const RegistrarEntidad = () => {
                 showConfirmButton: false,
                 timer: 1500
             });
-            return true; // Asumir que existe para prevenir registro si hay error
+            return true;
         }
+    };
+
+    const validarPrimeraTarjeta = () => {
+        const categoriaInputs = document.querySelectorAll('input[name="categoria"]');
+        let categoriaSeleccionada = false;
+
+        categoriaInputs.forEach(input => {
+            if (input.checked) {
+                categoriaSeleccionada = true;
+            }
+        });
+
+        if (!fotoPerfil) {
+            Swal.fire({
+                position: 'center',
+                icon: 'error',
+                title: 'Debe subir una foto de perfil',
+                showConfirmButton: false,
+                timer: 1500
+            });
+            return false;
+        }
+
+        if (!categoriaSeleccionada) {
+            Swal.fire({
+                position: 'center',
+                icon: 'error',
+                title: 'Debe seleccionar una categoría',
+                showConfirmButton: false,
+                timer: 1500
+            });
+            return false;
+        }
+
+        return true;
+    };
+
+    const validarFormulario = () => {
+        if (!fotoPerfil) {
+            setError(true);
+            setErrorMessage('Debe subir una foto de perfil');
+            return false;
+        }
+
+        if (password !== passwordConfirm) {
+            setError(true);
+            setErrorMessage('Las contraseñas no coinciden');
+            return false;
+        }
+
+        const passwordRegex = /^(?!.*(\d)\1{2})(?=.*[A-Z]).{8,}$/;
+        if (!passwordRegex.test(password)) {
+            setError(true);
+            setErrorMessage('La contraseña debe tener al menos 8 caracteres, una mayúscula y no debe tener números consecutivos');
+            return false;
+        }
+
+        const celularRegex = /^\d{10}$/;
+        if (!celularRegex.test(numCelular)) {
+            setError(true);
+            setErrorMessage('Número de celular inválido o menor a 10 dígitos');
+            return false;
+        }
+
+        return true;
     };
 
     const registro = async (e) => {
         e.preventDefault();
 
-        if ([fotoPerfil, nombreEntidad, nombreUsuario, direccion, categoria, correo, password, passwordConfirm, numCelular].includes('')) {
-            setError(true);
-            Swal.fire({
-                position: 'center',
-                icon: 'error',
-                title: "Debe llenar todos los campos",
-                showConfirmButton: false,
-                timer: 1500
-            });
+        if (!validarFormulario()) {
             return;
-        } else if (password !== passwordConfirm) {
-            setPassword('');
-            setPasswordConfirm('');
-            Swal.fire({
-                position: 'center',
-                icon: 'warning',
-                title: "Las contraseñas no coinciden",
-                showConfirmButton: false,
-                timer: 1500
-            });
-            setError(true);
-            return;
-        } else setError(false);
+        }
 
         setLoading(true);
 
@@ -161,7 +240,7 @@ const RegistrarEntidad = () => {
             formData.append('password', password);
             formData.append('numCelular', numCelular);
 
-            const { data } = await axios.post(`http://localhost:3001/register/entidadReceptora`, formData, {
+            const { data } = await axios.post('http://localhost:3001/register/entidadReceptora', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -195,57 +274,124 @@ const RegistrarEntidad = () => {
 
     return (
         <>
-        <div className="mt-5 mb-5">
-            <Titulo titulo="Registro de empresas" />
-            </div>
             <form onSubmit={registro} style={{ maxWidth: '500px', margin: 'auto' }}>
                 <div className="card border mb-3">
                     <div className="card-body">
-                        <h5 className="card-title text-center">Ingrese los datos</h5>
+                        <h5 className="card-title text-center titulo-ingresar-datos">Registro de empresas</h5>
                         <div className="mb-3 text-center">
-                            <img id="logo" width='150px' src="./../../public/vite.svg" alt="" />
+                            {fotoPerfilUrl ? (
+                                <img id="logo" className="icono-usuario" src={fotoPerfilUrl} alt="User Icon" width={100}/>
+                            ) : (
+                                <FaUser id="logo" className="icono-usuario" size={130} />
+                            )}
                         </div>
-                        <div className="mb-3">
-                            <label className="form-label">Foto de perfil</label>
-                            <input type="file" className="form-control" onChange={prevLogo} />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Nombre de la empresa</label>
-                            <input type="text" className="form-control" onChange={(e) => setNombreEntidad(e.target.value)} value={nombreEntidad} />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Nombre del usuario</label>
-                            <input type="text" className="form-control" onChange={(e) => setNombreUsuario(e.target.value)} value={nombreUsuario} />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Dirección</label>
-                            <input type="text" className="form-control" onChange={(e) => setDireccion(e.target.value)} value={direccion} />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Categoría</label>
-                            <input type="text" className="form-control" onChange={(e) => setCategoria(e.target.value)} value={categoria} />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Correo</label>
-                            <input type="email" className="form-control" onChange={(e) => setCorreo(e.target.value)} value={correo} />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Contraseña</label>
-                            <input type="password" className="form-control" onChange={(e) => setPassword(e.target.value)} value={password} />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Confirmar Contraseña</label>
-                            <input type="password" className="form-control" onChange={(e) => setPasswordConfirm(e.target.value)} value={passwordConfirm} />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Número Celular</label>
-                            <input type="text" className="form-control" onChange={(e) => setNumCelular(e.target.value)} value={numCelular} />
-                        </div>
+                        {step === 1 && (
+                            <>
+                                <div className="mb-3">
+                                    <label className="form-label">Foto de perfil</label>
+                                    <input ref={fileInputRef} type="file" className="form-control" accept=".jpg,.jpeg,.png" onChange={prevLogo} required={fotoPerfil === null} />
+                                    <small className="form-text text-muted">
+                                        Tamaño permitido: 50 MB. Tipos válidos: JPG, JPEG, PNG.
+                                    </small>
+                                </div>
+
+                                <div className="mb-3">
+                                    <label className="form-label">Nombre de la empresa</label>
+                                    <input type="text" className="form-control" minLength="3" required onChange={(e) => setNombreEntidad(e.target.value)} value={nombreEntidad} />
+                                </div>
+                                <div className="mb-3">
+                                    <label className="form-label">Nombre del usuario</label>
+                                    <input type="text" className="form-control" minLength="3" required onChange={(e) => setNombreUsuario(e.target.value)} value={nombreUsuario} />
+                                </div>
+                                <div className="mb-3">
+                                    <label className="form-label">Dirección</label>
+                                    <input type="text" className="form-control" minLength="3" required onChange={(e) => setDireccion(e.target.value)} value={direccion} />
+                                </div>
+                                <div className="mb-3">
+                                    <label className="form-label">Categoría</label>
+                                    <div className="form-check">
+                                        <input className="form-check-input" type="radio" name="categoria" id="categoria1" value="Privada" onChange={(e) => setCategoria(e.target.value)} checked={categoria === "Privada"} required />
+                                        <label className="form-check-label" htmlFor="categoria1">Privada</label>
+                                    </div>
+                                    <div className="form-check">
+                                        <input className="form-check-input" type="radio" name="categoria" id="categoria2" value="Pública" onChange={(e) => setCategoria(e.target.value)} checked={categoria === "Pública"} />
+                                        <label className="form-check-label" htmlFor="categoria2">Pública</label>
+                                    </div>
+                                    <div className="form-check">
+                                        <input className="form-check-input" type="radio" name="categoria" id="categoria3" value="Académica" onChange={(e) => setCategoria(e.target.value)} checked={categoria === "Académica"} />
+                                        <label className="form-check-label" htmlFor="categoria3">Académica</label>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                        {step === 2 && (
+                            <>
+                                <div className="mb-3">
+                                    <label className="form-label">Correo</label>
+                                    <input type="email" className="form-control" minLength="3" required onChange={(e) => setCorreo(e.target.value)} value={correo} />
+                                </div>
+                                <div className="mb-3">
+                                    <label className="form-label">Contraseña</label>
+                                    <div className="input-group">
+                                        <input type={showPassword ? "text" : "password"} className="form-control" pattern="^(?!.*(\d)\1{2})(?=.*[A-Z]).{8,}$" required onChange={(e) => setPassword(e.target.value)} value={password} />
+                                        <span className="input-group-text" onClick={() => setShowPassword(!showPassword)}>
+                                            {showPassword ? <FaEyeSlash /> : <FaEye />}
+                                        </span>
+                                    </div>
+                                    <small className="form-text text-muted">
+                                        La contraseña debe tener al menos 8 caracteres, una mayúscula y no debe tener números consecutivos.
+                                    </small>
+                                </div>
+                                <div className="mb-3">
+                                    <label className="form-label">Confirmar Contraseña</label>
+                                    <div className="input-group">
+                                        <input type={showPasswordConfirm ? "text" : "password"} className="form-control" pattern="^(?!.*(\d)\1{2})(?=.*[A-Z]).{8,}$" required onChange={(e) => setPasswordConfirm(e.target.value)} value={passwordConfirm} />
+                                        <span className="input-group-text" onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}>
+                                            {showPasswordConfirm ? <FaEyeSlash /> : <FaEye />}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="mb-3">
+                                    <label className="form-label">Número Celular</label>
+                                    <input type="tel" className="form-control" pattern="^\d{10}$" required onChange={(e) => setNumCelular(e.target.value)} value={numCelular} />
+                                    <small className="form-text text-muted">
+                                        Número de celular debe tener 10 dígitos.
+                                    </small>
+                                </div>
+                            </>
+                        )}
                         <div className="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
-                            <button className="btn btn-success me-md-2" type="submit">Crear cuenta empresa</button>
-                            <button onClick={limpiarCampos} className="btn btn-primary" type="button">Cancelar</button>
+                            {step > 1 && <button type="button" className="btn btn-secondary" onClick={() => setStep(step - 1)}>Anterior</button>}
+                            {step < 2 && <button type="button" className="btn btn-primary" onClick={() => {
+                                const form = document.querySelector('form');
+                                const categoriaInputs = document.querySelectorAll('input[name="categoria"]');
+                                let categoriaSelected = false;
+                                categoriaInputs.forEach(input => {
+                                    if (input.checked) {
+                                        categoriaSelected = true;
+                                    }
+                                });
+
+                                // Forzar la validación del formulario
+                                if (!form.checkValidity()) {
+                                    form.reportValidity();
+                                } else if (!categoriaSelected) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Oops...',
+                                        text: 'Por favor selecciona una categoría.',
+                                    });
+                                } else {
+                                    setStep(step + 1);
+                                }
+                            }}>
+                                Siguiente
+                            </button>}
+                            {step === 2 && <button className="btn btn-success me-md-2" type="submit">Crear cuenta empresa</button>}
+                            <button onClick={() => { limpiarCampos(); setStep(1); }} className="btn btn-primary" type="button">Cancelar</button>
                         </div>
-                        {error && <Error mensaje='Todos los campos son obligatorios' />}
+
+                        {error && <div className="alert alert-danger mt-3">{errorMessage}</div>}
                     </div>
                 </div>
             </form>

@@ -43,11 +43,21 @@ const storage = multer.memoryStorage();
 const upload = multer({
     storage: storage,
     limits: {
-        fileSize: 100 * 1024 * 1024, // 100 MB
+        fileSize: 100 * 1024 * 1024, // Actualizar a 5 MB
         fields: 20, // Número máximo de campos no archivo permitidos
         fieldSize: 100 * 1024 * 1024, // 100 MB tamaño de un solo campo
     },
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+        if (!allowedTypes.includes(file.mimetype)) {
+            const error = new Error('Formato de archivo no permitido');
+            error.code = 'INVALID_FILE_TYPE';
+            return cb(error, false);
+        }
+        cb(null, true);
+    },
 });
+
 
 app.use(cors());
 app.use(bodyParser.json({ limit: '100mb' }));
@@ -463,6 +473,25 @@ app.post('/register/entidadReceptora', upload.single('fotoPerfil'), (req, res) =
             }
         }
     );
+});
+
+// Middleware para manejo de errores de multer
+app.use((err, req, res, next) => {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).send({
+            status: 400,
+            message: 'El tamaño del archivo no debe exceder 50 MB'
+        });
+    }
+
+    if (err.code === 'INVALID_FILE_TYPE') {
+        return res.status(400).send({
+            status: 400,
+            message: 'Formato de archivo no permitido. Solo se permiten archivos JPG, JPEG y PNG.'
+        });
+    }
+
+    next(err);
 });
 
 

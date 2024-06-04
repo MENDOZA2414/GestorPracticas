@@ -4,7 +4,7 @@ import Swal from 'sweetalert2';
 import { Navigate } from 'react-router-dom';
 import imageCompression from 'browser-image-compression';
 import { FaEye, FaEyeSlash, FaUser } from 'react-icons/fa';
-import './RegistrarEntidad.css';
+import './Registrar.css';
 
 const RegistrarEntidad = () => {
     const [fotoPerfil, setFotoPerfil] = useState(null);
@@ -268,6 +268,13 @@ const RegistrarEntidad = () => {
         setLoading(false);
     };
 
+    const handleNumericInput = (e, setter, maxLength) => {
+        const value = e.target.value;
+        if (/^\d*$/.test(value) && value.length <= maxLength) {
+            setter(value);
+        }
+    };
+
     if (goLogin) {
         return <Navigate to="/login" />;
     }
@@ -353,7 +360,7 @@ const RegistrarEntidad = () => {
                                 </div>
                                 <div className="mb-3">
                                     <label className="form-label">Número Celular</label>
-                                    <input type="tel" className="form-control" pattern="^\d{10}$" required onChange={(e) => setNumCelular(e.target.value)} value={numCelular} />
+                                    <input type="tel" className="form-control" pattern="^\d{10}$" onChange={(e) => handleNumericInput(e, setNumCelular, 10)} value={numCelular} required title="El número de celular debe tener 10 dígitos" />
                                     <small className="form-text text-muted">
                                         Número de celular debe tener 10 dígitos.
                                     </small>
@@ -388,10 +395,10 @@ const RegistrarEntidad = () => {
                                 Siguiente
                             </button>}
                             {step === 2 && <button className="btn btn-success me-md-2" type="submit">Crear cuenta empresa</button>}
-                            <button onClick={() => { limpiarCampos(); setStep(1); }} className="btn btn-primary" type="button">Cancelar</button>
+                            <button onClick={() => { limpiarCampos(); setStep(1); }} className="btn btn-danger" type="button">Cancelar</button>
                         </div>
 
-                        {error && <div className="alert alert-danger mt-3">{errorMessage}</div>}
+                        {error && <Error mensaje={errorMessage} />}
                     </div>
                 </div>
             </form>

@@ -7,10 +7,10 @@ import './vacantes.css';
 
 const Vacantes = () => {
   const [vacantes, setVacantes] = useState([]);
+  const [postulaciones, setPostulaciones] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [file, setFile] = useState(null);
   const [selectedVacante, setSelectedVacante] = useState(null);
-  const [postulaciones, setPostulaciones] = useState([]);
 
   useEffect(() => {
     const fetchVacantes = async () => {
@@ -31,11 +31,11 @@ const Vacantes = () => {
         }]);
       }
     };
-  
+
     const fetchPostulaciones = async () => {
       const storedUser = JSON.parse(localStorage.getItem('user'));
       const alumnoID = storedUser ? storedUser.id : '';
-  
+
       try {
         const response = await axios.get(`http://localhost:3001/postulaciones/${alumnoID}`);
         setPostulaciones(response.data.map(postulacion => postulacion.vacanteID));
@@ -43,11 +43,10 @@ const Vacantes = () => {
         console.error('Error fetching postulaciones:', error);
       }
     };
-  
+
     fetchVacantes();
     fetchPostulaciones();
   }, []);
-  
 
   const handleFileUpload = (event) => {
     const uploadedFile = event.target.files[0];
@@ -67,7 +66,7 @@ const Vacantes = () => {
   const handleApplyClick = async (vacante) => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
     const alumnoID = storedUser ? storedUser.id : '';
-  
+
     try {
       const response = await axios.get(`http://localhost:3001/checkPostulacion/${alumnoID}/${vacante.vacantePracticaID}`);
       if (response.data.aplicado) {
@@ -89,8 +88,6 @@ const Vacantes = () => {
       });
     }
   };
-  
-  
 
   const handleCloseModal = () => {
     setShowModal(false);
@@ -139,10 +136,21 @@ const Vacantes = () => {
     document.getElementById('fileInput').click();
   };
 
+  const sortedVacantes = vacantes.sort((a, b) => {
+    const aApplied = postulaciones.includes(a.vacantePracticaID);
+    const bApplied = postulaciones.includes(b.vacantePracticaID);
+
+    if (aApplied === bApplied) {
+      return new Date(b.fechaInicio) - new Date(a.fechaInicio);
+    }
+
+    return aApplied - bApplied;
+  });
+
   return (
     <div className="vacantes">
       <h1>Vacantes Disponibles</h1>
-      {vacantes.map((vacante, index) => (
+      {sortedVacantes.map((vacante, index) => (
         <div key={index} className="vacante-card">
           <div style={{ flex: '70%' }}>
             <div className="vacante-card-header">
@@ -171,7 +179,7 @@ const Vacantes = () => {
           </div>
         </div>
       ))}
-  
+
       {showModal && (
         <div className="vacante-modal">
           <div className="vacante-modal-content">
@@ -207,7 +215,6 @@ const Vacantes = () => {
       )}
     </div>
   );
-  
 };
 
 export default Vacantes;

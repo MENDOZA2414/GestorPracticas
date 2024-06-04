@@ -10,11 +10,12 @@ const Vacantes = () => {
   const [showModal, setShowModal] = useState(false);
   const [file, setFile] = useState(null);
   const [selectedVacante, setSelectedVacante] = useState(null);
+  const [postulaciones, setPostulaciones] = useState([]);
 
   useEffect(() => {
     const fetchVacantes = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/vacantePractica/all/1/10');
+        const response = await axios.get('http://localhost:3001/vacantePractica/all/1/100');
         setVacantes(response.data);
       } catch (error) {
         console.error('Error fetching vacantes:', error);
@@ -30,9 +31,23 @@ const Vacantes = () => {
         }]);
       }
     };
-
+  
+    const fetchPostulaciones = async () => {
+      const storedUser = JSON.parse(localStorage.getItem('user'));
+      const alumnoID = storedUser ? storedUser.id : '';
+  
+      try {
+        const response = await axios.get(`http://localhost:3001/postulaciones/${alumnoID}`);
+        setPostulaciones(response.data.map(postulacion => postulacion.vacanteID));
+      } catch (error) {
+        console.error('Error fetching postulaciones:', error);
+      }
+    };
+  
     fetchVacantes();
+    fetchPostulaciones();
   }, []);
+  
 
   const handleFileUpload = (event) => {
     const uploadedFile = event.target.files[0];
@@ -49,10 +64,33 @@ const Vacantes = () => {
     }
   };
 
-  const handleApplyClick = (vacante) => {
-    setSelectedVacante(vacante);
-    setShowModal(true);
+  const handleApplyClick = async (vacante) => {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    const alumnoID = storedUser ? storedUser.id : '';
+  
+    try {
+      const response = await axios.get(`http://localhost:3001/checkPostulacion/${alumnoID}/${vacante.vacantePracticaID}`);
+      if (response.data.aplicado) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Ya has aplicado a esta vacante.',
+          text: 'No puedes aplicar a la misma vacante más de una vez.',
+        });
+      } else {
+        setSelectedVacante(vacante);
+        setShowModal(true);
+      }
+    } catch (error) {
+      console.error('Error verificando postulación:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error verificando postulación',
+        text: 'Hubo un error al verificar la postulación. Intenta nuevamente.',
+      });
+    }
   };
+  
+  
 
   const handleCloseModal = () => {
     setShowModal(false);
@@ -63,7 +101,7 @@ const Vacantes = () => {
     if (file) {
       const formData = new FormData();
       const storedUser = JSON.parse(localStorage.getItem('user'));
-      const alumnoID = storedUser ? storedUser.id : ''; 
+      const alumnoID = storedUser ? storedUser.id : '';
       const vacanteID = selectedVacante.vacantePracticaID;
 
       formData.append('alumnoID', alumnoID);
@@ -123,11 +161,17 @@ const Vacantes = () => {
             </div>
           </div>
           <div className="vacante-footer" style={{ flex: '30%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <button className="apply-button" onClick={() => handleApplyClick(vacante)}>Aplicar a vacante</button>
+            <button
+              className={`apply-button ${postulaciones.includes(vacante.vacantePracticaID) ? 'applied' : ''}`}
+              onClick={() => handleApplyClick(vacante)}
+              disabled={postulaciones.includes(vacante.vacantePracticaID)}
+            >
+              {postulaciones.includes(vacante.vacantePracticaID) ? 'Aplicado' : 'Aplicar a vacante'}
+            </button>
           </div>
         </div>
       ))}
-
+  
       {showModal && (
         <div className="vacante-modal">
           <div className="vacante-modal-content">
@@ -163,6 +207,7 @@ const Vacantes = () => {
       )}
     </div>
   );
+  
 };
 
 export default Vacantes;

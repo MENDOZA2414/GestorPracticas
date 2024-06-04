@@ -185,25 +185,6 @@ app.get('/vacantePractica/all/:page/:limit', (req, res) => {
     });
 });
 
-app.post('/aplicarVacante', (req, res) => {
-    const { vacanteID, alumnoID, cartaPresentacion } = req.body;
-
-    connection.query(`INSERT INTO aplicarVacante (vacanteID, alumnoID, cartaPresentacion) VALUES (?, ?, ?)`,
-        [vacanteID, alumnoID, cartaPresentacion],
-        (err, result) => {
-            if (err) {
-                res.status(400).send({
-                    message: err.message
-                });
-            } else {
-                res.status(201).send({
-                    status: 201,
-                    message: 'Postulación registrada con éxito',
-                    data: result
-                });
-            }
-        });
-});
 
 app.get('/aplicaciones/:vacanteID', (req, res) => {
     const vacanteID = req.params.vacanteID;
@@ -224,6 +205,44 @@ app.get('/aplicaciones/:vacanteID', (req, res) => {
         });
 });
 
+app.get('/checkPostulacion/:alumnoID/:vacanteID', (req, res) => {
+    const { alumnoID, vacanteID } = req.params;
+    connection.query(
+        'SELECT COUNT(*) as count FROM postulacionAlumno WHERE alumnoID = ? AND vacanteID = ?',
+        [alumnoID, vacanteID],
+        (err, results) => {
+            if (err) {
+                console.error('Error verificando postulación:', err);
+                res.status(500).json({ error: 'Error verificando postulación' });
+            } else {
+                const alreadyApplied = results[0].count > 0;
+                res.json({ aplicado: alreadyApplied });
+            }
+        }
+    );
+});
+
+app.get('/postulaciones/:alumnoID', (req, res) => {
+    const alumnoID = req.params.alumnoID;
+    connection.query(
+        'SELECT vacanteID FROM postulacionAlumno WHERE alumnoID = ?',
+        [alumnoID],
+        (err, results) => {
+            if (err) {
+                console.error('Error obteniendo postulaciones:', err);
+                res.status(500).json({ error: 'Error obteniendo postulaciones' });
+            } else {
+                res.json(results);
+            }
+        }
+    );
+});
+
+
+  
+  
+  
+  
 // Ruta para registrar una postulación
 app.post('/registerPostulacion', upload.single('cartaPresentacion'), (req, res) => {
     const { alumnoID, vacanteID } = req.body;

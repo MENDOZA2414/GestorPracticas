@@ -128,7 +128,15 @@
 .confirm-button:disabled {
     background-color: #ccc;
 }
-
+.apply-button.applied {
+    background-color: gray;
+    cursor: not-allowed;
+  }
+  
+  .apply-button.applied:hover {
+    background-color: gray;
+  }
+  
 @media (max-width: 768px) {
     .vacante-card {
         flex-direction: column; /* Cambia a columna en pantallas pequeñas */

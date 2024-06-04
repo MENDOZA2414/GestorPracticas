@@ -49,10 +49,12 @@ const Login = ({ setUser }) => {
 
       const { data } = await axios.post(`http://localhost:3001/${endpoint}`, { email, password });
 
+      const userName = data.nombre || data.nombreUsuario || data.nombreEntidad;
+
       Swal.fire({
         position: 'top-end',
         icon: 'success',
-        html: `Bienvenido/a <strong>${data.nombre || data.company}</strong>`,
+        html: `Bienvenido/a <strong>${userName}</strong>`,
         showConfirmButton: false,
         timer: 2000,
       });
@@ -60,7 +62,7 @@ const Login = ({ setUser }) => {
       const dataCom = {
         id: data.numControl || data.entidadID || data.alumnoID || data.asesorInternoID || data.asesorExternoID,
         company: data.nombreEntidad || data.nombre,
-        username: data.nombreUsuario,
+        username: data.nombreUsuario || data.nombreEntidad || data.nombre,
         email: data.correo,
         logo: data.fotoPerfil,
         type: userType,

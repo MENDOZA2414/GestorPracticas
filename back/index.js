@@ -222,6 +222,103 @@ app.get('/checkPostulacion/:alumnoID/:vacanteID', (req, res) => {
     );
 });
 
+app.post('/checkDuplicateEmail', (req, res) => {
+    const { correo } = req.body;
+    const queries = [
+        `SELECT correo FROM entidadReceptora WHERE correo = ?`,
+        `SELECT correo FROM alumno WHERE correo = ?`,
+        `SELECT correo FROM asesorInterno WHERE correo = ?`,
+        `SELECT correo FROM asesorExterno WHERE correo = ?`,
+        `SELECT correo FROM administrador WHERE correo = ?`
+    ];
+
+    const checkDuplicate = (query, callback) => {
+        connection.query(query, [correo], (err, result) => {
+            if (err) {
+                callback(err, null);
+            } else if (result.length > 0) {
+                callback(null, true);
+            } else {
+                callback(null, false);
+            }
+        });
+    };
+
+    let foundDuplicate = false;
+    let checkedCount = 0;
+
+    queries.forEach((query) => {
+        checkDuplicate(query, (err, exists) => {
+            if (err) {
+                return res.status(500).send({
+                    message: 'Error en el servidor'
+                });
+            }
+            checkedCount++;
+            if (exists && !foundDuplicate) {
+                foundDuplicate = true;
+                return res.status(200).send({
+                    exists: true
+                });
+            }
+            if (checkedCount === queries.length && !foundDuplicate) {
+                return res.status(200).send({
+                    exists: false
+                });
+            }
+        });
+    });
+});
+
+app.post('/checkDuplicatePhone', (req, res) => {
+    const { numCelular } = req.body;
+    const queries = [
+        `SELECT numCelular FROM entidadReceptora WHERE numCelular = ?`,
+        `SELECT numCelular FROM alumno WHERE numCelular = ?`,
+        `SELECT numCelular FROM asesorInterno WHERE numCelular = ?`,
+        `SELECT numCelular FROM asesorExterno WHERE numCelular = ?`,
+        `SELECT numCelular FROM administrador WHERE numCelular = ?`
+    ];
+
+    const checkDuplicate = (query, callback) => {
+        connection.query(query, [numCelular], (err, result) => {
+            if (err) {
+                callback(err, null);
+            } else if (result.length > 0) {
+                callback(null, true);
+            } else {
+                callback(null, false);
+            }
+        });
+    };
+
+    let foundDuplicate = false;
+    let checkedCount = 0;
+
+    queries.forEach((query) => {
+        checkDuplicate(query, (err, exists) => {
+            if (err) {
+                return res.status(500).send({
+                    message: 'Error en el servidor'
+                });
+            }
+            checkedCount++;
+            if (exists && !foundDuplicate) {
+                foundDuplicate = true;
+                return res.status(200).send({
+                    exists: true
+                });
+            }
+            if (checkedCount === queries.length && !foundDuplicate) {
+                return res.status(200).send({
+                    exists: false
+                });
+            }
+        });
+    });
+});
+
+
 app.get('/postulaciones/:alumnoID', (req, res) => {
     const alumnoID = req.params.alumnoID;
     connection.query(

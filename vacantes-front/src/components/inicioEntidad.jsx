@@ -73,7 +73,7 @@ const InicioEntidad = ({ user, logOut }) => {
       </div>
       <div className={`header ${collapsed ? 'collapsed' : ''}`}>
         <span>Bienvenido a tu portal de gestión de prácticas.</span>
-        {user && <span>¡Hola {user.company}!</span>}
+        {user && <span>¡Hola {user.username}!</span>}
       </div>
       <div className={`content ${collapsed ? 'collapsed' : ''}`}>
         <Routes>

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Route, Routes, useLocation, Navigate, useNavigate } from 'react-router-dom';
 import Login from './components/Login';
 import Ofertas from './components/Ofertas';
-import Register from './components/Register';
 import MisOfertas from './components/MisOfertas';
 import Encabezado from './components/Encabezado';
 import PreRegistro from './components/PreRegistro';
@@ -14,6 +13,7 @@ import InicioAsesorInterno from './components/inicioAsesorInterno';
 import InicioAsesorExterno from './components/inicioAsesorExterno';
 import InicioEntidad from './components/inicioEntidad';
 import Swal from 'sweetalert2';
+import RegistrarEntidad from './components/RegistrarEntidad';
 // import InicioAdministrador from './components/InicioAdministrador';
 
 const AppContent = () => {
@@ -47,7 +47,7 @@ const AppContent = () => {
     '/ofertas',
     '/misOfertas',
     '/login',
-    '/register',
+    '/registrarEntidad',
     '/preRegistro',
     '/registrarAlumno',
     '/registrarAsesor'
@@ -87,7 +87,7 @@ const AppContent = () => {
           <Route path="/" element={<Principal />} />
           <Route path="/ofertas" element={<Ofertas />} />
           <Route path="/login" element={<Login setUser={setUser} />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/registrarEntidad" element={<RegistrarEntidad />} />
           <Route path="/preRegistro" element={<PreRegistro />} />
           <Route path="/registrarAlumno" element={<RegistrarAlumno />} />
           <Route path="/registrarAsesor" element={<RegistrarAsesor />} />

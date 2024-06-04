@@ -6,7 +6,7 @@ const PreRegistro = () => {
   const navigate = useNavigate();
 
   const handleRegisterClick = () => {
-    navigate('/register');
+    navigate('/registrarEntidad');
   };
 
   const handleRegisterClick2 = () => {

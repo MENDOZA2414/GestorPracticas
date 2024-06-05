@@ -144,7 +144,7 @@
 }
 
 @media (max-width: 768px) {
-  .header-principal, .content {
+  .header-principal {
     width: 100%;
     margin-left: 0;
   }
@@ -156,9 +156,21 @@
   .sidebar.collapsed {
     display: flex;
     width: 80px;
+    position: fixed; /* Asegura que el menú colapsado se quede fijo */
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 1100; /* Asegura que el menú colapsado esté por encima del contenido */
   }
 
   .content {
-    margin-left: 0;
+    width: 100%;
+    margin-left: 0; /* Restablece el margen izquierdo a 0 */
+  }
+
+  .content.collapsed {
+    width: calc(100% - 80px); /* Ajusta el ancho del contenido */
+    margin-left: 80px; /* Ajusta el margen izquierdo para el menú colapsado */
   }
 }
+

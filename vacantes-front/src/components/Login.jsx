@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import Error from './common/Error';
 import md5 from 'md5';
 import Titulo from './common/Titulo';
+import { FaUser } from 'react-icons/fa';
 
 const Login = ({ setUser }) => {
   const [email, setEmail] = useState('');
@@ -16,7 +17,7 @@ const Login = ({ setUser }) => {
   const login = async (e) => {
     e.preventDefault();
 
-    if ([email, password].includes('') || [email, password].includes('#')) {
+    if ([email, password].includes('')) {
       setError(true);
       Swal.fire({
         position: 'center',
@@ -103,15 +104,12 @@ const Login = ({ setUser }) => {
 
   return (
     <>
-      <div className="mt-5 mb-5">
-        <Titulo titulo="Iniciar sesión" />
-      </div>
       <form onSubmit={login} style={{ maxWidth: '500px', margin: 'auto' }}>
         <div className="card border mb-3">
           <div className="card-body">
-            <h5 className="card-title text-center">Ingrese los datos</h5>
+            <h2 className="card-title text-center">Iniciar sesión</h2>
             <div className="mb-3 text-center">
-              <img id="logo" width="150px" src="./../../public/vite.svg" alt="" />
+              <FaUser className="icono-usuario" size={130} />
             </div>
             <div className="mb-3">
               <label className="form-label">Tipo de usuario</label>
@@ -134,6 +132,7 @@ const Login = ({ setUser }) => {
                 className="form-control"
                 onChange={(e) => setEmail(e.target.value)}
                 value={email}
+                required
               />
             </div>
             <div className="mb-3">
@@ -143,6 +142,7 @@ const Login = ({ setUser }) => {
                 className="form-control"
                 onChange={(e) => setPassword(e.target.value)}
                 value={password}
+                required
               />
             </div>
             <div className="d-grid gap-2 d-md-flex justify-content-md-end mb-3">

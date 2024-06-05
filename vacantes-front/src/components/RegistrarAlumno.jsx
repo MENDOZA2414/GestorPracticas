@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { Navigate } from 'react-router-dom';
@@ -21,6 +21,8 @@ const RegistrarAlumno = () => {
     const [password, setPassword] = useState('');
     const [passwordConfirm, setPasswordConfirm] = useState('');
     const [celular, setCelular] = useState('');
+    const [asesorInternoID, setAsesorInternoID] = useState('');
+    const [asesoresInternos, setAsesoresInternos] = useState([]);
     const [error, setError] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [goLogin, setGoLogin] = useState(false);
@@ -28,6 +30,19 @@ const RegistrarAlumno = () => {
     const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
     const [step, setStep] = useState(1);
     const fileInputRef = useRef(null);
+
+    useEffect(() => {
+        const fetchAsesoresInternos = async () => {
+            try {
+                const { data } = await axios.get('http://localhost:3001/asesoresInternos');
+                setAsesoresInternos(data);
+            } catch (err) {
+                console.error('Error al obtener asesores internos:', err);
+            }
+        };
+
+        fetchAsesoresInternos();
+    }, []);
 
     const prevFoto = async (e) => {
         e.preventDefault();
@@ -96,6 +111,7 @@ const RegistrarAlumno = () => {
         setPassword('');
         setPasswordConfirm('');
         setCelular('');
+        setAsesorInternoID('');
         setFoto(null);
         setFotoUrl(null);
         if (fileInputRef.current) {
@@ -224,6 +240,7 @@ const RegistrarAlumno = () => {
             formData.append('email', email);
             formData.append('password', password);
             formData.append('celular', celular);
+            formData.append('asesorInternoID', asesorInternoID);
             formData.append('foto', foto);
 
             const { data } = await axios.post(`http://localhost:3001/register/alumno`, formData, {
@@ -252,18 +269,18 @@ const RegistrarAlumno = () => {
         }
         limpiarCampos();
     };
-
+    
     if (goLogin) {
         return <Navigate to="/login" />;
     }
-
+    
     const handleNumericInput = (e, setter, maxLength) => {
         const value = e.target.value;
         if (/^\d*$/.test(value) && value.length <= maxLength) {
             setter(value);
         }
     };
-
+    
     return (
         <>
             <form onSubmit={registro} style={{ maxWidth: '500px', margin: 'auto' }}>
@@ -348,6 +365,17 @@ const RegistrarAlumno = () => {
                                         <option value="TV">TV</option>
                                     </select>
                                 </div>
+                                <div className="mb-3">
+                                    <label className="form-label">Asesor Interno</label>
+                                    <select className="form-control" onChange={(e) => setAsesorInternoID(e.target.value)} value={asesorInternoID} required>
+                                        <option value="">Seleccione...</option>
+                                        {asesoresInternos.map(asesor => (
+                                            <option key={asesor.asesorInternoID} value={asesor.asesorInternoID}>
+                                                {asesor.nombreCompleto}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                             </>
                         )}
                         {step === 3 && (
@@ -410,7 +438,7 @@ const RegistrarAlumno = () => {
                             {step === 3 && <button className="btn btn-success me-md-2" type="submit">Registrar Alumno</button>}
                             <button onClick={() => { limpiarCampos(); setStep(1); }} className="btn btn btn-danger" type="button">Cancelar</button>
                         </div>
-
+    
                         {error && <div className="alert alert-danger mt-3">{errorMessage}</div>}
                     </div>
                 </div>

@@ -443,6 +443,16 @@ app.get('/asesorInterno/:id', (req, res) => {
     );
 });
 
+// Ruta para obtener todos los asesores internos
+app.get('/asesoresInternos', (req, res) => {
+    connection.query('SELECT asesorInternoID, CONCAT(nombre, " ", apellidoPaterno, " ", apellidoMaterno) AS nombreCompleto FROM asesorInterno', (err, results) => {
+        if (err) {
+            return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
+        }
+        res.status(200).send(results);
+    });
+});
+
 
 // Ruta para registrar una entidad receptora
 app.post('/register/entidadReceptora', upload.single('fotoPerfil'), (req, res) => {
@@ -497,7 +507,7 @@ app.use((err, req, res, next) => {
 
 // Registro de alumnos
 app.post('/register/alumno', upload.single('foto'), (req, res) => {
-    const { numeroControl, nombre, apellidoPaterno, apellidoMaterno, fechaNacimiento, carrera, semestre, turno, email, password, celular } = req.body;
+    const { numeroControl, nombre, apellidoPaterno, apellidoMaterno, fechaNacimiento, carrera, semestre, turno, email, password, celular, asesorInternoID } = req.body;
     const foto = req.file ? req.file.buffer : null;
 
     if (!numeroControl || !nombre || !apellidoPaterno || !apellidoMaterno || !fechaNacimiento || !carrera || !semestre || !turno || !email || !password || !celular) {
@@ -507,8 +517,8 @@ app.post('/register/alumno', upload.single('foto'), (req, res) => {
         });
     }
 
-    connection.query(`INSERT INTO alumno (numControl, nombre, apellidoPaterno, apellidoMaterno, fechaNacimiento, carrera, semestre, turno, correo, contraseña, numCelular, fotoPerfil) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, md5(?), ?, ?)`,
-        [numeroControl, nombre, apellidoPaterno, apellidoMaterno, fechaNacimiento, carrera, semestre, turno, email, password, celular, foto],
+    connection.query(`INSERT INTO alumno (numControl, nombre, apellidoPaterno, apellidoMaterno, fechaNacimiento, carrera, semestre, turno, correo, contraseña, numCelular, fotoPerfil, asesorInternoID) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, md5(?), ?, ?, ?)`,
+        [numeroControl, nombre, apellidoPaterno, apellidoMaterno, fechaNacimiento, carrera, semestre, turno, email, password, celular, foto, asesorInternoID],
         (err, result) => {
             if (err) {
                 return res.status(400).send({

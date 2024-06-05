@@ -36,25 +36,12 @@ const Encabezado = ({ user, logOut }) => {
                 </li>
               </ul>
               <ul className="navbar-nav ms-auto">
-                {user !== undefined ? (
-                  <>
-                    <li className="nav-item">
-                      <Link to="/misOfertas" className="nav-link">Usuario actual: <strong>{user.username ?? 'Upps!'} - {user.company.toUpperCase() ?? 'Upps!'}</strong></Link>
-                    </li>
-                    <li className="nav-item">
-                      <Link to="/login" onClick={logOut} className="nav-link text-danger">Cerrar sesión</Link>
-                    </li>
-                  </>
-                ) : (
-                  <>
-                    <li className="nav-item">
-                      <Link to="/login" className="nav-link">Iniciar sesión</Link>
-                    </li>
-                    <li className="nav-item">
-                      <Link to="/preRegistro" className="nav-link">Registro</Link>
-                    </li>
-                  </>
-                )}
+                <li className="nav-item">
+                  <Link to="/login" className="nav-link">Iniciar sesión</Link>
+                </li>
+                <li className="nav-item">
+                  <Link to="/preRegistro" className="nav-link">Registro</Link>
+                </li>
               </ul>
             </div>
           </div>

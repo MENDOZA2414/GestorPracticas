@@ -1,3 +1,4 @@
+/* InicioAlumno.css */
 .sidebar {
   width: 250px;
   min-height: 100vh;
@@ -93,14 +94,11 @@
   opacity: 0;
 }
 
-
-
 .sidebar.collapsed ~ .header {
   width: calc(100% - 80px);
   margin-left: 80px;
   height: 100px; /* Asegúrate de que la altura del encabezado se mantenga igual */
 }
-
 
 .content {
   margin-left: 250px;
@@ -143,4 +141,24 @@
   margin-left: 10px;
   white-space: nowrap;
   transition: opacity 0.3s;
+}
+
+@media (max-width: 768px) {
+  .header-principal, .content {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .sidebar.collapsed {
+    display: flex;
+    width: 80px;
+  }
+
+  .content {
+    margin-left: 0;
+  }
 }

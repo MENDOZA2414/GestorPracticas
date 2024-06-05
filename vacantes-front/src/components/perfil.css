@@ -11,12 +11,18 @@
     background-color: #fff;
 }
 
+.perfil-foto-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
 .perfil-foto {
     width: 150px;
     height: 150px;
     border-radius: 50%;
     object-fit: cover;
-    margin-bottom: 10px;
 }
 
 .perfil-info {
@@ -32,6 +38,7 @@
 .perfil-info-grid {
     display: flex;
     flex-direction: column;
+    align-items: center; /* Ajuste para centrar los elementos dentro de la columna */
 }
 
 .perfil-info-grid div {
@@ -67,7 +74,7 @@
 }
 
 .perfil-card input[type="file"] {
-    width: 74%;
+    width: 100%;
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #ccc;
@@ -113,7 +120,7 @@ button:hover {
     }
 
     .perfil-card input[type="file"] {
-        width: 45%;
+        width: 100%; /* Ajuste para dispositivos móviles */
     }
 
     .perfil-buttons button {

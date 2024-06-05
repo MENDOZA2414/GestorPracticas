@@ -328,6 +328,100 @@ app.post('/checkDuplicatePhone', (req, res) => {
     });
 });
 
+app.post('/checkDuplicateEmailExceptCurrent', (req, res) => {
+    const { correo, numControl } = req.body;
+    const queries = [
+        `SELECT correo FROM entidadReceptora WHERE correo = ? AND entidadID <> ?`,
+        `SELECT correo FROM alumno WHERE correo = ? AND numControl <> ?`,
+        `SELECT correo FROM asesorInterno WHERE correo = ? AND asesorInternoID <> ?`,
+        `SELECT correo FROM asesorExterno WHERE correo = ? AND asesorExternoID <> ?`,
+        `SELECT correo FROM administrador WHERE correo = ? AND administradorID <> ?`
+    ];
+
+    let foundDuplicate = false;
+    let checkedCount = 0;
+
+    const checkDuplicate = (query, callback) => {
+        connection.query(query, [correo, numControl], (err, result) => {
+            if (err) {
+                return callback(err, null);
+            } else if (result.length > 0) {
+                return callback(null, true);
+            } else {
+                return callback(null, false);
+            }
+        });
+    };
+
+    queries.forEach((query) => {
+        checkDuplicate(query, (err, exists) => {
+            if (err) {
+                if (!foundDuplicate && checkedCount < queries.length) {
+                    foundDuplicate = true;
+                    return res.status(500).send({ message: 'Error en el servidor' });
+                }
+            }
+            checkedCount++;
+            if (exists && !foundDuplicate) {
+                foundDuplicate = true;
+                return res.status(200).send({ exists: true });
+            }
+            if (checkedCount === queries.length && !foundDuplicate) {
+                return res.status(200).send({ exists: false });
+            }
+        });
+    });
+});
+
+app.post('/checkDuplicatePhoneExceptCurrent', (req, res) => {
+    const { numCelular, numControl } = req.body;
+    const queries = [
+        `SELECT numCelular FROM entidadReceptora WHERE numCelular = ? AND entidadID <> ?`,
+        `SELECT numCelular FROM alumno WHERE numCelular = ? AND numControl <> ?`,
+        `SELECT numCelular FROM asesorInterno WHERE numCelular = ? AND asesorInternoID <> ?`,
+        `SELECT numCelular FROM asesorExterno WHERE numCelular = ? AND asesorExternoID <> ?`,
+        `SELECT numCelular FROM administrador WHERE numCelular = ? AND administradorID <> ?`
+    ];
+
+    let foundDuplicate = false;
+    let checkedCount = 0;
+
+    const checkDuplicate = (query, callback) => {
+        connection.query(query, [numCelular, numControl], (err, result) => {
+            if (err) {
+                return callback(err, null);
+            } else if (result.length > 0) {
+                return callback(null, true);
+            } else {
+                return callback(null, false);
+            }
+        });
+    };
+
+    queries.forEach((query) => {
+        checkDuplicate(query, (err, exists) => {
+            if (err) {
+                if (!foundDuplicate && checkedCount < queries.length) {
+                    foundDuplicate = true;
+                    return res.status(500).send({ message: 'Error en el servidor' });
+                }
+            }
+            checkedCount++;
+            if (exists && !foundDuplicate) {
+                foundDuplicate = true;
+                return res.status(200).send({ exists: true });
+            }
+            if (checkedCount === queries.length && !foundDuplicate) {
+                return res.status(200).send({ exists: false });
+            }
+        });
+    });
+});
+
+
+
+
+
 
 app.get('/postulaciones/:alumnoID', (req, res) => {
     const alumnoID = req.params.alumnoID;

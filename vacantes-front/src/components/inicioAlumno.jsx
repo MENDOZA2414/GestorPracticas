@@ -1,92 +1,60 @@
-import React, { useState } from 'react';
-import { Link, Routes, Route, useLocation } from 'react-router-dom';
-import { FaHome, FaUser, FaBuilding, FaFileAlt, FaChalkboardTeacher, FaChartLine, FaSignOutAlt, FaBars } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import axios from 'axios';
 import Perfil from './Perfil';
 import Asesor from './Asesor';
 import Documentos from './Documentos';
 import Avance from './Avance';
-import Vacantes from './Vacantes'; // Importa el nuevo componente
-import './inicioAlumno.css';
+import Vacantes from './Vacantes'; 
+import EncabezadoInicio from './EncabezadoInicio'; 
+import MenuLateral from './MenuLateral'; 
 
 const InicioAlumno = ({ user, logOut }) => {
   const [collapsed, setCollapsed] = useState(false);
-  const location = useLocation();
+  const [currentUser, setCurrentUser] = useState(null);
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
   };
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        if (storedUser) {
+          const response = await axios.get(`http://localhost:3001/alumno/${storedUser.id}`);
+          const userData = response.data;
+          userData.foto = userData.fotoPerfil ? `data:image/jpeg;base64,${userData.fotoPerfil}` : 'ruta/a/imagen/predeterminada.png';
+          setCurrentUser({
+            username: `${userData.nombre} ${userData.apellidoPaterno} ${userData.apellidoMaterno}`,
+            logo: userData.foto
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
   return (
     <div className={`inicio-alumno ${collapsed ? 'collapsed' : ''}`}>
-      <div className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
-        <div className="sidebar-header">
-          <Link to="/inicioAlumno">
-            <img 
-              src={collapsed ? "./../public/dasc_icon.png" : "./../public/dasc.png"} 
-              className="logo" 
-              alt="Logo" 
-            />
-          </Link>
-          {!collapsed && <FaBars className="menu-icon" onClick={toggleSidebar} />}
-        </div>
-        {collapsed && <FaBars className="menu-icon" onClick={toggleSidebar} />}
-        <ul className="menu-list">
-          <li>
-            <Link to="/inicioAlumno" className={location.pathname === '/inicioAlumno' ? 'active' : ''}>
-              <FaHome className="icon" />
-              {!collapsed && <span className="menu-text">Inicio</span>}
-            </Link>
-          </li>
-          <li>
-            <Link to="perfil" className={location.pathname === '/inicioAlumno/perfil' ? 'active' : ''}>
-              <FaUser className="icon" />
-              {!collapsed && <span className="menu-text">Perfil</span>}
-            </Link>
-          </li>
-          <li>
-            <Link to="vacantes" className={location.pathname === '/inicioAlumno/vacantes' ? 'active' : ''}>
-              <FaBuilding className="icon" />
-              {!collapsed && <span className="menu-text">Vacantes</span>}
-            </Link>
-          </li>
-          <li>
-            <Link to="documentos" className={location.pathname === '/inicioAlumno/documentos' ? 'active' : ''}>
-              <FaFileAlt className="icon" />
-              {!collapsed && <span className="menu-text">Documentos</span>}
-            </Link>
-          </li>
-          <li>
-            <Link to="asesor" className={location.pathname === '/inicioAlumno/asesor' ? 'active' : ''}>
-              <FaChalkboardTeacher className="icon" />
-              {!collapsed && <span className="menu-text">Asesor</span>}
-            </Link>
-          </li>
-          <li>
-            <Link to="avance" className={location.pathname === '/inicioAlumno/avance' ? 'active' : ''}>
-              <FaChartLine className="icon" />
-              {!collapsed && <span className="menu-text">Avance</span>}
-            </Link>
-          </li>
-        </ul>
-        <div className="sidebar-footer">
-          <Link to="/" onClick={logOut} className={location.pathname === '/handleLogout' ? 'active' : ''}>
-            <FaSignOutAlt className="icon logout-icon" />
-            {!collapsed && <span className="menu-text">Cerrar sesión</span>}
-          </Link>
-        </div>
-      </div>
-      <div className={`header ${collapsed ? 'collapsed' : ''}`}>
-        <span>Bienvenido a tu portal de gestión de prácticas.</span>
-        {user && user.type === 'alumno' && <span>¡Hola {user.company}!</span>}
-      </div>
+      <MenuLateral 
+        userType={currentUser?.tipo || "alumno"} 
+        logOut={logOut} 
+        collapsed={collapsed} 
+        toggleSidebar={toggleSidebar} 
+      />
+      <EncabezadoInicio user={currentUser} />
       <div className={`content ${collapsed ? 'collapsed' : ''}`}>
         <Routes>
-          <Route path="/" element={<h1>Resumen de practica profesional</h1>} />
-          <Route path="perfil" element={<Perfil />} />
+          <Route path="/" element={<h1>Resumen de práctica profesional</h1>} />
+          <Route path="perfil" element={<Perfil user={currentUser} setUser={setCurrentUser} />} />
           <Route path="asesor" element={<Asesor />} />
           <Route path="documentos" element={<Documentos />} />
           <Route path="avance" element={<Avance />} />
-          <Route path="vacantes" element={<Vacantes />} /> {/* Añade la ruta para Vacantes */}
+          <Route path="vacantes" element={<Vacantes />} /> 
         </Routes>
       </div>
     </div>

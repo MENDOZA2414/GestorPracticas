@@ -837,6 +837,7 @@ app.post('/practicasProfesionales', (req, res) => {
     });
 });
 
+// Ruta para obtener la práctica profesional de un alumno por su número de control
 app.get('/practicaProfesional/alumno/:numControl', (req, res) => {
     const numControl = req.params.numControl;
     const query = `
@@ -855,6 +856,7 @@ app.get('/practicaProfesional/alumno/:numControl', (req, res) => {
         }
     });
 });
+
 
 
 app.get('/asesorExterno/:id', (req, res) => {

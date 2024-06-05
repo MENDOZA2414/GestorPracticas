@@ -12,23 +12,25 @@ const EncabezadoInicio = ({ user, toggleSidebar, isCollapsed }) => {
 
   return (
     <header className={`header-principal ${isCollapsed ? 'collapsed' : ''} sticky`}>
-      <div className="header-principal-left">
-        <FaBars className="menu-icon2 custom-bars-icon" onClick={toggleSidebar} />
-        <div className="user-info2">
-          {user && user.username && (
-            <>
-              <span className="user-greeting">¡Hola {user.username}!</span>
-              <span className="current-date">{getCurrentDate()}</span>
-            </>
+      <div className="header-principal-content">
+        <div className="header-principal-left">
+          <FaBars className="menu-icon2 custom-bars-icon" onClick={toggleSidebar} />
+          <div className="user-info2">
+            {user && user.username && (
+              <>
+                <span className="user-greeting">¡Hola {user.username}!</span>
+                <span className="current-date">{getCurrentDate()}</span>
+              </>
+            )}
+          </div>
+        </div>
+        <div className="header-principal-right">
+          {user && user.logo && (
+            <Link to="/inicioAlumno/perfil">
+              <img src={user.logo} alt="Profile" className="profile-picture" />
+            </Link>
           )}
         </div>
-      </div>
-      <div className="header-principal-right">
-        {user && user.logo && (
-          <Link to="/inicioAlumno/perfil">
-            <img src={user.logo} alt="Profile" className="profile-picture" />
-          </Link>
-        )}
       </div>
     </header>
   );

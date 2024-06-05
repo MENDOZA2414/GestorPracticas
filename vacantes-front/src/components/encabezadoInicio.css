@@ -94,45 +94,62 @@
   font-weight: bold;
 }
 
-/* Estilos responsivos */
 @media (max-width: 768px) {
   .header-principal {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: flex-start; /* Alinea el contenido a la izquierda */
     height: auto; /* Permite que la altura se ajuste automáticamente */
     padding: 10px; /* Ajusta el padding para pantallas pequeñas */
   }
 
   .header-principal-content {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row; /* Alinea en fila */
+    align-items: center; /* Alinea verticalmente */
+    width: 100%;
+    justify-content: space-between; /* Espacio entre los elementos */
+  }
+  
+  .header-principal-left {
+    display: flex;
+    flex-direction: row; /* Alinea los elementos en fila */
+    align-items: center;
   }
 
-  .header-principal-left, .header-principal-right {
-    width: 100%;
-    justify-content: space-between;
-    margin-bottom: 10px; /* Añade margen inferior para separar las secciones */
+  .header-principal-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; /* Alinea el contenido a la derecha */
+    width: auto; /* Ajusta el ancho automáticamente */
   }
 
   .menu-icon2 {
     margin-right: 10px; /* Ajusta el margen para pantallas pequeñas */
-    margin-left: 0; /* Ajusta el margen negativo para pantallas pequeñas también */
-    font-size: 1.5em; /* Mantén el tamaño constante del ícono */
-    border: 2px solid #000; /* Añadir borde */
-    padding: 5px; /* Espacio interno para el ícono */
-    border-radius: 4px; /* Bordes redondeados */
+    margin-left: 0; /* Elimina el margen negativo */
+    font-size: 2.5em; /* Mantén el tamaño constante del ícono */
+    border: 1px solid #c4c4c4; /* Añadir borde */
+    padding: 15px; /* Espacio interno para el ícono */
+    border-radius: 1px; /* Bordes redondeados */
   }
 
   .user-info2 {
-    align-items: flex-start;
-    margin-top: 10px; /* Añade un margen superior para separar del contenido */
+    display: flex;
+    flex-direction: column; /* Alinea los elementos en columna */
+    align-items: flex-start; /* Alinea el contenido a la izquierda */
+    margin-top: 0; /* Elimina el margen superior */
   }
 
   .user-greeting, .current-date {
     text-align: left;
   }
 
-  .profile-picture, .default-profile-picture {
+  .profile-picture {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
     margin-left: auto; /* Alinea la imagen de perfil a la derecha */
+    margin-right: 10px; /* Espacio entre la imagen y el borde derecho */
   }
 }
+
+

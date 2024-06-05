@@ -23,31 +23,14 @@ const Asesor = () => {
         setAlumnoCorreo(alumnoData.correo);
         console.log('Datos del alumno:', alumnoData);
 
-        if (!alumnoData.asesorInternoID) {
-          throw new Error('El alumno no tiene asesor interno asignado.');
-        }
-
         // Obtener datos del asesor interno
-        const responseInterno = await axios.get(`http://localhost:3001/asesorInterno/${alumnoData.asesorInternoID}`);
-        const asesorInternoData = responseInterno.data;
-        asesorInternoData.foto = `data:image/jpeg;base64,${asesorInternoData.fotoPerfil}`;
-        setAsesorInterno(asesorInternoData);
-        console.log('Datos del asesor interno:', responseInterno.data);
-
-        // Obtener la práctica profesional del alumno
-        const responsePractica = await axios.get(`http://localhost:3001/practicaProfesional/alumno/${numControl}`);
-        const practicaData = responsePractica.data;
-
-        // Obtener datos del asesor externo
-        const responseExterno = await axios.get(`http://localhost:3001/asesorExterno/${practicaData.asesorExternoID}`);
-        const asesorExternoData = responseExterno.data;
-        asesorExternoData.foto = `data:image/jpeg;base64,${asesorExternoData.fotoPerfil}`;
-        setAsesorExterno(asesorExternoData);
-        console.log('Datos del asesor externo:', responseExterno.data);
-
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        if (!asesorInterno) {
+        if (alumnoData.asesorInternoID) {
+          const responseInterno = await axios.get(`http://localhost:3001/asesorInterno/${alumnoData.asesorInternoID}`);
+          const asesorInternoData = responseInterno.data;
+          asesorInternoData.foto = `data:image/jpeg;base64,${asesorInternoData.fotoPerfil}`;
+          setAsesorInterno(asesorInternoData);
+          console.log('Datos del asesor interno:', responseInterno.data);
+        } else {
           setAsesorInterno({
             foto: 'https://via.placeholder.com/150',
             nombre: 'Nombre',
@@ -57,16 +40,41 @@ const Asesor = () => {
             numCelular: '123-456-7890',
           });
         }
-        if (!asesorExterno) {
-          setAsesorExterno({
-            foto: 'https://via.placeholder.com/150',
-            nombre: 'Nombre',
-            apellidoPaterno: 'ApellidoPaterno',
-            apellidoMaterno: 'ApellidoMaterno',
-            correo: 'nombre.apellido@example.com',
-            numCelular: '123-456-7890',
-          });
+
+        // Obtener la práctica profesional del alumno
+        try {
+          const responsePractica = await axios.get(`http://localhost:3001/practicaProfesional/alumno/${numControl}`);
+          const practicaData = responsePractica.data;
+
+          if (practicaData.asesorExternoID) {
+            // Obtener datos del asesor externo
+            const responseExterno = await axios.get(`http://localhost:3001/asesorExterno/${practicaData.asesorExternoID}`);
+            const asesorExternoData = responseExterno.data;
+            asesorExternoData.foto = `data:image/jpeg;base64,${asesorExternoData.fotoPerfil}`;
+            setAsesorExterno(asesorExternoData);
+            console.log('Datos del asesor externo:', responseExterno.data);
+          } else {
+            setAsesorExterno(null);
+          }
+        } catch (error) {
+          if (error.response && error.response.status === 404) {
+            console.log('No se encontró una práctica profesional para este alumno.');
+            setAsesorExterno(null);
+          } else {
+            throw error;
+          }
         }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setAsesorInterno({
+          foto: 'https://via.placeholder.com/150',
+          nombre: 'Nombre',
+          apellidoPaterno: 'ApellidoPaterno',
+          apellidoMaterno: 'ApellidoMaterno',
+          correo: 'nombre.apellido@example.com',
+          numCelular: '123-456-7890',
+        });
+        setAsesorExterno(null);
       }
     };
     fetchData();
@@ -75,7 +83,7 @@ const Asesor = () => {
   const getMailLink = (correo, asesorCorreo) => {
     const subject = encodeURIComponent('Consulta sobre las prácticas profesionales');
     const body = encodeURIComponent('Estimado Asesor,\n\nQuisiera obtener más información sobre las prácticas profesionales.\n\nSaludos,\nNombre del Alumno');
-
+  
     if (correo.includes('@gmail.com')) {
       return `https://mail.google.com/mail/?view=cm&fs=1&to=${asesorCorreo}&su=${subject}&body=${body}`;
     } else if (correo.includes('@hotmail.com') || correo.includes('@outlook.com')) {
@@ -83,8 +91,9 @@ const Asesor = () => {
     }
     return `mailto:${asesorCorreo}?subject=${subject}&body=${body}`;
   };
+  
 
-  if (!asesorInterno || !asesorExterno) return <div>Loading...</div>;
+  if (!asesorInterno) return <div>Loading...</div>;
 
   return (
     <div className="asesor-container">
@@ -108,26 +117,38 @@ const Asesor = () => {
           </a>
         </div>
       </div>
-      <div className="asesor-card">
-        <img src={asesorExterno.foto} alt="Foto del Asesor Externo" className="asesor-foto" />
-        <div className="asesor-info">
-          <h1>Asesor Externo</h1>
-          <h2>{`${asesorExterno.nombre} ${asesorExterno.apellidoPaterno} ${asesorExterno.apellidoMaterno}`}</h2>
-          <div className="asesor-info-grid">
-            <div>
-              <p><strong>Correo Electrónico:</strong></p>
-              <p>{asesorExterno.correo}</p>
+      {asesorExterno ? (
+        <div className="asesor-card">
+          <img src={asesorExterno.foto} alt="Foto del Asesor Externo" className="asesor-foto" />
+          <div className="asesor-info">
+            <h1>Asesor Externo</h1>
+            <h2>{`${asesorExterno.nombre} ${asesorExterno.apellidoPaterno} ${asesorExterno.apellidoMaterno}`}</h2>
+            <div className="asesor-info-grid">
+              <div>
+                <p><strong>Correo Electrónico:</strong></p>
+                <p>{asesorExterno.correo}</p>
+              </div>
+              <div>
+                <p><strong>Número Celular:</strong></p>
+                <p>{asesorExterno.numCelular}</p>
+              </div>
             </div>
-            <div>
-              <p><strong>Número Celular:</strong></p>
-              <p>{asesorExterno.numCelular}</p>
-            </div>
+            <a href={getMailLink(alumnoCorreo, asesorExterno.correo)} target="_blank" rel="noopener noreferrer">
+              <button className="contact-button">Contactar</button>
+            </a>
           </div>
-          <a href={getMailLink(alumnoCorreo, asesorExterno.correo)} target="_blank" rel="noopener noreferrer">
-            <button className="contact-button">Contactar</button>
-          </a>
         </div>
-      </div>
+      ) : (
+        <div className="practica-no-registrada">
+          <div className="asesor-info">
+            <h1>Práctica no registrada</h1>
+            <p>Pronto verás la información de tu próximo asesor externo.</p>
+            <a href="/InicioAlumno/vacantes">
+              <button className="contact-button">Ver Postulaciones</button>
+            </a>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

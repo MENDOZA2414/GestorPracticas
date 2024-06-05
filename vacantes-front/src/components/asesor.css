@@ -76,6 +76,36 @@
   .contact-button:hover {
     background-color: #0056b3;
   }
+
+  .practica-no-registrada {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center; /* Cambiado a center para centrar el texto */
+    font-size: 15px; /* Tamaño del texto */
+    padding-top: 110px;
+    margin: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    max-width: 500px;
+    width: 100%;
+   
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+  }
+  
+  
+  
+  .practica-no-registrada h1 {
+    font-size: 24px; /* Tamaño del título */
+  
+  }
+  
+  .practica-no-registrada p {
+    font-size: 18px; /* Tamaño del texto */
+  }
   
   @media (min-width: 768px) {
     .asesor-container {

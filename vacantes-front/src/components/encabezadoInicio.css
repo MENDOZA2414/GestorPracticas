@@ -15,7 +15,11 @@
     font-weight: normal;
     border: 1px solid #ebebeb; /* Añadir borde */
     border-left: none; /* Eliminar el borde derecho */
+    position: -webkit-sticky; /* Para compatibilidad con Safari */
+    position: sticky;
     box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    top: 0; /* Hace que se quede en la parte superior */
+    z-index: 1000; /* Asegura que se quede encima de otros elementos */
   }
 
 .header-principal.collapsed {

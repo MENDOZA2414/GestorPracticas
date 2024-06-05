@@ -8,6 +8,7 @@ import Avance from './Avance';
 import Vacantes from './Vacantes'; 
 import EncabezadoInicio from './EncabezadoInicio'; 
 import MenuLateral from './MenuLateral'; 
+import './inicioAlumno.css';
 
 const InicioAlumno = ({ user, logOut }) => {
   const [collapsed, setCollapsed] = useState(false);
@@ -26,7 +27,7 @@ const InicioAlumno = ({ user, logOut }) => {
           const userData = response.data;
           userData.foto = userData.fotoPerfil ? `data:image/jpeg;base64,${userData.fotoPerfil}` : 'ruta/a/imagen/predeterminada.png';
           setCurrentUser({
-            username: `${userData.nombre} ${userData.apellidoPaterno} ${userData.apellidoMaterno}`,
+            username: `${userData.nombre}`,
             logo: userData.foto
           });
         }
@@ -46,7 +47,7 @@ const InicioAlumno = ({ user, logOut }) => {
         collapsed={collapsed} 
         toggleSidebar={toggleSidebar} 
       />
-      <EncabezadoInicio user={currentUser} toggleSidebar={toggleSidebar} />
+      <EncabezadoInicio user={currentUser} toggleSidebar={toggleSidebar} isCollapsed={collapsed} />
       <div className={`content ${collapsed ? 'collapsed' : ''}`}>
         <Routes>
           <Route path="/" element={<h1>Resumen de práctica profesional</h1>} />

@@ -2,43 +2,54 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #f0f0f0;
-    padding: 40px;
-    padding-left: 100px;
-    padding-right: 250px;
+    background: #ffffff;
+    padding: 57px; /* Reducir el padding general */
+    padding-left: 20px;
+    padding-right: 20px;
     width: calc(100% - 250px);
     margin-left: 250px;
     margin-right: 0px;
     transition: width 0.3s, margin-left 0.3s;
-    height: 100px; /* Ajusta esta propiedad para cambiar la altura del encabezado */
+    height: 110px; /* Ajusta esta propiedad para cambiar la altura del encabezado */
     font-size: 20px;
     font-weight: normal;
+    border: 1px solid #ebebeb; /* Añadir borde */
+    border-left: none; /* Eliminar el borde derecho */
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
   }
 
-.header-content {
+.header-principal.collapsed {
+    width: calc(100% - 80px);
+    margin-left: 80px;
+}
+
+.header-principal-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
 }
 
-.header-left {
+.header-principal-left {
   display: flex;
   align-items: center;
 }
 
 .menu-icon2 {
-  margin-right: 20px; /* Ajusta este valor para mover el ícono más a la izquierda */
-  margin-left: -10px; /* Añade un margen negativo para mover el ícono hacia la izquierda */
+  margin-right: 45px; /* Ajusta este valor para mover el ícono más cerca del texto */
+  margin-left: -25px; /* Elimina el margen negativo para alinear mejor el ícono */
   cursor: pointer;
-  font-size: 1.5em; /* Ajusta este valor para cambiar el tamaño del ícono */
-  border: none;
-  background: none;
+  font-size: 2.5em; /* Tamaño constante del ícono */
+  border: 1px solid #c4c4c4; /* Añadir borde */
+  padding: 15px; /* Espacio interno para el ícono */
+  border-radius: 1px; /* Bordes redondeados */
+  background: #ffffff;
 }
 
-.user-info {
+.user-info2 {
   display: flex;
   flex-direction: column;
+  justify-content: center; /* Asegura que el texto y el ícono estén alineados verticalmente */
 }
 
 .user-greeting {
@@ -49,19 +60,21 @@
 .current-date {
   font-size: 0.9em;
   color: #888;
+  margin-top: 4px; /* Ajusta este valor si es necesario para alinear mejor */
 }
 
-.header-right {
+.header-principal-right {
   display: flex;
   align-items: center;
 }
 
 .profile-picture {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   object-fit: cover;
-  margin-left: 20px; /* Espacio entre la imagen y el texto */
+  margin-right: 100px; /* Espacio entre la imagen y el texto */
+  cursor: pointer;
 }
 
 .default-profile-picture {
@@ -79,30 +92,34 @@
 
 /* Estilos responsivos */
 @media (max-width: 768px) {
-  .header {
+  .header-principal {
     flex-direction: column;
     align-items: flex-start;
     height: auto; /* Permite que la altura se ajuste automáticamente */
     padding: 10px; /* Ajusta el padding para pantallas pequeñas */
   }
 
-  .header-content {
+  .header-principal-content {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .header-left, .header-right {
+  .header-principal-left, .header-principal-right {
     width: 100%;
     justify-content: space-between;
     margin-bottom: 10px; /* Añade margen inferior para separar las secciones */
   }
 
   .menu-icon2 {
-    margin-right: 60px; /* Reduce el margen en pantallas pequeñas */
-    margin-left: -10px; /* Ajusta el margen negativo para pantallas pequeñas también */
+    margin-right: 10px; /* Ajusta el margen para pantallas pequeñas */
+    margin-left: 0; /* Ajusta el margen negativo para pantallas pequeñas también */
+    font-size: 1.5em; /* Mantén el tamaño constante del ícono */
+    border: 2px solid #000; /* Añadir borde */
+    padding: 5px; /* Espacio interno para el ícono */
+    border-radius: 4px; /* Bordes redondeados */
   }
 
-  .user-info {
+  .user-info2 {
     align-items: flex-start;
     margin-top: 10px; /* Añade un margen superior para separar del contenido */
   }

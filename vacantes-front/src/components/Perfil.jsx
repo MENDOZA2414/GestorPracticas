@@ -152,7 +152,7 @@ const Perfil = ({ user, setUser }) => {
 
       // Actualiza el estado del usuario en el componente de inicio
       const updatedUser = {
-        username: `${formValues.nombre} ${formValues.apellidoPaterno} ${formValues.apellidoMaterno}`,
+        username: `${formValues.nombre}`,
         logo: formValues.fotoFile ? URL.createObjectURL(formValues.fotoFile) : formValues.foto
       };
 

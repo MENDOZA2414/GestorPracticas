@@ -1,0 +1,4 @@
+.inicio-alumno {
+    background-color: #F1F3F4;
+    min-height: 100vh; /* Para asegurar que el fondo cubra toda la altura de la pantalla */
+}

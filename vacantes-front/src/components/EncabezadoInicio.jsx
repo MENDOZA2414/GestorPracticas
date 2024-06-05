@@ -1,8 +1,9 @@
 import React from 'react';
 import { FaBars } from 'react-icons/fa';
-import './encabezadoInicio.css'; 
+import { Link } from 'react-router-dom';
+import './encabezadoInicio.css';
 
-const EncabezadoInicio = ({ user, toggleSidebar }) => {
+const EncabezadoInicio = ({ user, toggleSidebar, isCollapsed }) => {
   const getCurrentDate = () => {
     const date = new Date();
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -10,10 +11,10 @@ const EncabezadoInicio = ({ user, toggleSidebar }) => {
   };
 
   return (
-    <header className="header-principal sticky">
-      <div className="header-left">
-        <FaBars className="menu-icon2" onClick={toggleSidebar} />
-        <div className="user-info">
+    <header className={`header-principal ${isCollapsed ? 'collapsed' : ''} sticky`}>
+      <div className="header-principal-left">
+        <FaBars className="menu-icon2 custom-bars-icon" onClick={toggleSidebar} />
+        <div className="user-info2">
           {user && user.username && (
             <>
               <span className="user-greeting">¡Hola {user.username}!</span>
@@ -22,9 +23,11 @@ const EncabezadoInicio = ({ user, toggleSidebar }) => {
           )}
         </div>
       </div>
-      <div className="header-right">
+      <div className="header-principal-right">
         {user && user.logo && (
-          <img src={user.logo} alt="Profile" className="profile-picture" />
+          <Link to="/inicioAlumno/perfil">
+            <img src={user.logo} alt="Profile" className="profile-picture" />
+          </Link>
         )}
       </div>
     </header>

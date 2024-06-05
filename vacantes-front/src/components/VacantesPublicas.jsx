@@ -70,7 +70,7 @@ const VacantesPublicas = () => {
       limpiarCampos();
     } catch (err) {
       Swal.fire({
-        position: "top-end",
+        position: "center",
         icon: "error",
         title: err.message.includes("400") ? "Ya aplico a esta vacante" : err.message,
         showConfirmButton: false,
@@ -87,7 +87,7 @@ const VacantesPublicas = () => {
       setVacantes(data);
     } catch (err) {
       Swal.fire({
-        position: "top-end",
+        position: "center",
         icon: "error",
         title: err.message.includes("401") ? "Datos incorrectos" : err.message,
         showConfirmButton: false,

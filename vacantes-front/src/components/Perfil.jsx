@@ -127,7 +127,7 @@ const Perfil = () => {
       setEditing(false);
 
       Swal.fire({
-        position: 'top-end',
+        position: 'center',
         icon: 'success',
         title: 'Perfil actualizado con éxito',
         showConfirmButton: false,
@@ -136,7 +136,7 @@ const Perfil = () => {
     } catch (error) {
       console.error('Error saving data:', error);
       Swal.fire({
-        position: 'top-end',
+        position: 'center',
         icon: 'error',
         title: 'Error al guardar los datos. Intenta nuevamente.',
         showConfirmButton: false,

@@ -203,7 +203,7 @@ const RegistrarAsesor = () => {
             });
 
             Swal.fire({
-                position: 'top-end',
+                position: 'center',
                 icon: 'success',
                 title: data.message,
                 showConfirmButton: false,
@@ -213,7 +213,7 @@ const RegistrarAsesor = () => {
             setGoLogin(true);
         } catch (err) {
             Swal.fire({
-                position: 'top-end',
+                position: 'center',
                 icon: 'error',
                 title: err.message,
                 showConfirmButton: false,

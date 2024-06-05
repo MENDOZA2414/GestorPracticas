@@ -54,7 +54,7 @@ const Vacantes = () => {
       setFile(uploadedFile);
     } else {
       Swal.fire({
-        position: 'top-end',
+        position: 'center',
         icon: 'warning',
         title: 'Por favor, sube solo archivos PDF.',
         showConfirmButton: false,
@@ -112,7 +112,7 @@ const Vacantes = () => {
           },
         });
         Swal.fire({
-          position: 'top-end',
+          position: 'center',
           icon: 'success',
           title: 'Postulación registrada con éxito',
           showConfirmButton: false,
@@ -122,7 +122,7 @@ const Vacantes = () => {
       } catch (error) {
         console.error('Error enviando la postulación:', error);
         Swal.fire({
-          position: 'top-end',
+          position: 'center',
           icon: 'error',
           title: 'Hubo un error al enviar la postulación. Intenta nuevamente.',
           showConfirmButton: false,

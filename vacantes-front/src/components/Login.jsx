@@ -53,7 +53,7 @@ const Login = ({ setUser }) => {
       const userName = data.nombre || data.nombreUsuario || data.nombreEntidad;
 
       Swal.fire({
-        position: 'top-end',
+        position: 'center',
         icon: 'success',
         html: `Bienvenido/a <strong>${userName}</strong>`,
         showConfirmButton: false,
@@ -76,7 +76,7 @@ const Login = ({ setUser }) => {
       setGoInicio(true); // Navegar a /inicio
     } catch (err) {
       Swal.fire({
-        position: 'top-end',
+        position: 'center',
         icon: 'error',
         title: err.message.includes('401') ? 'Datos de acceso incorrectos' : err.message,
         showConfirmButton: false,

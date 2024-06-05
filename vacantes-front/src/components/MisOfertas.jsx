@@ -103,7 +103,7 @@ const registro = async (e) => {
             }
 
             Swal.fire({
-                position: 'top-end',
+                position: 'center',
                 icon: 'success',
                 html: `<strong>${data.data.message}</strong>`,
                 showConfirmButton: false,
@@ -114,7 +114,7 @@ const registro = async (e) => {
             getVacantesApi();
         } catch (err) {
             Swal.fire({
-                position: 'top-end',
+                position: 'center',
                 icon: 'error',
                 title: err.message,
                 showConfirmButton: false,

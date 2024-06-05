@@ -51,9 +51,7 @@ const MenuLateral = ({ userType, logOut, collapsed, toggleSidebar }) => {
             alt="Logo"
           />
         </Link>
-        {!collapsed && <FaBars className="menu-icon" onClick={toggleSidebar} />}
       </div>
-      {collapsed && <FaBars className="menu-icon" onClick={toggleSidebar} />}
       <ul className="menu-list">
         {menuOptions[userType].map((option) => (
           <li key={option.path}>

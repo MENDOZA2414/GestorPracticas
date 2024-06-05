@@ -1,114 +1,117 @@
-.header {
+.header-principal {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #f0f0f0; /* Color de fondo del encabezado */
-    padding: 10px 20px;
-    height: 70px; /* Ajusta esta propiedad para cambiar la altura del encabezado */
-    font-size: 16px;
+    background: #f0f0f0;
+    padding: 40px;
+    padding-left: 100px;
+    padding-right: 250px;
+    width: calc(100% - 250px);
+    margin-left: 250px;
+    margin-right: 0px;
+    transition: width 0.3s, margin-left 0.3s;
+    height: 100px; /* Ajusta esta propiedad para cambiar la altura del encabezado */
+    font-size: 20px;
     font-weight: normal;
-    position: -webkit-sticky; /* Safari */
-    position: sticky;
-    top: 0;
-    z-index: 1000; /* Ajusta este valor según sea necesario */
   }
-  
-  .header-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-  }
-  
-  .header-left {
-    display: flex;
-    align-items: center;
-  }
-  
-  .menu-icon {
-    margin-right: 20px; /* Ajusta este valor para mover el ícono más a la izquierda */
-    cursor: pointer;
-    font-size: 1.5em; /* Ajusta este valor para cambiar el tamaño del ícono */
-    border: none;
-    background: none;
-  }
-  
-  .user-info {
-    display: flex;
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.menu-icon2 {
+  margin-right: 20px; /* Ajusta este valor para mover el ícono más a la izquierda */
+  margin-left: -10px; /* Añade un margen negativo para mover el ícono hacia la izquierda */
+  cursor: pointer;
+  font-size: 1.5em; /* Ajusta este valor para cambiar el tamaño del ícono */
+  border: none;
+  background: none;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-greeting {
+  font-size: 1.2em;
+  color: #000;
+}
+
+.current-date {
+  font-size: 0.9em;
+  color: #888;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.profile-picture {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-left: 20px; /* Espacio entre la imagen y el texto */
+}
+
+.default-profile-picture {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #007bff;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 20px;
+  font-weight: bold;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .header {
     flex-direction: column;
+    align-items: flex-start;
+    height: auto; /* Permite que la altura se ajuste automáticamente */
+    padding: 10px; /* Ajusta el padding para pantallas pequeñas */
   }
-  
-  .user-greeting {
-    font-size: 1.2em;
-    color: #000;
+
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
   }
-  
-  .current-date {
-    font-size: 0.9em;
-    color: #888;
+
+  .header-left, .header-right {
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 10px; /* Añade margen inferior para separar las secciones */
   }
-  
-  .header-right {
-    display: flex;
-    align-items: center;
+
+  .menu-icon2 {
+    margin-right: 60px; /* Reduce el margen en pantallas pequeñas */
+    margin-left: -10px; /* Ajusta el margen negativo para pantallas pequeñas también */
   }
-  
-  .profile-picture {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-left: 20px; /* Espacio entre la imagen y el texto */
+
+  .user-info {
+    align-items: flex-start;
+    margin-top: 10px; /* Añade un margen superior para separar del contenido */
   }
-  
-  .default-profile-picture {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #007bff;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: 20px;
-    font-weight: bold;
+
+  .user-greeting, .current-date {
+    text-align: left;
   }
-  
-  /* Estilos responsivos */
-  @media (max-width: 768px) {
-    .header {
-      flex-direction: column;
-      align-items: flex-start;
-      height: auto; /* Permite que la altura se ajuste automáticamente */
-      padding: 10px; /* Ajusta el padding para pantallas pequeñas */
-    }
-  
-    .header-content {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-  
-    .header-left, .header-right {
-      width: 100%;
-      justify-content: space-between;
-      margin-bottom: 10px; /* Añade margen inferior para separar las secciones */
-    }
-  
-    .menu-icon {
-      margin-right: 10px; /* Reduce el margen en pantallas pequeñas */
-    }
-  
-    .user-info {
-      align-items: flex-start;
-      margin-top: 10px; /* Añade un margen superior para separar del contenido */
-    }
-  
-    .user-greeting, .current-date {
-      text-align: left;
-    }
-  
-    .profile-picture, .default-profile-picture {
-      margin-left: auto; /* Alinea la imagen de perfil a la derecha */
-    }
+
+  .profile-picture, .default-profile-picture {
+    margin-left: auto; /* Alinea la imagen de perfil a la derecha */
   }
-  
+}

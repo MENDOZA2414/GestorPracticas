@@ -46,7 +46,7 @@ const InicioAlumno = ({ user, logOut }) => {
         collapsed={collapsed} 
         toggleSidebar={toggleSidebar} 
       />
-      <EncabezadoInicio user={currentUser} />
+      <EncabezadoInicio user={currentUser} toggleSidebar={toggleSidebar} />
       <div className={`content ${collapsed ? 'collapsed' : ''}`}>
         <Routes>
           <Route path="/" element={<h1>Resumen de práctica profesional</h1>} />

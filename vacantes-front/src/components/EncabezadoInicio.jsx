@@ -2,7 +2,7 @@ import React from 'react';
 import { FaBars } from 'react-icons/fa';
 import './encabezadoInicio.css'; 
 
-const EncabezadoInicio = ({ user }) => {
+const EncabezadoInicio = ({ user, toggleSidebar }) => {
   const getCurrentDate = () => {
     const date = new Date();
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -10,9 +10,9 @@ const EncabezadoInicio = ({ user }) => {
   };
 
   return (
-    <header className="header sticky">
+    <header className="header-principal sticky">
       <div className="header-left">
-        <FaBars className="menu-icon2" onClick={() => document.querySelector('.sidebar').classList.toggle('collapsed')} />
+        <FaBars className="menu-icon2" onClick={toggleSidebar} />
         <div className="user-info">
           {user && user.username && (
             <>

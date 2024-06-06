@@ -58,6 +58,51 @@ const Perfil = ({ user, setUser }) => {
 
   const handleChange = async (e) => {
     const { name, value, files } = e.target;
+
+    if (name === 'nombre' || name === 'apellidoPaterno' || name === 'apellidoMaterno') {
+      const regex = /^[A-Za-zÀ-ÿ\s]+$/;
+      if (!regex.test(value) && value !== '') {
+        Swal.fire({
+          position: 'center',
+          icon: 'error',
+          title: 'Solo se permiten letras en este campo',
+          showConfirmButton: false,
+          timer: 1500
+        });
+        return;
+      }
+    }
+    
+    if (name === 'fechaNacimiento') {
+      const fechaNacimiento = moment(value);
+      const edad = moment().diff(fechaNacimiento, 'years');
+    
+      if (edad < 17) {
+        Swal.fire({
+          position: 'center',
+          icon: 'error',
+          title: 'La edad debe ser mayor o igual a 17 años',
+          showConfirmButton: false,
+          timer: 1500
+        });
+        return;
+      }
+    }
+    
+    if (name === 'numCelular') {
+      const regex = /^\d*$/;
+      if (!regex.test(value) && value !== '') {
+        Swal.fire({
+          position: 'center',
+          icon: 'error',
+          title: 'Solo se permiten números en este campo',
+          showConfirmButton: false,
+          timer: 1500
+        });
+        return;
+      }
+    }
+
     if (name === 'foto' && files.length > 0) {
       const file = files[0];
       const options = {
@@ -94,6 +139,21 @@ const Perfil = ({ user, setUser }) => {
       form.reportValidity();
       return;
     }
+
+    const fechaNacimiento = moment(formValues.fechaNacimiento);
+    const edad = moment().diff(fechaNacimiento, 'years');
+
+    if (edad < 17) {
+      Swal.fire({
+        position: 'center',
+        icon: 'error',
+        title: 'La edad debe ser mayor o igual a 17 años',
+        showConfirmButton: false,
+        timer: 1500
+      });
+      return;
+    }
+
 
     if (formValues.correo !== initialCorreo) {
       const correoDuplicado = await verificarCorreoDuplicado();
@@ -235,6 +295,7 @@ const Perfil = ({ user, setUser }) => {
                 placeholder="Número de Control" 
                 readOnly 
                 className="form-control mb-3" 
+                style={{ backgroundColor: '#e9ecef', pointerEvents: 'none' }} 
               />
               <input 
                 type="text" 
@@ -244,6 +305,9 @@ const Perfil = ({ user, setUser }) => {
                 placeholder="Nombre" 
                 className="form-control mb-3" 
                 required 
+                minlength="3" 
+                pattern="[A-Za-zÀ-ÿ\s]+" 
+                title="El nombre debe tener al menos 3 caracteres y solo puede contener letras"
               />
               <input 
                 type="text" 
@@ -253,6 +317,9 @@ const Perfil = ({ user, setUser }) => {
                 placeholder="Apellido Paterno" 
                 className="form-control mb-3" 
                 required 
+                minlength="3" 
+                pattern="[A-Za-zÀ-ÿ\s]+" 
+                title="El apellido paterno debe tener al menos 3 caracteres y solo puede contener letras"
               />
               <input 
                 type="text" 
@@ -262,6 +329,9 @@ const Perfil = ({ user, setUser }) => {
                 placeholder="Apellido Materno" 
                 className="form-control mb-3" 
                 required 
+                minlength="3" 
+                pattern="[A-Za-zÀ-ÿ\s]+" 
+                title="El apellido materno debe tener al menos 3 caracteres y solo puede contener letras"
               />
               <input 
                 type="date" 

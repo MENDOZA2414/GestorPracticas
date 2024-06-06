@@ -261,6 +261,7 @@ const PerfilAsesorInterno = ({ user, setUser }) => {
                 className="form-control mb-3"
                 required
                 minlength="3"
+                maxLength="30"
                 pattern="[A-Za-zÀ-ÿ\s]+"
                 title="El nombre debe tener al menos 3 caracteres y solo puede contener letras"
               />
@@ -273,6 +274,7 @@ const PerfilAsesorInterno = ({ user, setUser }) => {
                 className="form-control mb-3"
                 required
                 minlength="3"
+                maxLength="20"
                 pattern="[A-Za-zÀ-ÿ\s]+"
                 title="El apellido paterno debe tener al menos 3 caracteres y solo puede contener letras"
               />
@@ -285,6 +287,7 @@ const PerfilAsesorInterno = ({ user, setUser }) => {
                 className="form-control mb-3"
                 required
                 minlength="3"
+                maxLength="20"
                 pattern="[A-Za-zÀ-ÿ\s]+"
                 title="El apellido materno debe tener al menos 3 caracteres y solo puede contener letras"
               />
@@ -295,6 +298,7 @@ const PerfilAsesorInterno = ({ user, setUser }) => {
                 onChange={handleChange}
                 placeholder="Correo Electrónico"
                 className="form-control mb-3"
+                maxLength="20"
                 required
               />
               <input

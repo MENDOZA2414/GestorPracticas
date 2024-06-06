@@ -621,6 +621,60 @@ app.get('/asesorInterno/:id', (req, res) => {
     );
   });
   
+// Ruta para obtener una entidad receptora por ID
+app.get('/entidadReceptora/:id', (req, res) => {
+    const entidadID = req.params.id;
+    connection.query(`SELECT * FROM entidadReceptora WHERE entidadID = ?`, [entidadID],
+      (err, result) => {
+        if (result.length > 0) {
+          const entidad = result[0];
+          if (entidad.fotoPerfil) {
+            entidad.fotoPerfil = entidad.fotoPerfil.toString('base64');
+          }
+          res.status(200).send(entidad);
+        } else {
+          res.status(400).send({
+            message: 'No existe la entidad receptora'
+          });
+        }
+      }
+    );
+  });
+
+  app.put('/entidadReceptora/:id', upload.single('foto'), (req, res) => {
+    const entidadID = req.params.id;
+    const { nombreEntidad, nombreUsuario, direccion, categoria, correo, numCelular } = req.body;
+    const fotoPerfil = req.file ? req.file.buffer : null;
+
+    let query = 'UPDATE entidadReceptora SET ';
+    let fields = [];
+    let values = [];
+
+    if (nombreEntidad) fields.push('nombreEntidad = ?'), values.push(nombreEntidad);
+    if (nombreUsuario) fields.push('nombreUsuario = ?'), values.push(nombreUsuario);
+    if (direccion) fields.push('direccion = ?'), values.push(direccion);
+    if (categoria) fields.push('categoria = ?'), values.push(categoria);
+    if (correo) fields.push('correo = ?'), values.push(correo);
+    if (numCelular) fields.push('numCelular = ?'), values.push(numCelular);
+    if (fotoPerfil) fields.push('fotoPerfil = ?'), values.push(fotoPerfil);
+
+    if (fields.length === 0) {
+        return res.status(400).send({ message: 'No fields to update' });
+    }
+
+    query += fields.join(', ') + ' WHERE entidadID = ?';
+    values.push(entidadID);
+
+    connection.query(query, values, (err, result) => {
+        if (err) {
+            console.error('Error updating data:', err);
+            return res.status(500).send({ message: 'Error en el servidor' });
+        }
+        res.status(200).send({ message: 'Entidad actualizada con éxito' });
+    });
+});
+
+
 
 // Ruta para obtener todos los asesores internos
 app.get('/asesoresInternos', (req, res) => {

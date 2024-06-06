@@ -39,13 +39,13 @@ function handleDisconnect() {
 
 handleDisconnect();
 
+
+// Configuración para imágenes (JPG, JPEG, PNG)
 const storage = multer.memoryStorage();
 const upload = multer({
     storage: storage,
     limits: {
-        fileSize: 100 * 1024 * 1024, // Actualizar a 5 MB
-        fields: 20, // Número máximo de campos no archivo permitidos
-        fieldSize: 100 * 1024 * 1024, // 100 MB tamaño de un solo campo
+        fileSize: 50 * 1024 * 1024 // 50 MB
     },
     fileFilter: (req, file, cb) => {
         const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
@@ -55,8 +55,27 @@ const upload = multer({
             return cb(error, false);
         }
         cb(null, true);
-    },
+    }
 });
+
+// Configuración para archivos PDF
+const pdfStorage = multer.memoryStorage();
+const pdfUpload = multer({
+    storage: pdfStorage,
+    limits: {
+        fileSize: 100 * 1024 * 1024 // 100 MB
+    },
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype !== 'application/pdf') {
+            const error = new Error('Formato de archivo no permitido');
+            error.code = 'INVALID_FILE_TYPE';
+            return cb(error, false);
+        }
+        cb(null, true);
+    }
+});
+
+
 
 
 app.use(cors());
@@ -445,7 +464,7 @@ app.get('/postulaciones/:alumnoID', (req, res) => {
   
   
 // Ruta para registrar una postulación
-app.post('/registerPostulacion', upload.single('cartaPresentacion'), (req, res) => {
+app.post('/registerPostulacion', pdfUpload.single('cartaPresentacion'), (req, res) => {
     const { alumnoID, vacanteID } = req.body;
     const cartaPresentacion = req.file ? req.file.buffer : null;
 

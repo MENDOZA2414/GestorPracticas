@@ -3,11 +3,26 @@ import { FaBars } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import './encabezadoInicio.css';
 
-const EncabezadoInicio = ({ user, toggleSidebar, isCollapsed }) => {
+const EncabezadoInicio = ({ user, userType, toggleSidebar, isCollapsed }) => {
   const getCurrentDate = () => {
     const date = new Date();
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     return date.toLocaleDateString('es-ES', options);
+  };
+
+  const getProfileLink = () => {
+    switch (userType) {
+      case 'alumno':
+        return '/inicioAlumno/perfil';
+      case 'asesorInterno':
+        return '/inicioAsesorInterno/perfil';
+      case 'asesorExterno':
+        return '/inicioAsesorExterno/perfil';
+      case 'entidadReceptora':
+        return '/inicioEntidad/perfil';
+      default:
+        return '/inicioAlumno/perfil';
+    }
   };
 
   return (
@@ -26,7 +41,7 @@ const EncabezadoInicio = ({ user, toggleSidebar, isCollapsed }) => {
         </div>
         <div className="header-principal-right">
           {user && user.logo && (
-            <Link to="/inicioAlumno/perfil">
+            <Link to={getProfileLink()}>
               <img src={user.logo} alt="Profile" className="profile-picture" />
             </Link>
           )}

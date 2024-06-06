@@ -9,35 +9,35 @@ const MenuLateral = ({ userType, logOut, collapsed, toggleSidebar }) => {
   const menuOptions = {
     alumno: [
       { path: '/inicioAlumno', icon: FaHome, label: 'Inicio' },
-      { path: 'perfil', icon: FaUser, label: 'Perfil' },
-      { path: 'vacantes', icon: FaBuilding, label: 'Vacantes' },
-      { path: 'documentos', icon: FaFileAlt, label: 'Documentos' },
-      { path: 'asesor', icon: FaChalkboardTeacher, label: 'Asesor' },
-      { path: 'avance', icon: FaChartLine, label: 'Avance' }
+      { path: '/inicioAlumno/perfil', icon: FaUser, label: 'Perfil' },
+      { path: '/inicioAlumno/vacantes', icon: FaBuilding, label: 'Vacantes' },
+      { path: '/inicioAlumno/documentos', icon: FaFileAlt, label: 'Documentos' },
+      { path: '/inicioAlumno/asesor', icon: FaChalkboardTeacher, label: 'Asesor' },
+      { path: '/inicioAlumno/avance', icon: FaChartLine, label: 'Avance' }
     ],
     entidadReceptora: [
       { path: '/inicioEntidad', icon: FaHome, label: 'Inicio' },
-      { path: 'perfil', icon: FaUser, label: 'Perfil' },
-      { path: 'vacantes', icon: FaBuilding, label: 'Vacantes' },
-      { path: 'documentos', icon: FaFileAlt, label: 'Documentos' },
-      { path: 'reportes', icon: FaChartLine, label: 'Reportes' },
-      { path: 'asesorExterno', icon: FaChalkboardTeacher, label: 'Asesor Externo' }
+      { path: '/inicioEntidad/perfil', icon: FaUser, label: 'Perfil' },
+      { path: '/inicioEntidad/vacantes', icon: FaBuilding, label: 'Vacantes' },
+      { path: '/inicioEntidad/documentos', icon: FaFileAlt, label: 'Documentos' },
+      { path: '/inicioEntidad/reportes', icon: FaChartLine, label: 'Reportes' },
+      { path: '/inicioEntidad/asesorExterno', icon: FaChalkboardTeacher, label: 'Asesor Externo' }
     ],
     asesorInterno: [
       { path: '/inicioAsesorInterno', icon: FaHome, label: 'Inicio' },
-      { path: 'perfil', icon: FaUser, label: 'Perfil' },
-      { path: 'entidades', icon: FaBuilding, label: 'Entidades' },
-      { path: 'vacantes', icon: FaBuilding, label: 'Vacantes' },
-      { path: 'documentos', icon: FaFileAlt, label: 'Documentos' },
-      { path: 'alumnos', icon: FaUser, label: 'Alumnos' },
-      { path: 'reportes', icon: FaChartLine, label: 'Reportes' }
+      { path: '/inicioAsesorInterno/perfil', icon: FaUser, label: 'Perfil' },
+      { path: '/inicioAsesorInterno/entidades', icon: FaBuilding, label: 'Entidades' },
+      { path: '/inicioAsesorInterno/vacantes', icon: FaBuilding, label: 'Vacantes' },
+      { path: '/inicioAsesorInterno/documentos', icon: FaFileAlt, label: 'Documentos' },
+      { path: '/inicioAsesorInterno/alumnos', icon: FaUser, label: 'Alumnos' },
+      { path: '/inicioAsesorInterno/reportes', icon: FaChartLine, label: 'Reportes' }
     ],
     asesorExterno: [
       { path: '/inicioAsesorExterno', icon: FaHome, label: 'Inicio' },
-      { path: 'perfil', icon: FaUser, label: 'Perfil' },
-      { path: 'vacantes', icon: FaBuilding, label: 'Vacantes' },
-      { path: 'documentos', icon: FaFileAlt, label: 'Documentos' },
-      { path: 'reportes', icon: FaChartLine, label: 'Reportes' }
+      { path: '/inicioAsesorExterno/perfil', icon: FaUser, label: 'Perfil' },
+      { path: '/inicioAsesorExterno/vacantes', icon: FaBuilding, label: 'Vacantes' },
+      { path: '/inicioAsesorExterno/documentos', icon: FaFileAlt, label: 'Documentos' },
+      { path: '/inicioAsesorExterno/reportes', icon: FaChartLine, label: 'Reportes' }
     ]
   };
 
@@ -55,17 +55,19 @@ const MenuLateral = ({ userType, logOut, collapsed, toggleSidebar }) => {
       <ul className="menu-list">
         {menuOptions[userType].map((option) => (
           <li key={option.path}>
-            <Link to={option.path} className={location.pathname === option.path ? 'active' : ''}>
+            <Link to={option.path} title={option.label} className={location.pathname === option.path ? 'active' : ''}>
               <option.icon className="icon" />
               {!collapsed && <span className="menu-text">{option.label}</span>}
+              {collapsed && <span className="tooltip">{option.label}</span>}
             </Link>
           </li>
         ))}
       </ul>
       <div className="sidebar-footer">
-        <Link to="/" onClick={logOut} className={location.pathname === '/handleLogout' ? 'active' : ''}>
+        <Link to="/" onClick={logOut} title="Cerrar sesión" className={location.pathname === '/handleLogout' ? 'active' : ''}>
           <FaSignOutAlt className="icon logout-icon" />
           {!collapsed && <span className="menu-text">Cerrar sesión</span>}
+          {collapsed && <span className="tooltip">Cerrar sesión</span>}
         </Link>
       </div>
     </div>

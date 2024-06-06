@@ -142,6 +142,31 @@
   white-space: nowrap;
   transition: opacity 0.3s;
 }
+/* menu.css */
+.menu-list li a.active {
+  color: #1B125C;
+  background: #f0f0f0;
+}
+
+.menu-list li a.active .icon {
+  color: #1B125C;
+}
+
+.tooltip {
+  position: absolute;
+  left: 50px;
+  transform: translateX(10px);
+  background-color: #333;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  z-index: 1000;
+}
 
 @media (max-width: 768px) {
   .header-principal {

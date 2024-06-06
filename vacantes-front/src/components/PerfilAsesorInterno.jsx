@@ -175,15 +175,15 @@ const PerfilAsesorInterno = ({ user, setUser }) => {
   if (!asesor) return <div>Loading...</div>;
 
   return (
-    <div className="perfil-card">
+    <div className="perfil-asesorInt-card">
       <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
         {editing ? (
           <>
-            <div className="perfil-foto-container">
-              <img src={formValues.foto} alt="Foto del Asesor" className="perfil-foto" />
+            <div className="perfil-asesorInt-foto-container">
+              <img src={formValues.foto} alt="Foto del Asesor" className="perfil-asesorInt-foto" />
             </div>
             <input type="file" name="foto" onChange={handleChange} className="form-control mb-3" accept=".jpg,.jpeg,.png" />
-            <div className="perfil-form">
+            <div className="perfil-asesorInt-form">
               <input 
                 type="text" 
                 name="nombre" 
@@ -242,7 +242,7 @@ const PerfilAsesorInterno = ({ user, setUser }) => {
                 maxLength="10"
                 inputMode="numeric"
               />
-              <div className="perfil-buttons">
+              <div className="perfil-asesorInt-buttons">
                 <button className="btn btn-primary me-2" type="submit">Guardar</button>
                 <button onClick={handleCancel} className="btn btn-secondary cancel-button" type="button">Cancelar</button>
               </div>
@@ -250,17 +250,17 @@ const PerfilAsesorInterno = ({ user, setUser }) => {
           </>
         ) : (
           <>
-            <div className="perfil-foto-container">
-              <img src={asesor.foto} alt="Foto del Asesor" className="perfil-foto" />
+            <div className="perfil-asesorInt-foto-container">
+              <img src={asesor.foto} alt="Foto del Asesor" className="perfil-asesorInt-foto" />
             </div>
-            <div className="perfil-info">
+            <div className="perfil-asesorInt-info">
               <h2>{`${asesor.nombre} ${asesor.apellidoPaterno} ${asesor.apellidoMaterno}`}</h2>
-              <div className="perfil-info-grid">
+              <div className="perfil-asesorInt-info-correo">
                 <div>
                   <p><strong>Correo Electrónico:</strong></p>
                   <p>{asesor.correo}</p>
                 </div>
-                <div className="perfil-celular">
+                <div className="perfil-asesorInt-celular">
                   <p><strong>Número Celular:</strong></p>
                   <p>{asesor.numCelular}</p>
                 </div>

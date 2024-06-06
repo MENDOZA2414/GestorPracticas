@@ -60,7 +60,7 @@ const InicioAsesorInterno = ({ user, logOut }) => {
       />
       <div className={`content ${collapsed ? 'collapsed' : ''}`}>
         <Routes>
-          <Route path="/" element={<h1>Bienvenido a tu portal de gestión de prácticas</h1>} />
+          <Route path="/" element={<h1>Gestor de prácticas</h1>} />
           <Route path="perfil" element={<PerfilAsesorInterno user={currentUser} setUser={setCurrentUser} />} />
           <Route path="vacantes" element={<Vacantes />} />
           <Route path="documentos" element={<DocumentosInterno />} />

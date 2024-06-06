@@ -118,6 +118,34 @@ const PerfilAsesorInterno = ({ user, setUser }) => {
       return;
     }
 
+    if (formValues.correo !== initialCorreo) {
+      const correoDuplicado = await verificarCorreoDuplicado();
+      if (correoDuplicado) {
+        Swal.fire({
+          position: 'center',
+          icon: 'error',
+          title: 'Correo ya existente en el sistema',
+          showConfirmButton: false,
+          timer: 1500
+        });
+        return;
+      }
+    }
+
+    if (formValues.numCelular !== initialNumCelular) {
+      const celularDuplicado = await verificarCelularDuplicado();
+      if (celularDuplicado) {
+        Swal.fire({
+          position: 'center',
+          icon: 'error',
+          title: 'Número de celular ya existente en el sistema',
+          showConfirmButton: false,
+          timer: 1500
+        });
+        return;
+      }
+    }
+
     try {
       const formData = new FormData();
       Object.keys(formValues).forEach(key => {
@@ -172,6 +200,46 @@ const PerfilAsesorInterno = ({ user, setUser }) => {
     setEditing(false);
   };
 
+  const verificarCorreoDuplicado = async () => {
+    try {
+      const { data } = await axios.post('http://localhost:3001/checkDuplicateEmailExceptCurrent', {
+        correo: formValues.correo,
+        id: formValues.asesorInternoID,
+        userType: 'asesorInterno'
+      });
+      return data.exists;
+    } catch (err) {
+      Swal.fire({
+        position: 'center',
+        icon: 'error',
+        title: 'Error al verificar correo duplicado',
+        showConfirmButton: false,
+        timer: 1500
+      });
+      return true;
+    }
+  };
+  
+  const verificarCelularDuplicado = async () => {
+    try {
+      const { data } = await axios.post('http://localhost:3001/checkDuplicatePhoneExceptCurrent', {
+        numCelular: formValues.numCelular,
+        id: formValues.asesorInternoID,
+        userType: 'asesorInterno'
+      });
+      return data.exists;
+    } catch (err) {
+      Swal.fire({
+        position: 'center',
+        icon: 'error',
+        title: 'Error al verificar número de celular duplicado',
+        showConfirmButton: false,
+        timer: 1500
+      });
+      return true;
+    }
+  };
+
   if (!asesor) return <div>Loading...</div>;
 
   return (
@@ -184,60 +252,60 @@ const PerfilAsesorInterno = ({ user, setUser }) => {
             </div>
             <input type="file" name="foto" onChange={handleChange} className="form-control mb-3" accept=".jpg,.jpeg,.png" />
             <div className="perfil-asesorInt-form">
-              <input 
-                type="text" 
-                name="nombre" 
-                value={formValues.nombre} 
-                onChange={handleChange} 
-                placeholder="Nombre" 
-                className="form-control mb-3" 
-                required 
-                minlength="3" 
-                pattern="[A-Za-zÀ-ÿ\s]+" 
+              <input
+                type="text"
+                name="nombre"
+                value={formValues.nombre}
+                onChange={handleChange}
+                placeholder="Nombre"
+                className="form-control mb-3"
+                required
+                minlength="3"
+                pattern="[A-Za-zÀ-ÿ\s]+"
                 title="El nombre debe tener al menos 3 caracteres y solo puede contener letras"
               />
-              <input 
-                type="text" 
-                name="apellidoPaterno" 
-                value={formValues.apellidoPaterno} 
-                onChange={handleChange} 
-                placeholder="Apellido Paterno" 
-                className="form-control mb-3" 
-                required 
-                minlength="3" 
-                pattern="[A-Za-zÀ-ÿ\s]+" 
+              <input
+                type="text"
+                name="apellidoPaterno"
+                value={formValues.apellidoPaterno}
+                onChange={handleChange}
+                placeholder="Apellido Paterno"
+                className="form-control mb-3"
+                required
+                minlength="3"
+                pattern="[A-Za-zÀ-ÿ\s]+"
                 title="El apellido paterno debe tener al menos 3 caracteres y solo puede contener letras"
               />
-              <input 
-                type="text" 
-                name="apellidoMaterno" 
-                value={formValues.apellidoMaterno} 
-                onChange={handleChange} 
-                placeholder="Apellido Materno" 
-                className="form-control mb-3" 
-                required 
-                minlength="3" 
-                pattern="[A-Za-zÀ-ÿ\s]+" 
+              <input
+                type="text"
+                name="apellidoMaterno"
+                value={formValues.apellidoMaterno}
+                onChange={handleChange}
+                placeholder="Apellido Materno"
+                className="form-control mb-3"
+                required
+                minlength="3"
+                pattern="[A-Za-zÀ-ÿ\s]+"
                 title="El apellido materno debe tener al menos 3 caracteres y solo puede contener letras"
               />
-              <input 
-                type="email" 
-                name="correo" 
-                value={formValues.correo} 
-                onChange={handleChange} 
-                placeholder="Correo Electrónico" 
-                className="form-control mb-3" 
-                required 
+              <input
+                type="email"
+                name="correo"
+                value={formValues.correo}
+                onChange={handleChange}
+                placeholder="Correo Electrónico"
+                className="form-control mb-3"
+                required
               />
-              <input 
-                type="text" 
-                name="numCelular" 
-                value={formValues.numCelular} 
-                onChange={handleChange} 
-                placeholder="Número Celular" 
-                className="form-control mb-3" 
-                required 
-                pattern="\d{10}" 
+              <input
+                type="text"
+                name="numCelular"
+                value={formValues.numCelular}
+                onChange={handleChange}
+                placeholder="Número Celular"
+                className="form-control mb-3"
+                required
+                pattern="\d{10}"
                 title="El número de celular debe tener 10 dígitos"
                 maxLength="10"
                 inputMode="numeric"

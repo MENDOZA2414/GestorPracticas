@@ -245,7 +245,7 @@ const Perfil = ({ user, setUser }) => {
 
   const verificarCorreoDuplicado = async () => {
     try {
-      const { data } = await axios.post('http://localhost:3001/checkDuplicateEmailExceptCurrent', { correo: formValues.correo, numControl: formValues.numControl });
+      const { data } = await axios.post('http://localhost:3001/checkDuplicateEmailAlumno', { correo: formValues.correo, numControl: formValues.numControl });
       return data.exists;
     } catch (err) {
       Swal.fire({
@@ -261,7 +261,7 @@ const Perfil = ({ user, setUser }) => {
 
   const verificarCelularDuplicado = async () => {
     try {
-      const { data } = await axios.post('http://localhost:3001/checkDuplicatePhoneExceptCurrent', { numCelular: formValues.numCelular, numControl: formValues.numControl });
+      const { data } = await axios.post('http://localhost:3001/checkDuplicatePhoneAlumno', { numCelular: formValues.numCelular, numControl: formValues.numControl });
       return data.exists;
     } catch (err) {
       Swal.fire({

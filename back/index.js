@@ -347,14 +347,14 @@ app.post('/checkDuplicatePhone', (req, res) => {
     });
 });
 
-app.post('/checkDuplicateEmailExceptCurrent', (req, res) => {
+app.post('/checkDuplicateEmailAlumno', (req, res) => {
     const { correo, numControl } = req.body;
     const queries = [
         `SELECT correo FROM entidadReceptora WHERE correo = ? AND entidadID <> ?`,
         `SELECT correo FROM alumno WHERE correo = ? AND numControl <> ?`,
         `SELECT correo FROM asesorInterno WHERE correo = ? AND asesorInternoID <> ?`,
         `SELECT correo FROM asesorExterno WHERE correo = ? AND asesorExternoID <> ?`,
-        `SELECT correo FROM administrador WHERE correo = ? AND administradorID <> ?`
+        `SELECT correo FROM administrador WHERE correo = ? AND adminID <> ?`
     ];
 
     let foundDuplicate = false;
@@ -391,6 +391,85 @@ app.post('/checkDuplicateEmailExceptCurrent', (req, res) => {
         });
     });
 });
+
+
+app.post('/checkDuplicatePhoneAlumno', async (req, res) => {
+    const { numCelular, numControl } = req.body;
+
+    const queries = [
+        { query: 'SELECT numCelular FROM entidadReceptora WHERE numCelular = ? AND entidadID <> ?', idField: 'entidadID' },
+        { query: 'SELECT numCelular FROM alumno WHERE numCelular = ? AND numControl <> ?', idField: 'numControl' },
+        { query: 'SELECT numCelular FROM asesorInterno WHERE numCelular = ? AND asesorInternoID <> ?', idField: 'asesorInternoID' },
+        { query: 'SELECT numCelular FROM asesorExterno WHERE numCelular = ? AND asesorExternoID <> ?', idField: 'asesorExternoID' },
+        { query: 'SELECT numCelular FROM administrador WHERE numCelular = ? AND adminID <> ?', idField: 'adminID' }
+    ];
+
+    try {
+        for (const { query, idField } of queries) {
+            const result = await new Promise((resolve, reject) => {
+                connection.query(query, [numCelular, numControl], (err, result) => {
+                    if (err) return reject(err);
+                    resolve(result);
+                });
+            });
+            if (result.length > 0) {
+                return res.status(200).send({ exists: true });
+            }
+        }
+        return res.status(200).send({ exists: false });
+    } catch (error) {
+        console.error('Error en la verificación de duplicados:', error);
+        return res.status(500).send({ message: 'Error en el servidor' });
+    }
+});
+
+
+app.post('/checkDuplicateEmailExceptCurrent', (req, res) => {
+    const { correo, id } = req.body;
+
+    const queries = [
+        `SELECT correo FROM entidadReceptora WHERE correo = ? AND entidadID <> ?`,
+        `SELECT correo FROM alumno WHERE correo = ? AND numControl <> ?`,
+        `SELECT correo FROM asesorInterno WHERE correo = ? AND asesorInternoID <> ?`,
+        `SELECT correo FROM asesorExterno WHERE correo = ? AND asesorExternoID <> ?`,
+        `SELECT correo FROM administrador WHERE correo = ? AND adminID <> ?`
+    ];
+
+    let foundDuplicate = false;
+    let checkedCount = 0;
+
+    const checkDuplicate = (query, callback) => {
+        connection.query(query, [correo, id], (err, result) => {
+            if (err) {
+                return callback(err, null);
+            } else if (result.length > 0) {
+                return callback(null, true);
+            } else {
+                return callback(null, false);
+            }
+        });
+    };
+
+    queries.forEach((query) => {
+        checkDuplicate(query, (err, exists) => {
+            if (err) {
+                if (!foundDuplicate && checkedCount < queries.length) {
+                    foundDuplicate = true;
+                    return res.status(500).send({ message: 'Error en el servidor' });
+                }
+            }
+            checkedCount++;
+            if (exists && !foundDuplicate) {
+                foundDuplicate = true;
+                return res.status(200).send({ exists: true });
+            }
+            if (checkedCount === queries.length && !foundDuplicate) {
+                return res.status(200).send({ exists: false });
+            }
+        });
+    });
+});
+
 
 app.post('/checkDuplicatePhoneExceptCurrent', async (req, res) => {
     const { numCelular, id, userType } = req.body;

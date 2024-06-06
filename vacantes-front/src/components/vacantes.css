@@ -28,6 +28,7 @@
     margin-left: auto;
     margin-right: auto;
     word-wrap: break-word; /* Para que el texto no se salga del card */
+    border: 1px solid #ddd;
 }
 
 .vacante-card-header {

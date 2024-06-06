@@ -7,6 +7,7 @@ import Vacantes from './Vacantes';
 import EncabezadoInicio from './EncabezadoInicio'; 
 import MenuLateral from './MenuLateral'; 
 import './inicioAsesorInterno.css';
+import PerfilAsesorInterno from './PerfilAsesorInterno';
 
 const InicioAsesorInterno = ({ user, logOut }) => {
   const [collapsed, setCollapsed] = useState(false);
@@ -28,14 +29,20 @@ const InicioAsesorInterno = ({ user, logOut }) => {
             username: `${userData.nombre}`,
             logo: userData.foto
           });
+          // Guardar en localStorage
+          localStorage.setItem('user', JSON.stringify({
+            ...storedUser,
+            logo: userData.foto
+          }));
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
     };
-
+  
     fetchUserData();
   }, []);
+  
 
   return (
     <div className={`inicio-asesor-interno ${collapsed ? 'collapsed' : ''}`}>
@@ -54,7 +61,7 @@ const InicioAsesorInterno = ({ user, logOut }) => {
       <div className={`content ${collapsed ? 'collapsed' : ''}`}>
         <Routes>
           <Route path="/" element={<h1>Bienvenido a tu portal de gestión de prácticas</h1>} />
-          <Route path="perfil" element={<Perfil user={currentUser} setUser={setCurrentUser} />} />
+          <Route path="perfil" element={<PerfilAsesorInterno user={currentUser} setUser={setCurrentUser} />} />
           <Route path="vacantes" element={<Vacantes />} />
           <Route path="documentos" element={<DocumentosInterno />} />
          

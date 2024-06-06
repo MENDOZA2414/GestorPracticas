@@ -392,50 +392,36 @@ app.post('/checkDuplicateEmailExceptCurrent', (req, res) => {
     });
 });
 
-app.post('/checkDuplicatePhoneExceptCurrent', (req, res) => {
-    const { numCelular, numControl } = req.body;
+app.post('/checkDuplicatePhoneExceptCurrent', async (req, res) => {
+    const { numCelular, id, userType } = req.body;
+  
     const queries = [
-        `SELECT numCelular FROM entidadReceptora WHERE numCelular = ? AND entidadID <> ?`,
-        `SELECT numCelular FROM alumno WHERE numCelular = ? AND numControl <> ?`,
-        `SELECT numCelular FROM asesorInterno WHERE numCelular = ? AND asesorInternoID <> ?`,
-        `SELECT numCelular FROM asesorExterno WHERE numCelular = ? AND asesorExternoID <> ?`,
-        `SELECT numCelular FROM administrador WHERE numCelular = ? AND administradorID <> ?`
+      { query: 'SELECT numCelular FROM entidadReceptora WHERE numCelular = ? AND entidadID <> ?', idField: 'entidadID' },
+      { query: 'SELECT numCelular FROM alumno WHERE numCelular = ? AND numControl <> ?', idField: 'numControl' },
+      { query: 'SELECT numCelular FROM asesorInterno WHERE numCelular = ? AND asesorInternoID <> ?', idField: 'asesorInternoID' },
+      { query: 'SELECT numCelular FROM asesorExterno WHERE numCelular = ? AND asesorExternoID <> ?', idField: 'asesorExternoID' },
+      { query: 'SELECT numCelular FROM administrador WHERE numCelular = ? AND adminID <> ?', idField: 'adminID' }
     ];
-
-    let foundDuplicate = false;
-    let checkedCount = 0;
-
-    const checkDuplicate = (query, callback) => {
-        connection.query(query, [numCelular, numControl], (err, result) => {
-            if (err) {
-                return callback(err, null);
-            } else if (result.length > 0) {
-                return callback(null, true);
-            } else {
-                return callback(null, false);
-            }
+  
+    try {
+      for (const { query, idField } of queries) {
+        const result = await new Promise((resolve, reject) => {
+          connection.query(query, [numCelular, id], (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+          });
         });
-    };
-
-    queries.forEach((query) => {
-        checkDuplicate(query, (err, exists) => {
-            if (err) {
-                if (!foundDuplicate && checkedCount < queries.length) {
-                    foundDuplicate = true;
-                    return res.status(500).send({ message: 'Error en el servidor' });
-                }
-            }
-            checkedCount++;
-            if (exists && !foundDuplicate) {
-                foundDuplicate = true;
-                return res.status(200).send({ exists: true });
-            }
-            if (checkedCount === queries.length && !foundDuplicate) {
-                return res.status(200).send({ exists: false });
-            }
-        });
-    });
-});
+        if (result.length > 0) {
+          return res.status(200).send({ exists: true });
+        }
+      }
+      return res.status(200).send({ exists: false });
+    } catch (error) {
+      console.error('Error en la verificación de duplicados:', error);
+      return res.status(500).send({ message: 'Error en el servidor' });
+    }
+  });
+  
 
 
 
@@ -554,7 +540,8 @@ app.get('/asesorInterno/:id', (req, res) => {
             }
         }
     );
-});
+  });
+  
 
 // Ruta para obtener todos los asesores internos
 app.get('/asesoresInternos', (req, res) => {
@@ -836,6 +823,42 @@ app.put('/alumno/:numControl', upload.single('foto'), (req, res) => {
 });
 
 
+app.put('/asesorInterno/:id', upload.single('foto'), (req, res) => {
+  const id = req.params.id;
+  const { nombre, apellidoPaterno, apellidoMaterno, correo, numCelular } = req.body;
+  const fotoPerfil = req.file ? req.file.buffer : null;
+
+  let query = 'UPDATE asesorInterno SET ';
+  let fields = [];
+  let values = [];
+
+  if (nombre) fields.push('nombre = ?'), values.push(nombre);
+  if (apellidoPaterno) fields.push('apellidoPaterno = ?'), values.push(apellidoPaterno);
+  if (apellidoMaterno) fields.push('apellidoMaterno = ?'), values.push(apellidoMaterno);
+  if (correo) fields.push('correo = ?'), values.push(correo);
+  if (numCelular) fields.push('numCelular = ?'), values.push(numCelular);
+  if (fotoPerfil) fields.push('fotoPerfil = ?'), values.push(fotoPerfil);
+
+  if (fields.length === 0) {
+    return res.status(400).send({ message: 'No fields to update' });
+  }
+
+  query += fields.join(', ') + ' WHERE asesorInternoID = ?';
+  values.push(id);
+
+  connection.query(query, values, (err, result) => {
+    if (err) {
+      console.error('Error updating data:', err);
+      return res.status(500).send({ message: 'Error en el servidor' });
+    }
+    res.status(200).send({ message: 'Asesor Interno actualizado con éxito' });
+  });
+});
+
+  
+  
+  
+  
 app.post('/practicasProfesionales', (req, res) => {
     const { alumnoID, entidadID, asesorExternoID, asesorInternoID, fechaInicio, fechaFin, estado } = req.body;
     

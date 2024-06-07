@@ -190,9 +190,6 @@ app.get('/vacantePractica/all/:entidadID/:page/:limit', (req, res) => {
 });
 
 
-
-
-
 app.get('/vacantePractica/all/:page/:limit', (req, res) => {
     const page = req.params.page;
     const limit = req.params.limit;
@@ -227,8 +224,6 @@ app.get('/vacantePractica/all/:page/:limit', (req, res) => {
         }
     });
 });
-
-
 
 
 app.get('/aplicaciones/:vacanteID', (req, res) => {
@@ -408,7 +403,6 @@ app.post('/checkDuplicateEmailAlumno', (req, res) => {
     });
 });
 
-
 app.post('/checkDuplicatePhoneAlumno', async (req, res) => {
     const { numCelular, numControl } = req.body;
 
@@ -519,10 +513,6 @@ app.post('/checkDuplicatePhoneExceptCurrent', async (req, res) => {
   
 
 
-
-
-
-
 app.get('/postulaciones/:alumnoID', (req, res) => {
     const alumnoID = req.params.alumnoID;
     connection.query(
@@ -540,10 +530,6 @@ app.get('/postulaciones/:alumnoID', (req, res) => {
 });
 
 
-  
-  
-  
-  
 // Ruta para registrar una postulación
 app.post('/registerPostulacion', pdfUpload.single('cartaPresentacion'), (req, res) => {
     const { alumnoID, vacanteID } = req.body;
@@ -592,8 +578,6 @@ app.post('/registerPostulacion', pdfUpload.single('cartaPresentacion'), (req, re
         );
     });
 });
-
-
 
 
 app.post('/asesorInterno', upload.single('fotoPerfil'), (req, res) => {
@@ -689,7 +673,6 @@ app.get('/entidadReceptora/:id', (req, res) => {
         res.status(200).send({ message: 'Entidad actualizada con éxito' });
     });
 });
-
 
 
 // Ruta para obtener todos los asesores internos
@@ -850,7 +833,6 @@ app.post('/register/asesorExterno', upload.single('fotoPerfil'), (req, res) => {
 });
 
 
-
 app.post('/login/alumno', (req, res) => {
     const { email, password } = req.body;
     connection.query(`SELECT * FROM alumno WHERE correo = ? AND contraseña = md5(?)`, [email, password], 
@@ -971,7 +953,6 @@ app.put('/alumno/:numControl', upload.single('foto'), (req, res) => {
     });
 });
 
-
 app.put('/asesorInterno/:id', upload.single('foto'), (req, res) => {
   const id = req.params.id;
   const { nombre, apellidoPaterno, apellidoMaterno, correo, numCelular } = req.body;
@@ -1004,10 +985,6 @@ app.put('/asesorInterno/:id', upload.single('foto'), (req, res) => {
   });
 });
 
-  
-  
-  
-  
 app.post('/practicasProfesionales', (req, res) => {
     const { alumnoID, entidadID, asesorExternoID, asesorInternoID, fechaInicio, fechaFin, estado } = req.body;
     
@@ -1047,7 +1024,6 @@ app.get('/practicaProfesional/alumno/:numControl', (req, res) => {
         }
     });
 });
-
 
 
 app.get('/asesorExterno/:id', (req, res) => {
@@ -1090,9 +1066,6 @@ app.post('/uploadDocumentoAlumno', upload.single('file'), (req, res) => {
     });
 });
 
-
-
-
 // Ruta para obtener todos los documentos de un alumno
 app.get('/documentosAlumno/:alumnoID', (req, res) => {
     const alumnoID = req.params.alumnoID;
@@ -1105,7 +1078,6 @@ app.get('/documentosAlumno/:alumnoID', (req, res) => {
         res.status(200).send(result.length > 0 ? result : []); // Enviar un arreglo vacío si no hay documentos
     });
 });
-
 
 
 // Ruta para obtener un documento PDF

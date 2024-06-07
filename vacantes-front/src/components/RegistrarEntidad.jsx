@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import imageCompression from 'browser-image-compression';
 import { FaEye, FaEyeSlash, FaUser } from 'react-icons/fa';
 import './Registrar.css';
@@ -25,6 +25,7 @@ const RegistrarEntidad = () => {
     const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
     const [step, setStep] = useState(1);
     const fileInputRef = useRef(null);
+    const navigate = useNavigate();
 
     const prevLogo = async (e) => {
         e.preventDefault();
@@ -395,7 +396,8 @@ const RegistrarEntidad = () => {
                                 Siguiente
                             </button>}
                             {step === 2 && <button className="btn btn-success me-md-2" type="submit">Crear cuenta empresa</button>}
-                            <button onClick={() => { limpiarCampos(); setStep(1); }} className="btn btn-danger" type="button">Cancelar</button>
+                            {step === 1 && <button onClick={() => { navigate('/preRegistro'); limpiarCampos(); setStep(1); }} className="btn btn btn-danger" type="button">Cancelar</button>}
+                            {step > 1 && <button onClick={() => { limpiarCampos(); setStep(1); }} className="btn btn btn-danger" type="button">Cancelar</button>}
                         </div>
 
                         {error && <Error mensaje={errorMessage} />}

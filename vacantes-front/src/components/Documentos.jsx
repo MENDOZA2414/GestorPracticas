@@ -32,7 +32,7 @@ const Documentos = () => {
                 }
 
                 // Fetch documentos enviados
-                const sentResponse = await axios.get(`http://localhost:3001/documentosEnviados/${numControl}`);
+                const sentResponse = await axios.get(`http://localhost:3001/documentoAlumnoRegistrado/${numControl}`);
                 setSentDocuments(sentResponse.data);
                 if (sentResponse.data.length === 0) {
                     setError('No se encontraron documentos enviados.');
@@ -58,20 +58,20 @@ const Documentos = () => {
         const file = event.target.files[0];
         const storedUser = JSON.parse(localStorage.getItem('user'));
         const numControl = storedUser ? storedUser.id : null;
-    
+
         if (file && file.type === 'application/pdf' && numControl) {
             const formData = new FormData();
             formData.append('file', file);
             formData.append('alumnoID', numControl);
             formData.append('nombreArchivo', file.name);
-    
+
             try {
                 const response = await axios.post('http://localhost:3001/uploadDocumentoAlumnoSubido', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
                 });
-    
+
                 const newDocument = {
                     id: response.data.documentoID,
                     nombreArchivo: file.name,
@@ -105,17 +105,16 @@ const Documentos = () => {
             });
         }
     };
-    
 
-    const handleView = (id) => {
+    const handleView = (id, table) => {
         if (id) {
-            window.open(`http://localhost:3001/documentoAlumnoSubido/${id}`, '_blank');
+            window.open(`http://localhost:3001/${table}/${id}`, '_blank');
         }
     };
 
-    const handleDownload = (id, nombreArchivo) => {
+    const handleDownload = (id, nombreArchivo, table) => {
         if (id) {
-            axios.get(`http://localhost:3001/documentoAlumnoSubido/${id}`, {
+            axios.get(`http://localhost:3001/${table}/${id}`, {
                 responseType: 'blob',
             }).then((response) => {
                 const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
@@ -131,7 +130,7 @@ const Documentos = () => {
         }
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (id, table) => {
         const result = await Swal.fire({
             title: '¿Estás seguro?',
             text: "No podrás revertir esto!",
@@ -145,8 +144,12 @@ const Documentos = () => {
 
         if (result.isConfirmed) {
             try {
-                await axios.delete(`http://localhost:3001/documentoAlumnoSubido/${id}`);
-                setDocuments(documents.filter(doc => doc.id !== id));
+                await axios.delete(`http://localhost:3001/${table}/${id}`);
+                if (table === 'documentoAlumnoSubido') {
+                    setDocuments(documents.filter(doc => doc.id !== id));
+                } else if (table === 'documentoAlumno') {
+                    setSentDocuments(sentDocuments.filter(doc => doc.id !== id));
+                }
                 Swal.fire({
                     position: 'top-end',
                     icon: 'success',
@@ -167,6 +170,7 @@ const Documentos = () => {
         }
     };
 
+
     const handleSend = (doc) => {
         setSelectedDocument(doc);
     };
@@ -175,9 +179,40 @@ const Documentos = () => {
         setSelectedDocument(null);
     };
 
-    const handleConfirmSend = () => {
-        alert(`Enviando el documento: ${selectedDocument.nombreArchivo}`);
-        handleCloseModal();
+    const handleConfirmSend = async () => {
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        const numControl = storedUser ? storedUser.id : null;
+
+        if (numControl && selectedDocument) {
+            try {
+                const response = await axios.post('http://localhost:3001/enviarDocumentoAlumno', {
+                    documentoID: selectedDocument.id
+                });
+
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'success',
+                    title: response.data.message,
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+
+                // Actualizar la lista de documentos enviados
+                const sentResponse = await axios.get(`http://localhost:3001/documentoAlumnoRegistrado/${numControl}`);
+                setSentDocuments(sentResponse.data);
+                setSelectedDocument(null); // Cerrar el modal
+            } catch (error) {
+                console.error('Error al enviar el documento:', error);
+                console.log("documentoID", selectedDocument.id)
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: 'Error al enviar el documento',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
+        }
     };
 
     const handleSearch = (event) => {
@@ -198,10 +233,10 @@ const Documentos = () => {
     return (
         <div className="documentos-container">
             <div className="alumno-card">
-                <img 
-                    src={`data:image/jpeg;base64,${alumno.fotoPerfil}`} 
-                    alt="Foto del alumno" 
-                    className="alumno-foto" 
+                <img
+                    src={`data:image/jpeg;base64,${alumno.fotoPerfil}`}
+                    alt="Foto del alumno"
+                    className="alumno-foto"
                     onError={(e) => e.target.src = 'default-image-url.jpg'} // Reemplaza la imagen en caso de error
                 />
                 <div className="alumno-info">
@@ -219,6 +254,9 @@ const Documentos = () => {
             </div>
             <div className="card">
                 <div className="card-header">
+                    <div className="header-content">
+                        <h3>{viewSentDocuments ? 'Documentos Enviados' : 'Documentos Subidos'}</h3>
+                    </div>
                     <div className="search-bar2">
                         <input
                             type="text"
@@ -230,7 +268,6 @@ const Documentos = () => {
                 </div>
                 <div className="card-body">
                     <div className="documents-list">
-                        <h3>{viewSentDocuments ? 'Documentos Enviados' : 'Documentos Subidos'}</h3>
                         {loading ? (
                             <p>Cargando...</p>
                         ) : error ? (
@@ -241,13 +278,13 @@ const Documentos = () => {
                                     <li key={doc.id}>
                                         <div className="document-name">{doc.nombreArchivo}</div>
                                         <div className="document-actions">
-                                            <FaEye className="action-icon" title="Ver" onClick={() => handleView(doc.id)} />
-                                            <FaDownload className="action-icon" title="Descargar" onClick={() => handleDownload(doc.id, doc.nombreArchivo)} />
+                                            <FaEye className="action-icon" title="Ver" onClick={() => handleView(doc.id, viewSentDocuments ? 'documentoAlumno' : 'documentoAlumnoSubido')} />
+                                            <FaDownload className="action-icon" title="Descargar" onClick={() => handleDownload(doc.id, doc.nombreArchivo, viewSentDocuments ? 'documentoAlumno' : 'documentoAlumnoSubido')} />
                                             {!viewSentDocuments && (
                                                 <>
                                                     <FaPaperPlane className="action-icon" title="Enviar" onClick={() => handleSend(doc)} />
                                                     <h5 className='barrita'>|</h5>
-                                                    <FaTrash className="action-icon trash-icon" title="Eliminar" onClick={() => handleDelete(doc.id)} />
+                                                    <FaTrash className="action-icon trash-icon" title="Eliminar" onClick={() => handleDelete(doc.id, 'documentoAlumnoSubido')} />
                                                 </>
                                             )}
                                         </div>

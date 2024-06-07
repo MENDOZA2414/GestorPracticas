@@ -1,22 +1,3 @@
--- Desactivar las restricciones de clave foránea
-SET FOREIGN_KEY_CHECKS = 0;
-
--- Comandos para eliminar cada tabla
-DROP TABLE IF EXISTS reporte;
-DROP TABLE IF EXISTS documento;
-DROP TABLE IF EXISTS practicasProfesionales;
-DROP TABLE IF EXISTS aplicarVacante;
-DROP TABLE IF EXISTS vacantePractica;
-DROP TABLE IF EXISTS postulacionAlumno;
-DROP TABLE IF EXISTS asesorExterno;
-DROP TABLE IF EXISTS entidadReceptora;
-DROP TABLE IF EXISTS asesorInterno;
-DROP TABLE IF EXISTS alumno;
-DROP TABLE IF EXISTS administrador;
-
--- Reactivar las restricciones de clave foránea
-SET FOREIGN_KEY_CHECKS = 1;
-
 -- CREAR BASE DE DATOS
 CREATE DATABASE sistemaPracticas;
 USE sistemaPracticas;
@@ -140,14 +121,24 @@ CREATE TABLE IF NOT EXISTS practicasProfesionales (
 );
 
 -- Crear tabla para Documentos
-CREATE TABLE IF NOT EXISTS documento (
+CREATE TABLE IF NOT EXISTS documentoAlumno (
     documentoID INT AUTO_INCREMENT PRIMARY KEY,
-    practicaID INT NOT NULL,
-    tipoDocumento ENUM('Alumno', 'AsesorInterno', 'EntidadReceptora') NOT NULL,
+    alumnoID VARCHAR(10) NOT NULL,
     nombreArchivo VARCHAR(255) NOT NULL,
-    rutaArchivo VARCHAR(255) NOT NULL,
+    archivo LONGBLOB NOT NULL,
+	estatus ENUM('En proceso', 'Aceptado', 'Rechazado'),
     fechaSubida TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fkPracticaDocumento FOREIGN KEY (practicaID) REFERENCES practicasProfesionales(practicaID)
+    CONSTRAINT fkAlumnoDocumento FOREIGN KEY (alumnoID) REFERENCES alumno(numControl)
+);
+
+CREATE TABLE IF NOT EXISTS documentosAlumnoSubido (
+    documentoID INT AUTO_INCREMENT PRIMARY KEY,
+    alumnoID VARCHAR(10) NOT NULL,
+    nombreArchivo VARCHAR(255) NOT NULL,
+    archivo LONGBLOB NOT NULL,
+    estatus ENUM('En proceso', 'Aceptado', 'Rechazado'),
+    fechaSubida TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fkAlumnoDocumentoSubido FOREIGN KEY (alumnoID) REFERENCES alumno(numControl)
 );
 
 

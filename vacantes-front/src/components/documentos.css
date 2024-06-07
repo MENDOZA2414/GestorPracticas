@@ -245,6 +245,12 @@
   margin-right: 10px;
 }
 
+.status-circle {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
 
 @media (max-width: 768px) {
   .documentos-container {

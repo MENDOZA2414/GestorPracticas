@@ -7,8 +7,10 @@ import './documentos.css';
 const Documentos = () => {
     const [documents, setDocuments] = useState([]);
     const [sentDocuments, setSentDocuments] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [loadingDocuments, setLoadingDocuments] = useState(true);
+    const [loadingSentDocuments, setLoadingSentDocuments] = useState(true);
+    const [errorDocuments, setErrorDocuments] = useState(null);
+    const [errorSentDocuments, setErrorSentDocuments] = useState(null);
     const [selectedDocument, setSelectedDocument] = useState(null);
     const [alumno, setAlumno] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
@@ -28,14 +30,7 @@ const Documentos = () => {
                 const response = await axios.get(`http://localhost:3001/documentoAlumnoSubidos/${numControl}`);
                 setDocuments(response.data);
                 if (response.data.length === 0) {
-                    setError('No se encontraron documentos.');
-                }
-
-                // Fetch documentos enviados
-                const sentResponse = await axios.get(`http://localhost:3001/documentoAlumnoRegistrado/${numControl}`);
-                setSentDocuments(sentResponse.data);
-                if (sentResponse.data.length === 0) {
-                    setError('No se encontraron documentos enviados.');
+                    setErrorDocuments('No se encontraron documentos subidos.');
                 }
 
                 // Fetch alumno info
@@ -46,12 +41,36 @@ const Documentos = () => {
                 console.log('Datos del alumno:', alumnoResponse.data);
 
             } catch (error) {
-                setError('Error fetching documents');
+                setErrorDocuments('Error fetching documents');
             } finally {
-                setLoading(false);
+                setLoadingDocuments(false);
             }
         };
+
+        const fetchSentDocuments = async () => {
+            try {
+                const storedUser = JSON.parse(localStorage.getItem('user'));
+                const numControl = storedUser ? storedUser.id : null;
+
+                if (!numControl) {
+                    throw new Error('No se encontró el número de control del alumno logueado');
+                }
+
+                // Fetch documentos enviados
+                const sentResponse = await axios.get(`http://localhost:3001/documentoAlumnoRegistrado/${numControl}`);
+                setSentDocuments(sentResponse.data);
+                if (sentResponse.data.length === 0) {
+                    setErrorSentDocuments('No se encontraron documentos enviados.');
+                }
+            } catch (error) {
+                setErrorSentDocuments('Error fetching sent documents');
+            } finally {
+                setLoadingSentDocuments(false);
+            }
+        };
+
         fetchDocuments();
+        fetchSentDocuments();
     }, []);
 
     const handleFileUpload = async (event) => {
@@ -75,10 +94,10 @@ const Documentos = () => {
                 const newDocument = {
                     id: response.data.documentoID,
                     nombreArchivo: file.name,
-                    estatus: 'Subido' // Asigna el estatus inicial aquí si es necesario
+                    estatus: 'Subido', // Estado inicial para un documento subido
                 };
                 setDocuments([...documents, newDocument]);
-                setError(null); // Clear error if new document is uploaded
+                setErrorDocuments(null); // Clear error if new document is uploaded
                 Swal.fire({
                     position: 'top-end',
                     icon: 'success',
@@ -200,6 +219,12 @@ const Documentos = () => {
                 // Actualizar la lista de documentos enviados
                 const sentResponse = await axios.get(`http://localhost:3001/documentoAlumnoRegistrado/${numControl}`);
                 setSentDocuments(sentResponse.data);
+
+                // Actualizar el estado del documento en la lista de documentos subidos
+                setDocuments(prevDocuments => prevDocuments.map(doc =>
+                    doc.id === selectedDocument.id ? { ...doc, estatus: 'En proceso' } : doc
+                ));
+
                 setSelectedDocument(null); // Cerrar el modal
             } catch (error) {
                 console.error('Error al enviar el documento:', error);
@@ -215,12 +240,13 @@ const Documentos = () => {
         }
     };
 
+
     const handleSearch = (event) => {
         setSearchTerm(event.target.value);
     };
 
-    const getStatusColor = (estatus) => {
-        switch (estatus) {
+    const getStatusColor = (status) => {
+        switch (status) {
             case 'En proceso':
                 return 'orange';
             case 'Aceptado':
@@ -228,7 +254,7 @@ const Documentos = () => {
             case 'Rechazado':
                 return 'red';
             default:
-                return 'gray';
+                return 'grey';
         }
     };
 
@@ -240,7 +266,8 @@ const Documentos = () => {
 
     const toggleView = () => {
         setViewSentDocuments(!viewSentDocuments);
-        setError(null); // Reset error when toggling view
+        setErrorDocuments(null); // Reset error when toggling view
+        setErrorSentDocuments(null);
     };
 
     return (
@@ -281,16 +308,27 @@ const Documentos = () => {
                 </div>
                 <div className="card-body">
                     <div className="documents-list">
-                        {loading ? (
-                            <p>Cargando...</p>
-                        ) : error ? (
-                            <p>{error}</p>
+                        {loadingDocuments && !viewSentDocuments ? (
+                            <p>Cargando documentos subidos...</p>
+                        ) : errorDocuments && !viewSentDocuments ? (
+                            <p>{errorDocuments}</p>
+                        ) : loadingSentDocuments && viewSentDocuments ? (
+                            <p>Cargando documentos enviados...</p>
+                        ) : errorSentDocuments && viewSentDocuments ? (
+                            <p>{errorSentDocuments}</p>
                         ) : (
                             <ul>
                                 {filteredDocuments.map((doc) => (
                                     <li key={doc.id}>
-                                        <div className="document-status" style={{ backgroundColor: getStatusColor(doc.estatus) }}></div>
-                                        <div className="document-name">{doc.nombreArchivo}</div>
+                                        <div className="document-name">
+                                            <div
+                                                className="status-circle"
+                                                style={{
+                                                    backgroundColor: getStatusColor(doc.estatus)
+                                                }}
+                                            />
+                                            {doc.nombreArchivo}
+                                        </div>
                                         <div className="document-actions">
                                             <FaEye className="action-icon" title="Ver" onClick={() => handleView(doc.id, viewSentDocuments ? 'documentoAlumno' : 'documentoAlumnoSubido')} />
                                             <FaDownload className="action-icon" title="Descargar" onClick={() => handleDownload(doc.id, doc.nombreArchivo, viewSentDocuments ? 'documentoAlumno' : 'documentoAlumnoSubido')} />
@@ -304,6 +342,7 @@ const Documentos = () => {
                                         </div>
                                     </li>
                                 ))}
+
                             </ul>
                         )}
                     </div>

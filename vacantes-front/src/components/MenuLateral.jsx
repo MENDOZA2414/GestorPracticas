@@ -21,7 +21,7 @@ const MenuLateral = ({ userType, logOut, collapsed, toggleSidebar }) => {
       { path: '/inicioEntidad/vacantes', icon: FaBuilding, label: 'Vacantes' },
       { path: '/inicioEntidad/documentos', icon: FaFileAlt, label: 'Documentos' },
       { path: '/inicioEntidad/reportes', icon: FaChartLine, label: 'Reportes' },
-      { path: '/inicioEntidad/asesorExterno', icon: FaChalkboardTeacher, label: 'Asesor Externo' }
+      { path: '/inicioEntidad/registrar-asesor', icon: FaChalkboardTeacher, label: 'Registrar Asesor' } // Enlace para registrar asesor
     ],
     asesorInterno: [
       { path: '/inicioAsesorInterno', icon: FaHome, label: 'Inicio' },

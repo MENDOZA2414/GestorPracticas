@@ -1092,7 +1092,7 @@ app.post('/uploadDocumentoAlumnoSubido', pdfUpload.single('file'), (req, res) =>
 // Ruta para obtener todos los documentos de un alumno
 app.get('/documentoAlumnoSubidos/:alumnoID', (req, res) => {
     const alumnoID = req.params.alumnoID;
-    const query = 'SELECT documentoID AS id, nombreArchivo FROM documentosAlumnoSubido WHERE alumnoID = ?';
+    const query = 'SELECT documentoID AS id, nombreArchivo, estatus FROM documentosAlumnoSubido WHERE alumnoID = ?';
 
     connection.query(query, [alumnoID], (err, result) => {
         if (err) {
@@ -1101,6 +1101,21 @@ app.get('/documentoAlumnoSubidos/:alumnoID', (req, res) => {
         res.status(200).send(result.length > 0 ? result : []); // Enviar un arreglo vacío si no hay documentos
     });
 });
+
+
+// Ruta para obtener todos los documentos enviados de un alumno desde la tabla documentoAlumno
+app.get('/documentoAlumnoRegistrado/:alumnoID', (req, res) => {
+    const alumnoID = req.params.alumnoID;
+    const query = 'SELECT documentoID AS id, nombreArchivo FROM documentoAlumno WHERE alumnoID = ? AND estatus = "En proceso"';
+
+    connection.query(query, [alumnoID], (err, result) => {
+        if (err) {
+            return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
+        }
+        res.send(result.length > 0 ? result : []);
+    });
+});
+
 
 // Ruta para obtener un documento PDF desde la tabla documentosAlumnoSubido
 app.get('/documentoAlumnoSubido/:id', (req, res) => {
@@ -1139,18 +1154,6 @@ app.delete('/documentoAlumnoSubido/:id', (req, res) => {
     });
 });
 
-// Ruta para obtener todos los documentos enviados de un alumno desde la tabla documentoAlumno
-app.get('/documentoAlumnoRegistrado/:alumnoID', (req, res) => {
-    const alumnoID = req.params.alumnoID;
-    const query = 'SELECT documentoID AS id, nombreArchivo FROM documentoAlumno WHERE alumnoID = ?';
-
-    connection.query(query, [alumnoID], (err, result) => {
-        if (err) {
-            return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
-        }
-        res.send(result.length > 0 ? result : []);
-    });
-});
 
 // Ruta para obtener un documento PDF desde la tabla documentoAlumno
 app.get('/documentoAlumno/:id', (req, res) => {
@@ -1198,10 +1201,23 @@ app.post('/enviarDocumentoAlumno', (req, res) => {
                         message: 'Error al guardar el documento en la base de datos: ' + err.message,
                     });
                 }
-                return res.status(201).send({
-                    status: 201,
-                    message: 'Documento enviado con éxito',
-                    documentoID: insertResult.insertId,
+
+                // Actualizar el estado del documento en documentosAlumnoSubido
+                const updateQuery = 'UPDATE documentosAlumnoSubido SET estatus = "En proceso" WHERE documentoID = ?';
+                connection.query(updateQuery, [documentoID], (updateErr) => {
+                    if (updateErr) {
+                        console.error('Error al actualizar el estado del documento:', updateErr);
+                        return res.status(500).send({
+                            status: 500,
+                            message: 'Error al actualizar el estado del documento: ' + updateErr.message,
+                        });
+                    }
+
+                    return res.status(201).send({
+                        status: 201,
+                        message: 'Documento enviado con éxito',
+                        documentoID: insertResult.insertId,
+                    });
                 });
             });
         } else {
@@ -1212,6 +1228,3 @@ app.post('/enviarDocumentoAlumno', (req, res) => {
         }
     });
 });
-
-
-

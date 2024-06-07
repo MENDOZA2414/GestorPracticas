@@ -75,6 +75,7 @@ const Documentos = () => {
                 const newDocument = {
                     id: response.data.documentoID,
                     nombreArchivo: file.name,
+                    estatus: 'Subido' // Asigna el estatus inicial aquí si es necesario
                 };
                 setDocuments([...documents, newDocument]);
                 setError(null); // Clear error if new document is uploaded
@@ -170,7 +171,6 @@ const Documentos = () => {
         }
     };
 
-
     const handleSend = (doc) => {
         setSelectedDocument(doc);
     };
@@ -217,6 +217,19 @@ const Documentos = () => {
 
     const handleSearch = (event) => {
         setSearchTerm(event.target.value);
+    };
+
+    const getStatusColor = (estatus) => {
+        switch (estatus) {
+            case 'En proceso':
+                return 'orange';
+            case 'Aceptado':
+                return 'green';
+            case 'Rechazado':
+                return 'red';
+            default:
+                return 'gray';
+        }
     };
 
     const filteredDocuments = viewSentDocuments ? sentDocuments.filter((doc) =>
@@ -276,6 +289,7 @@ const Documentos = () => {
                             <ul>
                                 {filteredDocuments.map((doc) => (
                                     <li key={doc.id}>
+                                        <div className="document-status" style={{ backgroundColor: getStatusColor(doc.estatus) }}></div>
                                         <div className="document-name">{doc.nombreArchivo}</div>
                                         <div className="document-actions">
                                             <FaEye className="action-icon" title="Ver" onClick={() => handleView(doc.id, viewSentDocuments ? 'documentoAlumno' : 'documentoAlumnoSubido')} />

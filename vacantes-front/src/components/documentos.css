@@ -238,6 +238,14 @@
   background-color: #0056b3;
 }
 
+.document-status {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+
 @media (max-width: 768px) {
   .documentos-container {
       flex-direction: column;

@@ -42,6 +42,9 @@ const Documentos = () => {
                 const alumnoResponse = await axios.get(`http://localhost:3001/alumno/${numControl}`);
                 setAlumno(alumnoResponse.data);
 
+                // Log para verificar los datos del alumno
+                console.log('Datos del alumno:', alumnoResponse.data);
+
             } catch (error) {
                 setError('Error fetching documents');
             } finally {
@@ -70,9 +73,8 @@ const Documentos = () => {
                 });
 
                 const newDocument = {
-                    file: file,
-                    nombreArchivo: file.name,
                     id: response.data.documentoID,
+                    nombreArchivo: file.name,
                 };
                 setDocuments([...documents, newDocument]);
                 setError(null); // Clear error if new document is uploaded
@@ -195,7 +197,12 @@ const Documentos = () => {
     return (
         <div className="documentos-container">
             <div className="alumno-card">
-                <img src={alumno.foto} alt="Foto del alumno" className="alumno-foto" />
+                <img 
+                    src={`data:image/jpeg;base64,${alumno.fotoPerfil}`} 
+                    alt="Foto del alumno" 
+                    className="alumno-foto" 
+                    onError={(e) => e.target.src = 'default-image-url.jpg'} // Reemplaza la imagen en caso de error
+                />
                 <div className="alumno-info">
                     <h4>{alumno.nombre}</h4>
                     <div className="alumno-details">

@@ -41,7 +41,40 @@
     font-size: 1.5em;
     margin-right: 10px;
 }
+.modal-documentosInt-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
 
+.modal-documentosInt-button-confirm {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    flex: 1;
+}
+
+.modal-documentosInt-button-confirm:hover {
+    background-color: #0056b3;
+}
+
+.modal-documentosInt-button-cancel {
+    background-color: #dc3545;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    flex: 1;
+}
+
+.modal-documentosInt-button-cancel:hover {
+    background-color: #c82333;
+}
 .cards-container {
     display: flex;
     flex-wrap: wrap;
@@ -70,7 +103,10 @@
     height: 80px;
     border-radius: 50%;
     margin-bottom: 10px;
+    object-fit: cover; /* Asegura que la imagen mantenga su proporción y se recorte para llenar el contenedor */
+    object-position: center; /* Centra la imagen dentro del contenedor */
 }
+
 
 .student-info {
     text-align: center;
@@ -88,6 +124,31 @@
     border-radius: 50%;
     transition: background-color 0.3s;
     cursor: pointer;
+}
+.modal-documentosInt {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 40px; /* Aumentar el padding para una card más grande */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    width: 400px; /* Aumentar el tamaño de la card */
+    text-align: center;
+    z-index: 1300;
+}
+
+
+.modal-documentosInt-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1300; 
 }
 
 .folder-icon-container:hover {

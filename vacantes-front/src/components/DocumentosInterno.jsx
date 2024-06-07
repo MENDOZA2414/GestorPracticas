@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Modal from 'react-modal';
 import { FaFolder, FaCheck, FaTimes } from 'react-icons/fa';
 import { TbArrowBigLeftLineFilled } from "react-icons/tb";
-
 import './documentosInterno.css';
 
 const DocumentosInterno = () => {
@@ -12,11 +12,22 @@ const DocumentosInterno = () => {
     const [approvedDocuments, setApprovedDocuments] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchCriteria, setSearchCriteria] = useState('Nombre');
+    const [modalIsOpen, setModalIsOpen] = useState(false);
+    const [selectedDocument, setSelectedDocument] = useState(null);
+    const [actionType, setActionType] = useState('');
 
     useEffect(() => {
         const fetchStudents = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/alumnos');
+                const storedUser = JSON.parse(localStorage.getItem('user'));
+                const asesorID = storedUser ? storedUser.id : null; // Obtén el ID del asesor logueado
+
+                if (!asesorID) {
+                    throw new Error('No se encontró el ID del asesor logueado');
+                }
+
+                const response = await axios.get(`http://localhost:3001/alumnos/${asesorID}`);
+                console.log('Students data received:', response.data);
                 if (response.data.length === 0) {
                     throw new Error('No students found');
                 }
@@ -24,9 +35,9 @@ const DocumentosInterno = () => {
             } catch (error) {
                 console.error('Error fetching students:', error);
                 setStudents([
-                    { id: 1, name: 'Juan Pérez', turn: 'TM', career: 'IDS', photo: 'path/to/default/photo1.jpg' },
-                    { id: 2, name: 'Ana Gómez', turn: 'TV', career: 'ITC', photo: 'path/to/default/photo2.jpg' },
-                    { id: 3, name: 'Luis Martínez', turn: 'TM', career: 'IDS', photo: 'path/to/default/photo3.jpg' },
+                    { numControl: 1, nombre: 'Juan Pérez', turno: 'TM', carrera: 'IDS', fotoPerfil: 'path/to/default/photo1.jpg' },
+                    { numControl: 2, nombre: 'Ana Gómez', turno: 'TV', carrera: 'ITC', fotoPerfil: 'path/to/default/photo2.jpg' },
+                    { numControl: 3, nombre: 'Luis Martínez', turno: 'TM', carrera: 'IDS', fotoPerfil: 'path/to/default/photo3.jpg' },
                 ]);
             }
         };
@@ -35,7 +46,8 @@ const DocumentosInterno = () => {
 
     const handleFolderClick = async (studentId) => {
         try {
-            const response = await axios.get(`http://localhost:3001/documentosAlumno/${studentId}`);
+            console.log(`Clicked on student with ID: ${studentId}`);
+            const response = await axios.get(`http://localhost:3001/documentoAlumnoRegistrado/${studentId}`);
             setPendingDocuments(response.data.filter(doc => !doc.aprobado));
             setApprovedDocuments(response.data.filter(doc => doc.aprobado));
             setSelectedStudent(studentId);
@@ -51,14 +63,45 @@ const DocumentosInterno = () => {
         }
     };
 
-    const handleApprove = (documentId) => {
-        alert(`Documento ${documentId} aprobado`);
-        // Aquí puedes agregar la lógica para mover el documento a la lista de aprobados
+    const openModal = (docId, type) => {
+        setSelectedDocument(docId);
+        setActionType(type);
+        setModalIsOpen(true);
     };
 
-    const handleReject = (documentId) => {
-        alert(`Documento ${documentId} no aprobado`);
-        // Aquí puedes agregar la lógica para manejar el rechazo del documento
+    const closeModal = () => {
+        setModalIsOpen(false);
+        setSelectedDocument(null);
+        setActionType('');
+    };
+
+    const confirmAction = async () => {
+        if (actionType === 'approve') {
+            await handleApprove(selectedDocument);
+        } else if (actionType === 'reject') {
+            await handleReject(selectedDocument);
+        }
+        closeModal();
+    };
+
+    const handleApprove = async (documentId) => {
+        try {
+            await axios.post(`http://localhost:3001/documentoAlumno/approve`, { documentId });
+            setPendingDocuments(prev => prev.filter(doc => doc.id !== documentId));
+            const approvedDoc = pendingDocuments.find(doc => doc.id === documentId);
+            setApprovedDocuments(prev => [...prev, approvedDoc]);
+        } catch (error) {
+            console.error('Error approving document:', error);
+        }
+    };
+
+    const handleReject = async (documentId) => {
+        try {
+            await axios.post(`http://localhost:3001/documentoAlumno/reject`, { documentId });
+            setPendingDocuments(prev => prev.filter(doc => doc.id !== documentId));
+        } catch (error) {
+            console.error('Error rejecting document:', error);
+        }
     };
 
     const handleBackClick = () => {
@@ -67,11 +110,11 @@ const DocumentosInterno = () => {
 
     const filteredStudents = students.filter(student => {
         if (searchCriteria === 'Nombre') {
-            return student.name.toLowerCase().includes(searchQuery.toLowerCase());
+            return student.nombre && student.nombre.toLowerCase().includes(searchQuery.toLowerCase());
         } else if (searchCriteria === 'Carrera') {
-            return student.career.toLowerCase().includes(searchQuery.toLowerCase());
+            return student.carrera && student.carrera.toLowerCase().includes(searchQuery.toLowerCase());
         } else if (searchCriteria === 'Turno') {
-            return student.turn.toLowerCase().includes(searchQuery.toLowerCase());
+            return student.turno && student.turno.toLowerCase().includes(searchQuery.toLowerCase());
         }
         return false;
     });
@@ -104,15 +147,15 @@ const DocumentosInterno = () => {
             </div>
             <div className="cards-container">
                 {!selectedStudent && filteredStudents.map(student => (
-                    <div className="student-card" key={student.id} onClick={() => handleFolderClick(student.id)}>
-                        <img src={student.photo} alt={student.name} className="student-photo" />
+                    <div className="student-card" key={student.numControl} onClick={() => handleFolderClick(student.numControl)}>
+                        <img src={`http://localhost:3001/image/${student.numControl}`} alt={student.nombre} className="student-photo" />
                         <div className="student-info">
-                            <h3>{student.name}</h3>
+                            <h3>{student.nombre}</h3>
                             <div className="student-details">
-                                <p>{student.turn}</p>
-                                <p>{student.career}</p>
+                                <p>{student.turno}</p>
+                                <p>{student.carrera}</p>
                             </div>
-                            <div className="folder-icon-container" onClick={() => handleFolderClick(student.id)}>
+                            <div className="folder-icon-container">
                                 <FaFolder className="folder-icon" />
                             </div>
                         </div>
@@ -131,8 +174,8 @@ const DocumentosInterno = () => {
                                     <li key={doc.id}>
                                         <div className="document-name">{doc.nombreArchivo}</div>
                                         <div className="document-actions">
-                                            <FaCheck className="approve-icon" onClick={() => handleApprove(doc.id)} />
-                                            <FaTimes className="reject-icon" onClick={() => handleReject(doc.id)} />
+                                            <FaCheck className="approve-icon" onClick={() => openModal(doc.id, 'approve')} />
+                                            <FaTimes className="reject-icon" onClick={() => openModal(doc.id, 'reject')} />
                                         </div>
                                     </li>
                                 ))
@@ -155,6 +198,18 @@ const DocumentosInterno = () => {
                     </div>
                 </div>
             )}
+            <Modal
+                isOpen={modalIsOpen}
+                onRequestClose={closeModal}
+                contentLabel="Confirm Action"
+                className="modal-documentosInt"
+                overlayClassName="modal-documentosInt-overlay"
+            >
+                <h2>Confirmar Acción</h2>
+                <p>¿Estás seguro de que deseas {actionType === 'approve' ? 'aprobar' : 'rechazar'} este documento?</p>
+                <button onClick={confirmAction}>Confirmar</button>
+                <button onClick={closeModal}>Cancelar</button>
+            </Modal>
         </div>
     );
 };

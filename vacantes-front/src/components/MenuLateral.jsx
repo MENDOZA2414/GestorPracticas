@@ -26,10 +26,8 @@ const MenuLateral = ({ userType, logOut, collapsed, toggleSidebar }) => {
     asesorInterno: [
       { path: '/inicioAsesorInterno', icon: FaHome, label: 'Inicio' },
       { path: '/inicioAsesorInterno/perfil', icon: FaUser, label: 'Perfil' },
-      { path: '/inicioAsesorInterno/entidades', icon: FaBuilding, label: 'Entidades' },
-      { path: '/inicioAsesorInterno/vacantes', icon: FaBuilding, label: 'Vacantes' },
+      { path: '/inicioAsesorInterno/vacantes', icon: FaBuilding, label: 'Administrar' },
       { path: '/inicioAsesorInterno/documentos', icon: FaFileAlt, label: 'Documentos' },
-      { path: '/inicioAsesorInterno/alumnos', icon: FaUser, label: 'Alumnos' },
       { path: '/inicioAsesorInterno/reportes', icon: FaChartLine, label: 'Reportes' }
     ],
     asesorExterno: [

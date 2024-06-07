@@ -27,6 +27,8 @@ const Vacantes = () => {
           fechaFinal: '2024-12-15',
           tipoTrabajo: 'Remoto',
           nombreAsesorExterno: 'Nombre Asesor',
+          apellidoPaternoAsesorExterno: 'Apellido Paterno',
+          apellidoMaternoAsesorExterno: 'Apellido Materno',
           logoEmpresa: 'https://via.placeholder.com/150',
         }]);
       }
@@ -165,7 +167,7 @@ const Vacantes = () => {
               <p><strong>Ubicación:</strong> {vacante.ciudad}</p>
               <p><strong>Duración:</strong> {moment(vacante.fechaInicio).format('DD/MM/YYYY')} - {moment(vacante.fechaFinal).format('DD/MM/YYYY')}</p>
               <p><strong>Tipo de Trabajo:</strong> {vacante.tipoTrabajo}</p>
-              <p><strong>Asesor Externo:</strong> {vacante.nombreAsesorExterno}</p>
+              <p><strong>Asesor Externo:</strong> {`${vacante.nombreAsesorExterno} ${vacante.apellidoPaternoAsesorExterno} ${vacante.apellidoMaternoAsesorExterno}`}</p>
             </div>
           </div>
           <div className="vacante-footer" style={{ flex: '30%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -193,7 +195,7 @@ const Vacantes = () => {
                 <p><strong>Ubicación:</strong> {selectedVacante?.ciudad}</p>
                 <p><strong>Duración:</strong> {moment(selectedVacante?.fechaInicio).format('DD/MM/YYYY')} - {moment(selectedVacante?.fechaFinal).format('DD/MM/YYYY')}</p>
                 <p><strong>Tipo de Trabajo:</strong> {selectedVacante?.tipoTrabajo}</p>
-                <p><strong>Asesor Externo:</strong> {selectedVacante?.nombreAsesorExterno}</p>
+                <p><strong>Asesor Externo:</strong> {`${selectedVacante?.nombreAsesorExterno} ${selectedVacante?.apellidoPaternoAsesorExterno} ${selectedVacante?.apellidoMaternoAsesorExterno}`}</p>
               </div>
             </div>
             <input 

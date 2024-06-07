@@ -159,7 +159,12 @@ app.get('/vacantePractica/all/:entidadID/:page/:limit', (req, res) => {
     const start = (page - 1) * limit;
 
     const query = `
-        SELECT vp.*, ae.nombre AS nombreAsesorExterno, er.nombreEntidad AS nombreEmpresa, er.fotoPerfil AS logoEmpresa 
+        SELECT vp.*, 
+               ae.nombre AS nombreAsesorExterno, 
+               ae.apellidoPaterno AS apellidoPaternoAsesorExterno, 
+               ae.apellidoMaterno AS apellidoMaternoAsesorExterno, 
+               er.nombreEntidad AS nombreEmpresa, 
+               er.fotoPerfil AS logoEmpresa 
         FROM vacantePractica vp
         JOIN asesorExterno ae ON vp.asesorExternoID = ae.asesorExternoID
         JOIN entidadReceptora er ON vp.entidadID = er.entidadID
@@ -184,13 +189,22 @@ app.get('/vacantePractica/all/:entidadID/:page/:limit', (req, res) => {
     });
 });
 
+
+
+
+
 app.get('/vacantePractica/all/:page/:limit', (req, res) => {
     const page = req.params.page;
     const limit = req.params.limit;
     const start = (page - 1) * limit;
 
     const query = `
-        SELECT vp.*, ae.nombre AS nombreAsesorExterno, er.nombreEntidad AS nombreEmpresa, er.fotoPerfil AS logoEmpresa 
+        SELECT vp.*, 
+               ae.nombre AS nombreAsesorExterno, 
+               ae.apellidoPaterno AS apellidoPaternoAsesorExterno, 
+               ae.apellidoMaterno AS apellidoMaternoAsesorExterno, 
+               er.nombreEntidad AS nombreEmpresa, 
+               er.fotoPerfil AS logoEmpresa 
         FROM vacantePractica vp
         JOIN asesorExterno ae ON vp.asesorExternoID = ae.asesorExternoID
         JOIN entidadReceptora er ON vp.entidadID = er.entidadID
@@ -213,6 +227,8 @@ app.get('/vacantePractica/all/:page/:limit', (req, res) => {
         }
     });
 });
+
+
 
 
 app.get('/aplicaciones/:vacanteID', (req, res) => {

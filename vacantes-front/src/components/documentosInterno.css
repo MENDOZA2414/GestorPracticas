@@ -5,27 +5,41 @@
 .search-bar {
     display: flex;
     margin-bottom: 20px;
-    justify-content: center; /* Centrar la barra de búsqueda */
+    justify-content: center;
+    align-items: center;
 }
 
 .search-bar input {
-    width: 300px; /* Ancho fijo para la barra de búsqueda en modo escritorio */
-    padding: 5px 10px; /* Asegurar un padding consistente */
+    width: 300px;
+    padding: 5px 10px;
     border: 1px solid #ccc;
     border-radius: 5px 0 0 5px;
     border-right: none;
-    font-size: 0.9em; /* Reducing font size */
-    height: 35px; /* Ajustar la altura */
+    font-size: 0.9em;
+    height: 35px;
     box-sizing: border-box;
 }
 
+.search-bar input.full-border {
+    border-radius: 5px;
+    border-right: 1px solid #ccc;
+}
+
 .search-bar select {
-    padding: 5px 10px; /* Asegurar un padding consistente */
+    padding: 5px 10px;
     border: 1px solid #ccc;
     border-radius: 0 5px 5px 0;
-    font-size: 0.9em; /* Reducing font size */
-    height: 35px; /* Ajustar la altura */
+    font-size: 0.9em;
+    height: 35px;
     box-sizing: border-box;
+}
+
+.back-button {
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5em;
+    margin-right: 10px;
 }
 
 .cards-container {
@@ -43,6 +57,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    transition: transform 0.3s ease; /* Animación de transición */
+    cursor: pointer;
+}
+
+.student-card:hover {
+    transform: translateY(-10px); /* Efecto de subida */
 }
 
 .student-photo {
@@ -65,34 +85,45 @@
 .folder-icon-container {
     display: inline-block;
     padding: 10px;
-    border-radius: 50%; /* Forma circular */
-    transition: background-color 0.3s; /* Efecto de transición */
-    cursor: pointer; /* Cursor de pointer */
+    border-radius: 50%;
+    transition: background-color 0.3s;
+    cursor: pointer;
 }
 
 .folder-icon-container:hover {
-    background-color: #ccc; /* Color de fondo al pasar el mouse */
+    background-color: #ccc;
 }
 
 .folder-icon {
     font-size: 1.5em;
 }
 
-.documents-list {
+.documents-cards-container {
+    display: flex;
+    gap: 20px;
     margin-top: 20px;
 }
 
-.documents-list ul {
-    list-style: none;
-    padding: 0;
+.documents-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    height: 300px;
+    overflow-y: auto;
 }
 
-.documents-list li {
+.pending-documents-card {
+    width: calc(35% - 10px);
+}
+
+.approved-documents-card {
+    width: calc(65% - 10px);
+}
+
+.pending-documents-card .document-actions {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid #ddd;
+    gap: 10px;
 }
 
 .approve-icon {
@@ -101,17 +132,52 @@
     color: green;
 }
 
-/* Estilos responsivos */
+.reject-icon {
+    cursor: pointer;
+    font-size: 1.2em;
+    color: red;
+}
+
+.documents-card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.documents-card li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+}
+
 @media (max-width: 768px) {
     .student-card {
         width: 100%;
     }
 
     .search-bar {
-        justify-content: space-between;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
     }
 
     .search-bar input, .search-bar select {
-        width: 50%;
+        width: auto;
+        margin-bottom: 0;
     }
+
+    .search-bar input {
+        flex-grow: 1;
+    }
+
+    .documents-cards-container {
+        flex-direction: column;
+    }
+
+    .pending-documents-card, .approved-documents-card {
+        width: 100%;
+    }
+
+    
 }

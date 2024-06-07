@@ -25,7 +25,7 @@ const Documentos = () => {
                 }
 
                 // Fetch documentos subidos
-                const response = await axios.get(`http://localhost:3001/documentosAlumno/${numControl}`);
+                const response = await axios.get(`http://localhost:3001/documentoAlumnoSubidos/${numControl}`);
                 setDocuments(response.data);
                 if (response.data.length === 0) {
                     setError('No se encontraron documentos.');
@@ -58,20 +58,20 @@ const Documentos = () => {
         const file = event.target.files[0];
         const storedUser = JSON.parse(localStorage.getItem('user'));
         const numControl = storedUser ? storedUser.id : null;
-
+    
         if (file && file.type === 'application/pdf' && numControl) {
             const formData = new FormData();
             formData.append('file', file);
             formData.append('alumnoID', numControl);
             formData.append('nombreArchivo', file.name);
-
+    
             try {
-                const response = await axios.post('http://localhost:3001/uploadDocumentoAlumno', formData, {
+                const response = await axios.post('http://localhost:3001/uploadDocumentoAlumnoSubido', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
                 });
-
+    
                 const newDocument = {
                     id: response.data.documentoID,
                     nombreArchivo: file.name,
@@ -105,16 +105,17 @@ const Documentos = () => {
             });
         }
     };
+    
 
     const handleView = (id) => {
         if (id) {
-            window.open(`http://localhost:3001/documentoAlumno/${id}`, '_blank');
+            window.open(`http://localhost:3001/documentoAlumnoSubido/${id}`, '_blank');
         }
     };
 
     const handleDownload = (id, nombreArchivo) => {
         if (id) {
-            axios.get(`http://localhost:3001/documentoAlumno/${id}`, {
+            axios.get(`http://localhost:3001/documentoAlumnoSubido/${id}`, {
                 responseType: 'blob',
             }).then((response) => {
                 const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
@@ -144,7 +145,7 @@ const Documentos = () => {
 
         if (result.isConfirmed) {
             try {
-                await axios.delete(`http://localhost:3001/documentoAlumno/${id}`);
+                await axios.delete(`http://localhost:3001/documentoAlumnoSubido/${id}`);
                 setDocuments(documents.filter(doc => doc.id !== id));
                 Swal.fire({
                     position: 'top-end',
@@ -218,23 +219,6 @@ const Documentos = () => {
             </div>
             <div className="card">
                 <div className="card-header">
-                    {!viewSentDocuments && (
-                        <div className="upload-button">
-                            <input
-                                type="file"
-                                accept="application/pdf"
-                                id="file-upload"
-                                style={{ display: 'none' }}
-                                onChange={handleFileUpload}
-                            />
-                            <label htmlFor="file-upload" className="upload-label">
-                                <FaFilePdf className="upload-icon" />
-                                <span>Subir Documento PDF</span>
-                            </label>
-                        </div>
-                    )}
-                </div>
-                <div className="card-body">
                     <div className="search-bar2">
                         <input
                             type="text"
@@ -243,6 +227,8 @@ const Documentos = () => {
                             onChange={handleSearch}
                         />
                     </div>
+                </div>
+                <div className="card-body">
                     <div className="documents-list">
                         <h3>{viewSentDocuments ? 'Documentos Enviados' : 'Documentos Subidos'}</h3>
                         {loading ? (
@@ -270,6 +256,21 @@ const Documentos = () => {
                             </ul>
                         )}
                     </div>
+                    {!viewSentDocuments && (
+                        <div className="upload-button">
+                            <input
+                                type="file"
+                                accept="application/pdf"
+                                id="file-upload"
+                                style={{ display: 'none' }}
+                                onChange={handleFileUpload}
+                            />
+                            <label htmlFor="file-upload" className="upload-label">
+                                <FaFilePdf className="upload-icon" />
+                                <span>Subir Documento PDF</span>
+                            </label>
+                        </div>
+                    )}
                 </div>
                 {selectedDocument && (
                     <div className="modal">

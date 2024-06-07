@@ -1066,10 +1066,32 @@ app.post('/uploadDocumentoAlumno', pdfUpload.single('file'), (req, res) => {
     });
 });
 
+app.post('/uploadDocumentoAlumnoSubido', pdfUpload.single('file'), (req, res) => {
+    const { alumnoID, nombreArchivo } = req.body;
+    const archivo = req.file.buffer;
+
+    const query = `INSERT INTO documentosAlumnoSubido (alumnoID, nombreArchivo, archivo) VALUES (?, ?, ?)`;
+    connection.query(query, [alumnoID, nombreArchivo, archivo], (err, result) => {
+        if (err) {
+            console.error('Error al guardar el documento en la base de datos:', err);
+            return res.status(500).send({
+                status: 500,
+                message: 'Error al guardar el documento en la base de datos: ' + err.message,
+            });
+        }
+        return res.status(201).send({
+            status: 201,
+            message: 'Documento subido con éxito',
+            documentoID: result.insertId,
+        });
+    });
+});
+
+
 // Ruta para obtener todos los documentos de un alumno
-app.get('/documentosAlumno/:alumnoID', (req, res) => {
+app.get('/documentoAlumnoSubidos/:alumnoID', (req, res) => {
     const alumnoID = req.params.alumnoID;
-    const query = 'SELECT documentoID AS id, nombreArchivo FROM documentoAlumno WHERE alumnoID = ?';
+    const query = 'SELECT documentoID AS id, nombreArchivo FROM documentosAlumnoSubido WHERE alumnoID = ?';
 
     connection.query(query, [alumnoID], (err, result) => {
         if (err) {
@@ -1081,9 +1103,9 @@ app.get('/documentosAlumno/:alumnoID', (req, res) => {
 
 
 // Ruta para obtener un documento PDF
-app.get('/documentoAlumno/:id', (req, res) => {
+app.get('/documentoAlumnoSubido/:id', (req, res) => {
     const documentoID = req.params.id;
-    const query = 'SELECT archivo, nombreArchivo FROM documentoAlumno WHERE documentoID = ?';
+    const query = 'SELECT archivo, nombreArchivo FROM documentosAlumnoSubido WHERE documentoID = ?';
 
     connection.query(query, [documentoID], (err, result) => {
         if (err) {

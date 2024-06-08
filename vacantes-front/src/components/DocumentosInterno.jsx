@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Modal from 'react-modal';
-import { FaFolder, FaCheck, FaTimes, FaEye, FaDownload, FaTrash } from 'react-icons/fa';
+import { FaFolder, FaCheck, FaTimes, FaEye, FaDownload, FaTrash, FaUserGraduate } from 'react-icons/fa';
 import { TbArrowBigLeftLineFilled } from "react-icons/tb";
+import Swal from 'sweetalert2';
 import './documentosInterno.css';
 
 const DocumentosInterno = () => {
@@ -28,17 +29,10 @@ const DocumentosInterno = () => {
 
                 const response = await axios.get(`http://localhost:3001/alumnos/${asesorID}`);
                 console.log('Students data received:', response.data);
-                if (response.data.length === 0) {
-                    throw new Error('No students found');
-                }
                 setStudents(response.data);
             } catch (error) {
                 console.error('Error fetching students:', error);
-                setStudents([
-                    { numControl: 1, nombre: 'Juan Pérez', turno: 'TM', carrera: 'IDS', fotoPerfil: 'path/to/default/photo1.jpg' },
-                    { numControl: 2, nombre: 'Ana Gómez', turno: 'TV', carrera: 'ITC', fotoPerfil: 'path/to/default/photo2.jpg' },
-                    { numControl: 3, nombre: 'Luis Martínez', turno: 'TM', carrera: 'IDS', fotoPerfil: 'path/to/default/photo3.jpg' },
-                ]);
+                setStudents([]);
             }
         };
         fetchStudents();
@@ -55,13 +49,8 @@ const DocumentosInterno = () => {
             setSelectedStudent(studentId);
         } catch (error) {
             console.error('Error fetching documents:', error);
-            setPendingDocuments([
-                { id: 1, nombreArchivo: 'Documento1.pdf' },
-                { id: 2, nombreArchivo: 'Documento2.pdf' },
-            ]);
-            setApprovedDocuments([
-                { id: 3, nombreArchivo: 'Documento3.pdf' },
-            ]);
+            setPendingDocuments([]);
+            setApprovedDocuments([]);
         }
     };
 
@@ -183,87 +172,97 @@ const DocumentosInterno = () => {
 
     return (
         <div className="documentos-interno">
-            <div className="search-bar">
-                {selectedStudent && (
-                    <button onClick={handleBackClick} className="back-button">
-                        <TbArrowBigLeftLineFilled />
-                    </button>
-                )}
-                <input
-                    type="text"
-                    placeholder={`Buscar por ${searchCriteria.toLowerCase()}`}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className={selectedStudent ? 'full-border' : ''}
-                />
-                {!selectedStudent && (
-                    <select
-                        value={searchCriteria}
-                        onChange={(e) => setSearchCriteria(e.target.value)}
-                    >
-                        <option value="Nombre">Nombre</option>
-                        <option value="Carrera">Carrera</option>
-                        <option value="Turno">Turno</option>
-                    </select>
-                )}
-            </div>
-            <div className="cards-container">
-                {!selectedStudent && filteredStudents.map(student => (
-                    <div className="student-card" key={student.numControl} onClick={() => handleFolderClick(student.numControl)}>
-                        <img src={`http://localhost:3001/image/${student.numControl}`} alt={student.nombre} className="student-photo" />
-                        <div className="student-info">
-                            <h3>{student.nombre}</h3>
-                            <div className="student-details">
-                                <p>{student.turno}</p>
-                                <p>{student.carrera}</p>
+            {students.length === 0 ? (
+                <div className="no-students-message">
+                    <FaUserGraduate size={150} color="#ccc" />
+                    <p>Aquí se mostrarán las carpetas de tus próximos alumnos a registrar.</p>
+                    <button className="register-student-button" onClick={() => window.location.href='/inicioAsesorInterno/vacantes'}>Registrar nuevo alumno</button>
+                </div>
+            ) : (
+                <>
+                    <div className="search-bar">
+                        {selectedStudent && (
+                            <button onClick={handleBackClick} className="back-button">
+                                <TbArrowBigLeftLineFilled />
+                            </button>
+                        )}
+                        <input
+                            type="text"
+                            placeholder={`Buscar por ${searchCriteria.toLowerCase()}`}
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className={selectedStudent ? 'full-border' : ''}
+                        />
+                        {!selectedStudent && (
+                            <select
+                                value={searchCriteria}
+                                onChange={(e) => setSearchCriteria(e.target.value)}
+                            >
+                                <option value="Nombre">Nombre</option>
+                                <option value="Carrera">Carrera</option>
+                                <option value="Turno">Turno</option>
+                            </select>
+                        )}
+                    </div>
+                    <div className="cards-container">
+                        {!selectedStudent && filteredStudents.map(student => (
+                            <div className="student-card" key={student.numControl} onClick={() => handleFolderClick(student.numControl)}>
+                                <img src={`http://localhost:3001/image/${student.numControl}`} alt={student.nombre} className="student-photo" />
+                                <div className="student-info">
+                                    <h3>{student.nombre}</h3>
+                                    <div className="student-details">
+                                        <p>{student.turno}</p>
+                                        <p>{student.carrera}</p>
+                                    </div>
+                                    <div className="folder-icon-container">
+                                        <FaFolder className="folder-icon" />
+                                    </div>
+                                </div>
                             </div>
-                            <div className="folder-icon-container">
-                                <FaFolder className="folder-icon" />
+                        ))}
+                    </div>
+                    {selectedStudent && (
+                        <div className="documents-cards-container">
+                            <div className="documents-card pending-documents-card">
+                                <h3>Documentos por Aprobar</h3>
+                                <ul>
+                                    {pendingDocuments.length === 0 ? (
+                                        <p>No hay documentos aún</p>
+                                    ) : (
+                                        pendingDocuments.map(doc => (
+                                            <li key={doc.id}>
+                                                <div className="document-name">{doc.nombreArchivo}</div>
+                                                <div className="document-actions">
+                                                    <FaCheck className="approve-icon" onClick={() => openModal(doc.id, 'approve')} />
+                                                    <FaTimes className="reject-icon" onClick={() => openModal(doc.id, 'reject')} />
+                                                </div>
+                                            </li>
+                                        ))
+                                    )}
+                                </ul>
+                            </div>
+                            <div className="documents-card approved-documents-card">
+                                <h3>Documentos Aprobados</h3>
+                                <ul>
+                                    {approvedDocuments.length === 0 ? (
+                                        <p>No hay documentos aún</p>
+                                    ) : (
+                                        approvedDocuments.map(doc => (
+                                            <li key={doc.id}>
+                                                <div className="document-name">{doc.nombreArchivo}</div>
+                                                <div className="document-actions">
+                                                    <FaEye className="action-icon" title="Ver" onClick={() => handleView(doc.id)} />
+                                                    <FaDownload className="action-icon" title="Descargar" onClick={() => handleDownload(doc.id, doc.nombreArchivo)} />
+                                                    <FaTrash className="action-icon trash-icon" title="Eliminar" onClick={() => handleDelete(doc.id)} />
+                                                </div>
+                                            </li>
+                                        ))
+                                    )}
+                                </ul>
                             </div>
                         </div>
-                    </div>
-                ))}
-            </div>
-            {selectedStudent && (
-                <div className="documents-cards-container">
-                    <div className="documents-card pending-documents-card">
-                        <h3>Documentos por Aprobar</h3>
-                        <ul>
-                            {pendingDocuments.length === 0 ? (
-                                <p>No hay documentos aún</p>
-                            ) : (
-                                pendingDocuments.map(doc => (
-                                    <li key={doc.id}>
-                                        <div className="document-name">{doc.nombreArchivo}</div>
-                                        <div className="document-actions">
-                                            <FaCheck className="approve-icon" onClick={() => openModal(doc.id, 'approve')} />
-                                            <FaTimes className="reject-icon" onClick={() => openModal(doc.id, 'reject')} />
-                                        </div>
-                                    </li>
-                                ))
-                            )}
-                        </ul>
-                    </div>
-                    <div className="documents-card approved-documents-card">
-                        <h3>Documentos Aprobados</h3>
-                        <ul>
-                            {approvedDocuments.length === 0 ? (
-                                <p>No hay documentos aún</p>
-                            ) : (
-                                approvedDocuments.map(doc => (
-                                    <li key={doc.id}>
-                                        <div className="document-name">{doc.nombreArchivo}</div>
-                                        <div className="document-actions">
-                                            <FaEye className="action-icon" title="Ver" onClick={() => handleView(doc.id)} />
-                                            <FaDownload className="action-icon" title="Descargar" onClick={() => handleDownload(doc.id, doc.nombreArchivo)} />
-                                            <FaTrash className="action-icon trash-icon" title="Eliminar" onClick={() => handleDelete(doc.id)} />
-                                        </div>
-                                    </li>
-                                ))
-                            )}
-                        </ul>
-                    </div>
-                </div>
+                    )}
+                </>
             )}
             <Modal
                 isOpen={modalIsOpen}

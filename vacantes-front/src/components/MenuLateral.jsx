@@ -26,7 +26,7 @@ const MenuLateral = ({ userType, logOut, collapsed, toggleSidebar }) => {
     asesorInterno: [
       { path: '/inicioAsesorInterno', icon: FaHome, label: 'Inicio' },
       { path: '/inicioAsesorInterno/perfil', icon: FaUser, label: 'Perfil' },
-      { path: '/inicioAsesorInterno/vacantes', icon: FaBuilding, label: 'Administrar' },
+      { path: '/inicioAsesorInterno/administrar', icon: FaBuilding, label: 'Administrar' },
       { path: '/inicioAsesorInterno/documentos', icon: FaFileAlt, label: 'Documentos' },
       { path: '/inicioAsesorInterno/reportes', icon: FaChartLine, label: 'Reportes' }
     ],

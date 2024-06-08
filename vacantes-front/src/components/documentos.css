@@ -246,6 +246,7 @@
 }
 
 .status-circle {
+  flex-shrink: 0; /* Asegura que los círculos no se reduzcan de tamaño */
   width: 15px;
   height: 15px;
   border-radius: 50%;

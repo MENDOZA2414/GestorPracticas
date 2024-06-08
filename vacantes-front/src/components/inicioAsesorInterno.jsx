@@ -8,6 +8,7 @@ import EncabezadoInicio from './EncabezadoInicio';
 import MenuLateral from './MenuLateral'; 
 import './inicioAsesorInterno.css';
 import PerfilAsesorInterno from './PerfilAsesorInterno';
+import Administrar from './Administrar';
 
 const InicioAsesorInterno = ({ user, logOut }) => {
   const [collapsed, setCollapsed] = useState(false);
@@ -62,7 +63,7 @@ const InicioAsesorInterno = ({ user, logOut }) => {
         <Routes>
           <Route path="/" element={<h1>Gestor de prácticas</h1>} />
           <Route path="perfil" element={<PerfilAsesorInterno user={currentUser} setUser={setCurrentUser} />} />
-          <Route path="vacantes" element={<Vacantes />} />
+          <Route path="administrar" element={<Administrar />} />
           <Route path="documentos" element={<DocumentosInterno />} />
          
         </Routes>

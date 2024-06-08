@@ -174,7 +174,7 @@ const DocumentosInterno = () => {
     });
 
     if (isLoading) {
-      
+        return <div>Loaging...</div>;
     }
 
     return (

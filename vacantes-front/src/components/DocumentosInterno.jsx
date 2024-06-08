@@ -12,11 +12,11 @@ const DocumentosInterno = () => {
     const [pendingDocuments, setPendingDocuments] = useState([]);
     const [approvedDocuments, setApprovedDocuments] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const [searchCriteria, setSearchCriteria] = useState('Nombre');
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [selectedDocument, setSelectedDocument] = useState(null);
     const [actionType, setActionType] = useState('');
     const [loading, setLoading] = useState(true);
+    const [documentFilter, setDocumentFilter] = useState('Todos');
 
     useEffect(() => {
         const fetchStudents = async () => {
@@ -85,8 +85,22 @@ const DocumentosInterno = () => {
             setPendingDocuments(prev => prev.filter(doc => doc.id !== documentId));
             const approvedDoc = pendingDocuments.find(doc => doc.id === documentId);
             setApprovedDocuments(prev => [...prev, approvedDoc]);
+            Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: 'Documento aprobado con éxito',
+                showConfirmButton: false,
+                timer: 2000
+            });
         } catch (error) {
             console.error('Error approving document:', error);
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: 'Error al aprobar el documento',
+                showConfirmButton: false,
+                timer: 2000
+            });
         }
     };
 
@@ -94,8 +108,22 @@ const DocumentosInterno = () => {
         try {
             await axios.post(`http://localhost:3001/documentoAlumno/reject`, { documentId });
             setPendingDocuments(prev => prev.filter(doc => doc.id !== documentId));
+            Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: 'Documento rechazado con éxito',
+                showConfirmButton: false,
+                timer: 2000
+            });
         } catch (error) {
             console.error('Error rejecting document:', error);
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: 'Error al rechazar el documento',
+                showConfirmButton: false,
+                timer: 2000
+            });
         }
     };
 
@@ -163,20 +191,19 @@ const DocumentosInterno = () => {
         }
     };
 
-    const filteredStudents = students.filter(student => {
-        if (searchCriteria === 'Nombre') {
-            return student.nombre && student.nombre.toLowerCase().includes(searchQuery.toLowerCase());
-        } else if (searchCriteria === 'Carrera') {
-            return student.carrera && student.carrera.toLowerCase().includes(searchQuery.toLowerCase());
-        } else if (searchCriteria === 'Turno') {
-            return student.turno && student.turno.toLowerCase().includes(searchQuery.toLowerCase());
-        }
-        return false;
-    });
+    const filterDocuments = (documents) => {
+        return documents.filter(doc => doc.nombreArchivo.toLowerCase().includes(searchQuery.toLowerCase()));
+    };
 
     if (loading) {
         return <div>Cargando...</div>;
     }
+
+    const filteredPendingDocuments = filterDocuments(pendingDocuments);
+    const filteredApprovedDocuments = filterDocuments(approvedDocuments);
+
+    const noResultsMessage = (documentFilter === 'Todos' || documentFilter === 'Por Aprobar') && filteredPendingDocuments.length === 0 && searchQuery ? 'Sin resultados' : 'No hay documentos aún';
+    const noResultsMessageApproved = (documentFilter === 'Todos' || documentFilter === 'Aprobados') && filteredApprovedDocuments.length === 0 && searchQuery ? 'Sin resultados' : 'No hay documentos aún';
 
     return (
         <div className="documentos-interno">
@@ -196,24 +223,20 @@ const DocumentosInterno = () => {
                         )}
                         <input
                             type="text"
-                            placeholder={`Buscar por ${searchCriteria.toLowerCase()}`}
+                            placeholder={`Buscar por nombre`}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className={selectedStudent ? 'full-border' : ''}
                         />
-                        {!selectedStudent && (
-                            <select
-                                value={searchCriteria}
-                                onChange={(e) => setSearchCriteria(e.target.value)}
-                            >
-                                <option value="Nombre">Nombre</option>
-                                <option value="Carrera">Carrera</option>
-                                <option value="Turno">Turno</option>
+                        {selectedStudent && (
+                            <select value={documentFilter} onChange={(e) => setDocumentFilter(e.target.value)}>
+                                <option value="Todos">Todos</option>
+                                <option value="Por Aprobar">Por Aprobar</option>
+                                <option value="Aprobados">Aprobados</option>
                             </select>
                         )}
                     </div>
                     <div className="cards-container">
-                        {!selectedStudent && filteredStudents.map(student => (
+                        {!selectedStudent && students.filter(student => student.nombre.toLowerCase().includes(searchQuery.toLowerCase())).map(student => (
                             <div className="student-card" key={student.numControl} onClick={() => handleFolderClick(student.numControl)}>
                                 <img src={`http://localhost:3001/image/${student.numControl}`} alt={student.nombre} className="student-photo" />
                                 <div className="student-info">
@@ -234,10 +257,10 @@ const DocumentosInterno = () => {
                             <div className="documents-card pending-documents-card">
                                 <h3>Documentos por Aprobar</h3>
                                 <ul>
-                                    {pendingDocuments.length === 0 ? (
-                                        <p>No hay documentos aún</p>
+                                    {(documentFilter === 'Todos' || documentFilter === 'Por Aprobar') && (filteredPendingDocuments.length === 0 ? (
+                                        <p>{noResultsMessage}</p>
                                     ) : (
-                                        pendingDocuments.map(doc => (
+                                        filteredPendingDocuments.map(doc => (
                                             <li key={doc.id}>
                                                 <div className="document-name">{doc.nombreArchivo}</div>
                                                 <div className="document-actions">
@@ -246,16 +269,16 @@ const DocumentosInterno = () => {
                                                 </div>
                                             </li>
                                         ))
-                                    )}
+                                    ))}
                                 </ul>
                             </div>
                             <div className="documents-card approved-documents-card">
                                 <h3>Documentos Aprobados</h3>
                                 <ul>
-                                    {approvedDocuments.length === 0 ? (
-                                        <p>No hay documentos aún</p>
+                                    {(documentFilter === 'Todos' || documentFilter === 'Aprobados') && (filteredApprovedDocuments.length === 0 ? (
+                                        <p>{noResultsMessageApproved}</p>
                                     ) : (
-                                        approvedDocuments.map(doc => (
+                                        filteredApprovedDocuments.map(doc => (
                                             <li key={doc.id}>
                                                 <div className="document-name">{doc.nombreArchivo}</div>
                                                 <div className="document-actions">
@@ -265,7 +288,7 @@ const DocumentosInterno = () => {
                                                 </div>
                                             </li>
                                         ))
-                                    )}
+                                    ))}
                                 </ul>
                             </div>
                         </div>

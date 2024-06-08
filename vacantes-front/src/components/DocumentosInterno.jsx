@@ -16,13 +16,14 @@ const DocumentosInterno = () => {
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [selectedDocument, setSelectedDocument] = useState(null);
     const [actionType, setActionType] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchStudents = async () => {
+            setLoading(true);
             try {
                 const storedUser = JSON.parse(localStorage.getItem('user'));
-                const asesorID = storedUser ? storedUser.id : null; // Obtén el ID del asesor logueado
+                const asesorID = storedUser ? storedUser.id : null;
 
                 if (!asesorID) {
                     throw new Error('No se encontró el ID del asesor logueado');
@@ -35,7 +36,7 @@ const DocumentosInterno = () => {
                 console.error('Error fetching students:', error);
                 setStudents([]);
             } finally {
-                setIsLoading(false);
+                setLoading(false);
             }
         };
         fetchStudents();
@@ -173,8 +174,8 @@ const DocumentosInterno = () => {
         return false;
     });
 
-    if (isLoading) {
-        return <div>Loaging...</div>;
+    if (loading) {
+        return <div>Cargando...</div>;
     }
 
     return (

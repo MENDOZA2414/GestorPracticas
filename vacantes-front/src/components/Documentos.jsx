@@ -180,9 +180,7 @@ const Documentos = () => {
             try {
                 await axios.delete(`http://localhost:3001/${table}/${id}`);
                 if (table === 'documentoAlumnoSubido') {
-                    const updatedDocuments = documents.map(doc =>
-                        doc.id === id ? { ...doc, estatus: 'Eliminado' } : doc
-                    );
+                    const updatedDocuments = documents.filter(doc => doc.id !== id);
                     setDocuments(sortDocuments(updatedDocuments)); // Ordenar documentos al eliminar
                 } else if (table === 'documentoAlumno') {
                     const updatedSentDocuments = sentDocuments.filter(doc => doc.id !== id);

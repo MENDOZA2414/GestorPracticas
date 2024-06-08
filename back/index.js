@@ -1108,7 +1108,7 @@ app.post('/uploadDocumentoAlumnoSubido', pdfUpload.single('file'), (req, res) =>
     const { alumnoID, nombreArchivo } = req.body;
     const archivo = req.file.buffer;
 
-    const query = `INSERT INTO documentosAlumnoSubido (alumnoID, nombreArchivo, archivo) VALUES (?, ?, ?)`;
+    const query = `INSERT INTO documentosAlumnoSubido (alumnoID, nombreArchivo, archivo, estatus) VALUES (?, ?, ?, 'Subido')`;
     connection.query(query, [alumnoID, nombreArchivo, archivo], (err, result) => {
         if (err) {
             console.error('Error al guardar el documento en la base de datos:', err);
@@ -1124,6 +1124,7 @@ app.post('/uploadDocumentoAlumnoSubido', pdfUpload.single('file'), (req, res) =>
         });
     });
 });
+
 
 
 

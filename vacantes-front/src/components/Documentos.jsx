@@ -75,7 +75,8 @@ const Documentos = () => {
             'Aceptado': 1,
             'En proceso': 2,
             'Rechazado': 3,
-            'Eliminado': 4
+            'Subido': 4,
+            'Eliminado': 5
         };
         return documents.sort((a, b) => statusOrder[a.estatus] - statusOrder[b.estatus]);
     };
@@ -270,7 +271,9 @@ const Documentos = () => {
             case 'Rechazado':
                 return 'red';
             case 'Eliminado':
-                return 'Black'; // Un amarillo más fuerte
+                return 'black';
+            case 'Subido':
+                return 'grey'; // Color gris para el estatus "Subido"
             default:
                 return 'grey';
         }

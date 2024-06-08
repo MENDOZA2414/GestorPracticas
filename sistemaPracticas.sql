@@ -136,10 +136,11 @@ CREATE TABLE IF NOT EXISTS documentosAlumnoSubido (
     alumnoID VARCHAR(10) NOT NULL,
     nombreArchivo VARCHAR(255) NOT NULL,
     archivo LONGBLOB NOT NULL,
-    estatus ENUM('En proceso', 'Aceptado', 'Rechazado'),
+    estatus ENUM('Subido', 'En proceso', 'Aceptado', 'Rechazado', 'Eliminado'),
     fechaSubida TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fkAlumnoDocumentoSubido FOREIGN KEY (alumnoID) REFERENCES alumno(numControl)
 );
+
 
 
 -- Crear tabla para Reporte

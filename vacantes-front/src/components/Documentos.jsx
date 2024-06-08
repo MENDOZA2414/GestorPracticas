@@ -74,7 +74,8 @@ const Documentos = () => {
         const statusOrder = {
             'Aceptado': 1,
             'En proceso': 2,
-            'Rechazado': 3
+            'Rechazado': 3,
+            'Eliminado': 4
         };
         return documents.sort((a, b) => statusOrder[a.estatus] - statusOrder[b.estatus]);
     };
@@ -178,7 +179,9 @@ const Documentos = () => {
             try {
                 await axios.delete(`http://localhost:3001/${table}/${id}`);
                 if (table === 'documentoAlumnoSubido') {
-                    const updatedDocuments = documents.filter(doc => doc.id !== id);
+                    const updatedDocuments = documents.map(doc =>
+                        doc.id === id ? { ...doc, estatus: 'Eliminado' } : doc
+                    );
                     setDocuments(sortDocuments(updatedDocuments)); // Ordenar documentos al eliminar
                 } else if (table === 'documentoAlumno') {
                     const updatedSentDocuments = sentDocuments.filter(doc => doc.id !== id);
@@ -266,6 +269,8 @@ const Documentos = () => {
                 return 'green';
             case 'Rechazado':
                 return 'red';
+            case 'Eliminado':
+                return 'Black'; // Un amarillo más fuerte
             default:
                 return 'grey';
         }

@@ -1174,6 +1174,49 @@ app.get('/documentoAlumnoSubido/:id', (req, res) => {
         }
     });
 });
+// Ruta para eliminar un documento de la tabla documentoAlumno actualizar el estatus
+app.delete('/documentoAlumno/:id', (req, res) => {
+    const documentoID = req.params.id;
+
+    // Primero, obtenemos el nombre del archivo desde documentoAlumno usando el documentoID
+    const selectQuery = 'SELECT nombreArchivo, alumnoID FROM documentoAlumno WHERE documentoID = ?';
+
+    connection.query(selectQuery, [documentoID], (err, result) => {
+        if (err) {
+            return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
+        }
+
+        if (result.length > 0) {
+            const { nombreArchivo, alumnoID } = result[0];
+
+            // Borramos el documento de la tabla documentoAlumno
+            const deleteQuery = 'DELETE FROM documentoAlumno WHERE documentoID = ?';
+
+            connection.query(deleteQuery, [documentoID], (err, deleteResult) => {
+                if (err) {
+                    return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
+                }
+
+                if (deleteResult.affectedRows > 0) {
+                    // Actualizamos el estatus del documento en documentosAlumnoSubido basado en nombreArchivo y alumnoID
+                    const updateQuery = 'UPDATE documentosAlumnoSubido SET estatus = "Eliminado" WHERE nombreArchivo = ? AND alumnoID = ?';
+
+                    connection.query(updateQuery, [nombreArchivo, alumnoID], (err, updateResult) => {
+                        if (err) {
+                            return res.status(500).send({ message: 'Error actualizando el estatus: ' + err.message });
+                        }
+                        res.send({ message: 'Documento eliminado con éxito' });
+                    });
+                } else {
+                    res.status(404).send({ message: 'Documento no encontrado' });
+                }
+            });
+        } else {
+            res.status(404).send({ message: 'Documento no encontrado' });
+        }
+    });
+});
+
 
 // Ruta para eliminar un documento de la tabla documentosAlumnoSubido
 app.delete('/documentoAlumnoSubido/:id', (req, res) => {

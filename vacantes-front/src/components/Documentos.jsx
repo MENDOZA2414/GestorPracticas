@@ -27,7 +27,8 @@ const Documentos = () => {
 
             // Fetch documentos subidos
             const response = await axios.get(`http://localhost:3001/documentoAlumnoSubidos/${numControl}`);
-            setDocuments(response.data);
+            const sortedDocuments = sortDocuments(response.data); // Ordenar documentos
+            setDocuments(sortedDocuments);
             if (response.data.length === 0) {
                 setErrorDocuments('No se encontraron documentos subidos.');
             }
@@ -57,7 +58,8 @@ const Documentos = () => {
 
             // Fetch documentos aprobados
             const sentResponse = await axios.get(`http://localhost:3001/documentoAlumnoAprobado/${numControl}`);
-            setSentDocuments(sentResponse.data);
+            const sortedSentDocuments = sortDocuments(sentResponse.data); // Ordenar documentos enviados
+            setSentDocuments(sortedSentDocuments);
             if (sentResponse.data.length === 0) {
                 setErrorSentDocuments('No se encontraron documentos aprobados.');
             }
@@ -66,6 +68,15 @@ const Documentos = () => {
         } finally {
             setLoadingSentDocuments(false);
         }
+    };
+
+    const sortDocuments = (documents) => {
+        const statusOrder = {
+            'Aceptado': 1,
+            'En proceso': 2,
+            'Rechazado': 3
+        };
+        return documents.sort((a, b) => statusOrder[a.estatus] - statusOrder[b.estatus]);
     };
 
     useEffect(() => {
@@ -96,7 +107,8 @@ const Documentos = () => {
                     nombreArchivo: file.name,
                     estatus: 'Subido', // Estado inicial para un documento subido
                 };
-                setDocuments([...documents, newDocument]);
+                const sortedDocuments = sortDocuments([...documents, newDocument]); // Ordenar documentos al añadir
+                setDocuments(sortedDocuments);
                 setErrorDocuments(null); // Clear error if new document is uploaded
                 Swal.fire({
                     position: 'top-end',
@@ -166,9 +178,11 @@ const Documentos = () => {
             try {
                 await axios.delete(`http://localhost:3001/${table}/${id}`);
                 if (table === 'documentoAlumnoSubido') {
-                    setDocuments(documents.filter(doc => doc.id !== id));
+                    const updatedDocuments = documents.filter(doc => doc.id !== id);
+                    setDocuments(sortDocuments(updatedDocuments)); // Ordenar documentos al eliminar
                 } else if (table === 'documentoAlumno') {
-                    setSentDocuments(sentDocuments.filter(doc => doc.id !== id));
+                    const updatedSentDocuments = sentDocuments.filter(doc => doc.id !== id);
+                    setSentDocuments(sortDocuments(updatedSentDocuments)); // Ordenar documentos enviados al eliminar
                 }
                 Swal.fire({
                     position: 'top-end',
@@ -220,9 +234,10 @@ const Documentos = () => {
                 await fetchSentDocuments();
 
                 // Actualizar el estado del documento en la lista de documentos subidos
-                setDocuments(prevDocuments => prevDocuments.map(doc =>
+                const updatedDocuments = documents.map(doc =>
                     doc.id === selectedDocument.id ? { ...doc, estatus: 'En proceso' } : doc
-                ));
+                );
+                setDocuments(sortDocuments(updatedDocuments)); // Ordenar documentos al actualizar estado
 
                 setSelectedDocument(null); // Cerrar el modal
             } catch (error) {
@@ -336,7 +351,11 @@ const Documentos = () => {
                                             <FaDownload className="action-icon" title="Descargar" onClick={() => handleDownload(doc.id, doc.nombreArchivo, viewSentDocuments ? 'documentoAlumno' : 'documentoAlumnoSubido')} />
                                             {!viewSentDocuments && (
                                                 <>
-                                                    <FaPaperPlane className="action-icon" title="Enviar" onClick={() => handleSend(doc)} />
+                                                    <FaPaperPlane 
+                                                        className={`action-icon ${doc.estatus === 'Aceptado' ? 'disabled-icon' : ''}`} 
+                                                        title="Enviar" 
+                                                        onClick={() => doc.estatus !== 'Aceptado' && handleSend(doc)} 
+                                                    />
                                                     <h5 className='barrita'>|</h5>
                                                     <FaTrash className="action-icon trash-icon" title="Eliminar" onClick={() => handleDelete(doc.id, 'documentoAlumnoSubido')} />
                                                 </>

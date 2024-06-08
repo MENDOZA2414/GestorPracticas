@@ -41,40 +41,7 @@
     font-size: 1.5em;
     margin-right: 10px;
 }
-.modal-documentosInt-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 20px;
-}
 
-.modal-documentosInt-button-confirm {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    flex: 1;
-}
-
-.modal-documentosInt-button-confirm:hover {
-    background-color: #0056b3;
-}
-
-.modal-documentosInt-button-cancel {
-    background-color: #dc3545;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    flex: 1;
-}
-
-.modal-documentosInt-button-cancel:hover {
-    background-color: #c82333;
-}
 .cards-container {
     display: flex;
     flex-wrap: wrap;
@@ -107,7 +74,6 @@
     object-position: center; /* Centra la imagen dentro del contenedor */
 }
 
-
 .student-info {
     text-align: center;
 }
@@ -125,6 +91,7 @@
     transition: background-color 0.3s;
     cursor: pointer;
 }
+
 .modal-documentosInt {
     position: fixed;
     top: 50%;
@@ -139,7 +106,6 @@
     text-align: center;
     z-index: 1300;
 }
-
 
 .modal-documentosInt-overlay {
     position: fixed;
@@ -212,6 +178,60 @@
     border-bottom: 1px solid #ddd;
 }
 
+.action-icon {
+    font-size: 1.2em;
+    cursor: pointer;
+    color: #007bff;
+    transition: color 0.3s;
+}
+
+.action-icon:hover {
+    color: #0055ff;
+}
+
+.trash-icon {
+    color: red;
+}
+
+.trash-icon:hover {
+    color: darkred;
+}
+
+.modal-documentosInt-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.modal-documentosInt-button-confirm {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    flex: 1;
+}
+
+.modal-documentosInt-button-confirm:hover {
+    background-color: #0056b3;
+}
+
+.modal-documentosInt-button-cancel {
+    background-color: #dc3545;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    flex: 1;
+}
+
+.modal-documentosInt-button-cancel:hover {
+    background-color: #c82333;
+}
+
 @media (max-width: 768px) {
     .student-card {
         width: 100%;
@@ -239,6 +259,4 @@
     .pending-documents-card, .approved-documents-card {
         width: 100%;
     }
-
-    
 }

@@ -16,59 +16,59 @@ const Documentos = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [viewSentDocuments, setViewSentDocuments] = useState(false);
 
+    const fetchDocuments = async () => {
+        try {
+            const storedUser = JSON.parse(localStorage.getItem('user'));
+            const numControl = storedUser ? storedUser.id : null;
+
+            if (!numControl) {
+                throw new Error('No se encontró el número de control del alumno logueado');
+            }
+
+            // Fetch documentos subidos
+            const response = await axios.get(`http://localhost:3001/documentoAlumnoSubidos/${numControl}`);
+            setDocuments(response.data);
+            if (response.data.length === 0) {
+                setErrorDocuments('No se encontraron documentos subidos.');
+            }
+
+            // Fetch alumno info
+            const alumnoResponse = await axios.get(`http://localhost:3001/alumno/${numControl}`);
+            setAlumno(alumnoResponse.data);
+
+            // Log para verificar los datos del alumno
+            console.log('Datos del alumno:', alumnoResponse.data);
+
+        } catch (error) {
+            setErrorDocuments('Error fetching documents');
+        } finally {
+            setLoadingDocuments(false);
+        }
+    };
+
+    const fetchSentDocuments = async () => {
+        try {
+            const storedUser = JSON.parse(localStorage.getItem('user'));
+            const numControl = storedUser ? storedUser.id : null;
+
+            if (!numControl) {
+                throw new Error('No se encontró el número de control del alumno logueado');
+            }
+
+            // Fetch documentos aprobados
+            const sentResponse = await axios.get(`http://localhost:3001/documentoAlumnoAprobado/${numControl}`);
+            setSentDocuments(sentResponse.data);
+            if (sentResponse.data.length === 0) {
+                setErrorSentDocuments('No se encontraron documentos aprobados.');
+            }
+        } catch (error) {
+            setErrorSentDocuments('Error fetching sent documents');
+        } finally {
+            setLoadingSentDocuments(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchDocuments = async () => {
-            try {
-                const storedUser = JSON.parse(localStorage.getItem('user'));
-                const numControl = storedUser ? storedUser.id : null;
-
-                if (!numControl) {
-                    throw new Error('No se encontró el número de control del alumno logueado');
-                }
-
-                // Fetch documentos subidos
-                const response = await axios.get(`http://localhost:3001/documentoAlumnoSubidos/${numControl}`);
-                setDocuments(response.data);
-                if (response.data.length === 0) {
-                    setErrorDocuments('No se encontraron documentos subidos.');
-                }
-
-                // Fetch alumno info
-                const alumnoResponse = await axios.get(`http://localhost:3001/alumno/${numControl}`);
-                setAlumno(alumnoResponse.data);
-
-                // Log para verificar los datos del alumno
-                console.log('Datos del alumno:', alumnoResponse.data);
-
-            } catch (error) {
-                setErrorDocuments('Error fetching documents');
-            } finally {
-                setLoadingDocuments(false);
-            }
-        };
-
-        const fetchSentDocuments = async () => {
-            try {
-                const storedUser = JSON.parse(localStorage.getItem('user'));
-                const numControl = storedUser ? storedUser.id : null;
-
-                if (!numControl) {
-                    throw new Error('No se encontró el número de control del alumno logueado');
-                }
-
-                // Fetch documentos enviados
-                const sentResponse = await axios.get(`http://localhost:3001/documentoAlumnoRegistrado/${numControl}`);
-                setSentDocuments(sentResponse.data);
-                if (sentResponse.data.length === 0) {
-                    setErrorSentDocuments('No se encontraron documentos enviados.');
-                }
-            } catch (error) {
-                setErrorSentDocuments('Error fetching sent documents');
-            } finally {
-                setLoadingSentDocuments(false);
-            }
-        };
-
         fetchDocuments();
         fetchSentDocuments();
     }, []);
@@ -217,8 +217,7 @@ const Documentos = () => {
                 });
 
                 // Actualizar la lista de documentos enviados
-                const sentResponse = await axios.get(`http://localhost:3001/documentoAlumnoRegistrado/${numControl}`);
-                setSentDocuments(sentResponse.data);
+                await fetchSentDocuments();
 
                 // Actualizar el estado del documento en la lista de documentos subidos
                 setDocuments(prevDocuments => prevDocuments.map(doc =>
@@ -240,7 +239,6 @@ const Documentos = () => {
         }
     };
 
-
     const handleSearch = (event) => {
         setSearchTerm(event.target.value);
     };
@@ -256,6 +254,10 @@ const Documentos = () => {
             default:
                 return 'grey';
         }
+    };
+
+    const getStatusColorAlwaysGreen = () => {
+        return 'green';
     };
 
     const filteredDocuments = viewSentDocuments ? sentDocuments.filter((doc) =>
@@ -295,7 +297,7 @@ const Documentos = () => {
             <div className="card">
                 <div className="card-header">
                     <div className="header-content">
-                        <h3>{viewSentDocuments ? 'Documentos Enviados' : 'Documentos Subidos'}</h3>
+                        <h3>{viewSentDocuments ? 'Documentos Registrados' : 'Documentos Subidos'}</h3>
                     </div>
                     <div className="search-bar2">
                         <input
@@ -324,7 +326,7 @@ const Documentos = () => {
                                             <div
                                                 className="status-circle"
                                                 style={{
-                                                    backgroundColor: getStatusColor(doc.estatus)
+                                                    backgroundColor: viewSentDocuments ? getStatusColorAlwaysGreen() : getStatusColor(doc.estatus)
                                                 }}
                                             />
                                             {doc.nombreArchivo}
@@ -342,7 +344,6 @@ const Documentos = () => {
                                         </div>
                                     </li>
                                 ))}
-
                             </ul>
                         )}
                     </div>

@@ -1284,48 +1284,87 @@ app.get('/documentoAlumnoRegistrado/:alumnoID', (req, res) => {
 // Ruta para aprobar un documento
 app.post('/documentoAlumno/approve', (req, res) => {
     const { documentId } = req.body;
-
-    // Actualizar el estado del documento en la tabla documentoAlumno
-    const updateDocumentoAlumnoQuery = 'UPDATE documentoAlumno SET estatus = "Aceptado" WHERE documentoID = ?';
-    connection.query(updateDocumentoAlumnoQuery, [documentId], (err, result) => {
+    
+    // Asegurarse de obtener el documento correcto antes de actualizar
+    const selectQuery = 'SELECT * FROM documentoAlumno WHERE documentoID = ?';
+    connection.query(selectQuery, [documentId], (err, results) => {
         if (err) {
-            console.error('Error approving documentoAlumno:', err);
-            return res.status(500).send({ message: 'Error approving documentoAlumno' });
+            console.error('Error selecting documentoAlumno:', err);
+            return res.status(500).send({ message: 'Error selecting document' });
         }
 
-        // Actualizar el estado del documento en la tabla documentosAlumnoSubido
-        const updateDocumentosAlumnoSubidoQuery = 'UPDATE documentosAlumnoSubido SET estatus = "Aceptado" WHERE documentoID = ?';
-        connection.query(updateDocumentosAlumnoSubidoQuery, [documentId], (err, result) => {
+        if (results.length === 0) {
+            return res.status(404).send({ message: 'Document not found' });
+        }
+
+        const updateQuery = 'UPDATE documentoAlumno SET estatus = "Aceptado" WHERE documentoID = ?';
+        connection.query(updateQuery, [documentId], (err, result) => {
             if (err) {
-                console.error('Error approving documentosAlumnoSubido:', err);
-                return res.status(500).send({ message: 'Error approving documentosAlumnoSubido' });
+                console.error('Error approving documentoAlumno:', err);
+                return res.status(500).send({ message: 'Error approving document' });
             }
 
-            res.status(200).send({ message: 'Documento aprobado con éxito' });
+            const updateSubidoQuery = 'UPDATE documentosAlumnoSubido SET estatus = "Aceptado" WHERE nombreArchivo = ? AND alumnoID = ?';
+            connection.query(updateSubidoQuery, [results[0].nombreArchivo, results[0].alumnoID], (err, result) => {
+                if (err) {
+                    console.error('Error updating documentosAlumnoSubido:', err);
+                    return res.status(500).send({ message: 'Error updating document status' });
+                }
+
+                res.status(200).send({ message: 'Document approved successfully' });
+            });
         });
     });
 });
 
+
+
+// Ruta para rechazar un documento
 app.post('/documentoAlumno/reject', (req, res) => {
     const { documentId } = req.body;
 
-    // Eliminar el documento de la tabla documentoAlumno
-    const deleteDocumentoAlumnoQuery = 'DELETE FROM documentoAlumno WHERE documentoID = ?';
-    connection.query(deleteDocumentoAlumnoQuery, [documentId], (err, result) => {
+    // Asegurarse de obtener el documento correcto antes de actualizar
+    const selectQuery = 'SELECT * FROM documentoAlumno WHERE documentoID = ?';
+    connection.query(selectQuery, [documentId], (err, results) => {
         if (err) {
-            console.error('Error deleting documentoAlumno:', err);
-            return res.status(500).send({ message: 'Error deleting documentoAlumno' });
+            console.error('Error selecting documentoAlumno:', err);
+            return res.status(500).send({ message: 'Error selecting document' });
         }
 
-        // Actualizar el estado del documento en la tabla documentosAlumnoSubido
-        const updateDocumentosAlumnoSubidoQuery = 'UPDATE documentosAlumnoSubido SET estatus = "Rechazado" WHERE documentoID = ?';
-        connection.query(updateDocumentosAlumnoSubidoQuery, [documentId], (err, result) => {
+        if (results.length === 0) {
+            return res.status(404).send({ message: 'Document not found' });
+        }
+
+        const deleteQuery = 'DELETE FROM documentoAlumno WHERE documentoID = ?';
+        connection.query(deleteQuery, [documentId], (err, result) => {
             if (err) {
-                console.error('Error rejecting documentosAlumnoSubido:', err);
-                return res.status(500).send({ message: 'Error rejecting documentosAlumnoSubido' });
+                console.error('Error deleting documentoAlumno:', err);
+                return res.status(500).send({ message: 'Error rejecting document' });
             }
 
-            res.status(200).send({ message: 'Documento rechazado con éxito' });
+            const updateSubidoQuery = 'UPDATE documentosAlumnoSubido SET estatus = "Rechazado" WHERE nombreArchivo = ? AND alumnoID = ?';
+            connection.query(updateSubidoQuery, [results[0].nombreArchivo, results[0].alumnoID], (err, result) => {
+                if (err) {
+                    console.error('Error updating documentosAlumnoSubido:', err);
+                    return res.status(500).send({ message: 'Error updating document status' });
+                }
+
+                res.status(200).send({ message: 'Document rejected successfully' });
+            });
         });
+    });
+});
+
+
+// Ruta para obtener los documentos aprobados de un alumno
+app.get('/documentoAlumnoAprobado/:alumnoID', (req, res) => {
+    const alumnoID = req.params.alumnoID;
+    const query = 'SELECT documentoID AS id, nombreArchivo FROM documentoAlumno WHERE alumnoID = ? AND estatus = "Aceptado"';
+
+    connection.query(query, [alumnoID], (err, result) => {
+        if (err) {
+            return res.status(500).send({ message: 'Error fetching approved documents' });
+        }
+        res.send(result.length > 0 ? result : []);
     });
 });

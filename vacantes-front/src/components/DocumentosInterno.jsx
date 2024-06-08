@@ -16,6 +16,7 @@ const DocumentosInterno = () => {
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [selectedDocument, setSelectedDocument] = useState(null);
     const [actionType, setActionType] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchStudents = async () => {
@@ -33,6 +34,8 @@ const DocumentosInterno = () => {
             } catch (error) {
                 console.error('Error fetching students:', error);
                 setStudents([]);
+            } finally {
+                setIsLoading(false);
             }
         };
         fetchStudents();
@@ -170,13 +173,17 @@ const DocumentosInterno = () => {
         return false;
     });
 
+    if (isLoading) {
+      
+    }
+
     return (
         <div className="documentos-interno">
             {students.length === 0 ? (
                 <div className="no-students-message">
                     <FaUserGraduate size={150} color="#ccc" />
                     <p>Aquí se mostrarán las carpetas de tus próximos alumnos a registrar.</p>
-                    <button className="register-student-button" onClick={() => window.location.href='/inicioAsesorInterno/vacantes'}>Registrar nuevo alumno</button>
+                    <button className="register-student-button" onClick={() => window.location.href='/inicioAsesorInterno/administrar'}>Registrar nuevo alumno</button>
                 </div>
             ) : (
                 <>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaUserGraduate, FaBriefcase, FaBuilding, FaEye, FaCheck, FaTimes } from 'react-icons/fa';
+import { FaUserGraduate, FaBriefcase, FaBuilding, FaEye, FaCheck, FaTimes, FaTrash } from 'react-icons/fa';
 import Swal from 'sweetalert2';
+import Switch from 'react-switch';
 import moment from 'moment';
 import './administrar.css';
 
@@ -13,22 +14,38 @@ const Administrar = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [confirmAction, setConfirmAction] = useState('');
   const [confirmMessage, setConfirmMessage] = useState('');
+  const [isRegistered, setIsRegistered] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         let response;
-        switch (selectedOption) {
-          case 'entidades':
-            response = await axios.get('http://localhost:3001/entidades/all');
-            break;
-          case 'alumnos':
-            response = await axios.get('http://localhost:3001/alumnos/all');
-            break;
-          case 'vacantes':
-          default:
-            response = await axios.get('http://localhost:3001/vacantePractica/all/1/100');
-            break;
+        if (isRegistered) {
+          switch (selectedOption) {
+            case 'entidades':
+              response = await axios.get('http://localhost:3001/entidades/registered');
+              break;
+            case 'alumnos':
+              response = await axios.get('http://localhost:3001/alumnos/registered');
+              break;
+            case 'vacantes':
+            default:
+              response = await axios.get('http://localhost:3001/vacantePractica/registered');
+              break;
+          }
+        } else {
+          switch (selectedOption) {
+            case 'entidades':
+              response = await axios.get('http://localhost:3001/entidades/all');
+              break;
+            case 'alumnos':
+              response = await axios.get('http://localhost:3001/alumnos/all');
+              break;
+            case 'vacantes':
+            default:
+              response = await axios.get('http://localhost:3001/vacantePractica/all/1/100');
+              break;
+          }
         }
         setData(response.data);
       } catch (error) {
@@ -37,7 +54,7 @@ const Administrar = () => {
     };
 
     fetchData();
-  }, [selectedOption]);
+  }, [selectedOption, isRegistered]);
 
   const handleAcceptClick = (item) => {
     setSelectedItem(item);
@@ -50,6 +67,13 @@ const Administrar = () => {
     setSelectedItem(item);
     setConfirmAction('reject');
     setConfirmMessage('¿Estás seguro de que deseas rechazar este alumno?');
+    setShowConfirmModal(true);
+  };
+
+  const handleDeleteClick = (item) => {
+    setSelectedItem(item);
+    setConfirmAction('delete');
+    setConfirmMessage(`¿Estás seguro de que deseas eliminar esta ${selectedOption.slice(0, -1)}?`);
     setShowConfirmModal(true);
   };
 
@@ -76,26 +100,65 @@ const Administrar = () => {
         showConfirmButton: false,
         timer: 2000
       });
+    } else if (confirmAction === 'delete') {
+      Swal.fire({
+        position: 'center',
+        icon: 'success',
+        title: `${selectedOption.slice(0, -1).charAt(0).toUpperCase() + selectedOption.slice(1, -1).slice(1)} eliminada con éxito`,
+        showConfirmButton: false,
+        timer: 2000
+      });
     }
   };
 
   const renderTitle = () => {
     switch (selectedOption) {
       case 'entidades':
-        return 'Solicitudes de entidades';
+        return isRegistered ? 'Entidades Registradas' : 'Solicitudes de Entidades';
       case 'alumnos':
-        return 'Solicitudes de alumnos';
+        return isRegistered ? 'Alumnos Registrados' : 'Solicitudes de Alumnos';
       case 'vacantes':
       default:
-        return 'Aprobación de vacantes';
+        return isRegistered ? 'Vacantes Registradas' : 'Aprobación de Vacantes';
     }
+  };
+
+  const renderButtons = (item) => {
+    if (isRegistered) {
+      return (
+        <>
+          <FaEye className="admin-action-icon view-icon" onClick={() => handleViewClick(item)} />
+          <FaTrash className="admin-action-icon delete-icon" onClick={() => handleDeleteClick(item)} />
+        </>
+      );
+    }
+    return (
+      <>
+        <FaEye className="admin-action-icon view-icon" onClick={() => handleViewClick(item)} />
+        <FaCheck className="admin-action-icon accept-icon" onClick={() => handleAcceptClick(item)} />
+        <FaTimes className="admin-action-icon reject-icon" onClick={() => handleRejectClick(item)} />
+      </>
+    );
   };
 
   return (
     <div className="admin-administrar">
       <div className="admin-administrar-header">
-        <h1>{renderTitle()}</h1>
+        <h1 className="admin-administrar-title">{renderTitle()}</h1>
         <div className="admin-administrar-icons">
+          <Switch
+            checked={isRegistered}
+            onChange={() => setIsRegistered(!isRegistered)}
+            offColor="#888"
+            onColor="#0d6efd"
+            onHandleColor="#fff"
+            handleDiameter={20}
+            uncheckedIcon={false}
+            checkedIcon={false}
+            height={20}
+            width={48}
+            className="react-switch"
+          />
           <div
             className={`admin-icon-circle ${selectedOption === 'alumnos' ? 'selected' : ''}`}
             onClick={() => setSelectedOption('alumnos')}
@@ -125,9 +188,7 @@ const Administrar = () => {
                 <h2>{item.titulo || item.nombre || 'Nombre Desconocido'}</h2>
               </div>
               <div className="admin-administrar-footer">
-                <FaEye className="admin-action-icon view-icon" onClick={() => handleViewClick(item)} />
-                <FaCheck className="admin-action-icon accept-icon" onClick={() => handleAcceptClick(item)} />
-                <FaTimes className="admin-action-icon reject-icon" onClick={() => handleRejectClick(item)} />
+                {renderButtons(item)}
               </div>
             </div>
           ))}

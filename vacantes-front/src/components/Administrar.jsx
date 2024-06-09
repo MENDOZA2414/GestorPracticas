@@ -15,56 +15,60 @@ const Administrar = ({ currentUser }) => {
   const [confirmAction, setConfirmAction] = useState('');
   const [confirmMessage, setConfirmMessage] = useState('');
   const [isRegistered, setIsRegistered] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const fetchData = async () => {
+    try {
+      let response;
+      if (isRegistered) {
+        switch (selectedOption) {
+          case 'entidades':
+            response = await axios.get('http://localhost:3001/entidades', {
+              params: { estatus: 'Aceptado' }
+            });
+            break;
+          case 'alumnos':
+            response = await axios.get('http://localhost:3001/alumnos', {
+              params: { asesorInternoID: currentUser.asesorInternoID, estatus: 'Aceptado' }
+            });
+            break;
+          case 'vacantes':
+          default:
+            response = await axios.get('http://localhost:3001/vacantePractica', {
+              params: { estatus: 'Aceptado' }
+            });
+            break;
+        }
+      } else {
+        switch (selectedOption) {
+          case 'entidades':
+            response = await axios.get('http://localhost:3001/entidades', {
+              params: { estatus: null }
+            });
+            break;
+          case 'alumnos':
+            response = await axios.get('http://localhost:3001/alumnos', {
+              params: { asesorInternoID: currentUser.asesorInternoID, estatus: null }
+            });
+            break;
+          case 'vacantes':
+          default:
+            response = await axios.get('http://localhost:3001/vacantePractica', {
+              params: { estatus: null }
+            });
+            break;
+        }
+      }
+      setData(response.data);
+      setErrorMessage('');
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setData([]);
+      setErrorMessage('No hay solicitudes de ' + selectedOption);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        let response;
-        if (isRegistered) {
-          switch (selectedOption) {
-            case 'entidades':
-              response = await axios.get('http://localhost:3001/entidades', {
-                params: { estatus: 'Aceptado' }
-              });
-              break;
-            case 'alumnos':
-              response = await axios.get('http://localhost:3001/alumnos', {
-                params: { asesorInternoID: currentUser.asesorInternoID, estatus: 'Aceptado' }
-              });
-              break;
-            case 'vacantes':
-            default:
-              response = await axios.get('http://localhost:3001/vacantePractica', {
-                params: { estatus: 'Aceptado' }
-              });
-              break;
-          }
-        } else {
-          switch (selectedOption) {
-            case 'entidades':
-              response = await axios.get('http://localhost:3001/entidades', {
-                params: { estatus: null }
-              });
-              break;
-            case 'alumnos':
-              response = await axios.get('http://localhost:3001/alumnos', {
-                params: { asesorInternoID: currentUser.asesorInternoID, estatus: null }
-              });
-              break;
-            case 'vacantes':
-            default:
-              response = await axios.get('http://localhost:3001/vacantePractica', {
-                params: { estatus: null }
-              });
-              break;
-          }
-        }
-        setData(response.data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
     if (currentUser) {
       fetchData();
     }
@@ -285,7 +289,9 @@ const Administrar = ({ currentUser }) => {
       </div>
       <div className="admin-administrar-card">
         <div className="admin-administrar-list">
-          {data.length > 0 ? (
+          {errorMessage ? (
+            <p>{errorMessage}</p>
+          ) : (
             data.map((item, index) => (
               <div key={index} className="admin-administrar-list-item">
                 <img 
@@ -301,8 +307,6 @@ const Administrar = ({ currentUser }) => {
                 </div>
               </div>
             ))
-          ) : (
-            <p>Sin registros de {selectedOption.slice(0, -1)}</p>
           )}
         </div>
       </div>

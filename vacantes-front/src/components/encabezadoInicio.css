@@ -1,30 +1,31 @@
+/* encabezadoInicio.css */
 .header-principal {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: #ffffff;
-    padding: 57px; /* Reducir el padding general */
-    padding-left: 20px;
-    padding-right: 20px;
-    width: calc(100% - 250px);
-    margin-left: 250px;
-    margin-right: 0px;
-    transition: width 0.3s, margin-left 0.3s;
-    height: 110px; /* Ajusta esta propiedad para cambiar la altura del encabezado */
-    font-size: 20px;
-    font-weight: normal;
-    border: 1px solid #ebebeb; /* Añadir borde */
-    border-left: none; /* Eliminar el borde derecho */
-    position: -webkit-sticky; /* Para compatibilidad con Safari */
-    position: sticky;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-    top: 0; /* Hace que se quede en la parte superior */
-    z-index: 1000; /* Asegura que se quede encima de otros elementos */
-  }
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  padding: 57px;
+  padding-left: 20px;
+  padding-right: 20px;
+  width: calc(100% - 250px);
+  margin-left: 250px;
+  margin-right: 0px;
+  transition: width 0.3s, margin-left 0.3s;
+  height: 110px;
+  font-size: 20px;
+  font-weight: normal;
+  border: 1px solid #ebebeb;
+  border-left: none;
+  position: -webkit-sticky;
+  position: sticky;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  top: 0;
+  z-index: 1000;
+}
 
 .header-principal.collapsed {
-    width: calc(100% - 80px);
-    margin-left: 80px;
+  width: calc(100% - 80px);
+  margin-left: 80px;
 }
 
 .header-principal-content {
@@ -40,20 +41,20 @@
 }
 
 .menu-icon2 {
-  margin-right: 45px; /* Ajusta este valor para mover el ícono más cerca del texto */
-  margin-left: -25px; /* Elimina el margen negativo para alinear mejor el ícono */
+  margin-right: 45px;
+  margin-left: -25px;
   cursor: pointer;
-  font-size: 2.5em; /* Tamaño constante del ícono */
-  border: 1px solid #c4c4c4; /* Añadir borde */
-  padding: 15px; /* Espacio interno para el ícono */
-  border-radius: 1px; /* Bordes redondeados */
+  font-size: 2.5em;
+  border: 1px solid #c4c4c4;
+  padding: 15px;
+  border-radius: 1px;
   background: #ffffff;
 }
 
 .user-info2 {
   display: flex;
   flex-direction: column;
-  justify-content: center; /* Asegura que el texto y el ícono estén alineados verticalmente */
+  justify-content: center;
 }
 
 .user-greeting {
@@ -64,7 +65,7 @@
 .current-date {
   font-size: 0.9em;
   color: #888;
-  margin-top: 4px; /* Ajusta este valor si es necesario para alinear mejor */
+  margin-top: 4px;
 }
 
 .header-principal-right {
@@ -72,12 +73,42 @@
   align-items: center;
 }
 
+.icon-group {
+  display: flex;
+  align-items: center;
+}
+
+.separator {
+  width: 1px;
+  height: 25px;
+  background-color: #ccc;
+  margin-right: 15px;
+}
+
+.message-icon-container {
+  cursor: pointer;
+  padding: 9px;
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+}
+
+.message-icon {
+  font-size: 1.5em;
+  color: #555;
+}
+
+.message-icon-container:hover {
+  background-color: #f0f0f0;
+  border-radius: 50%;
+}
+
 .profile-picture {
   width: 50px;
   height: 50px;
   border-radius: 50%;
   object-fit: cover;
-  margin-right: 100px; /* Espacio entre la imagen y el texto */
+  margin-left: 15px;
   cursor: pointer;
 }
 
@@ -96,71 +127,69 @@
 
 @media (max-width: 768px) {
   .header-principal {
-    flex-direction: column;
-    align-items: flex-start; /* Alinea el contenido a la izquierda */
-    height: auto; /* Permite que la altura se ajuste automáticamente */
-    padding: 10px; /* Ajusta el padding para pantallas pequeñas */
+      flex-direction: column;
+      align-items: flex-start;
+      height: auto;
+      padding: 10px;
   }
 
   .header-principal-content {
-    flex-direction: row; /* Alinea en fila */
-    align-items: center; /* Alinea verticalmente */
-    width: 100%;
-    justify-content: space-between; /* Espacio entre los elementos */
+      flex-direction: row;
+      align-items: center;
+      width: 100%;
+      justify-content: space-between;
   }
-  
+
   .header-principal-left {
-    display: flex;
-    flex-direction: row; /* Alinea los elementos en fila */
-    align-items: center;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
   }
 
   .header-principal-right {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end; /* Alinea el contenido a la derecha */
-    width: auto; /* Ajusta el ancho automáticamente */
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      width: auto;
   }
 
   .menu-icon2 {
-    margin-right: 10px; /* Ajusta el margen para pantallas pequeñas */
-    margin-left: -15px; /* Elimina el margen negativo */
-    font-size: 2.5em; /* Mantén el tamaño constante del ícono */
-    border: 1px solid #c4c4c4; /* Añadir borde */
-    padding: 15px; /* Espacio interno para el ícono */
-    border-radius: 1px; /* Bordes redondeados */
+      margin-right: 10px;
+      margin-left: -15px;
+      font-size: 2.5em;
+      border: 1px solid #c4c4c4;
+      padding: 15px;
+      border-radius: 1px;
   }
 
   .user-info2 {
-    display: flex;
-    flex-direction: column; /* Alinea los elementos en columna */
-    align-items: flex-start; /* Alinea el contenido a la izquierda */
-    margin-top: 0; /* Elimina el margen superior */
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      margin-top: 0;
   }
 
   .user-greeting, .current-date {
-    text-align: left;
+      text-align: left;
   }
 
   .user-greeting {
-    font-size: 1em; /* Ajusta el tamaño del texto */
-    color: #000;
+      font-size: 1em;
+      color: #000;
   }
 
   .current-date {
-    font-size: 0.8em; /* Ajusta el tamaño del texto */
-    color: #888;
-    margin-top: 4px;
+      font-size: 0.8em;
+      color: #888;
+      margin-top: 4px;
   }
 
   .profile-picture {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-left: auto; /* Alinea la imagen de perfil a la derecha */
-    margin-right: 10px; /* Espacio entre la imagen y el borde derecho */
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-left: auto;
+      margin-right: 10px;
   }
 }
-
-

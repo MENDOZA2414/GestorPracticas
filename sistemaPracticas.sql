@@ -160,3 +160,59 @@ CREATE TABLE IF NOT EXISTS reporte (
 max_allowed_packet=100M
 innodb_log_file_size=256M
 innodb_buffer_pool_size=512M
+
+
+
+CREATE TABLE auditoria (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tabla VARCHAR(255) NOT NULL,
+    accion VARCHAR(255) NOT NULL,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE auditoria ADD COLUMN usuarioTipo VARCHAR(50);
+
+ALTER TABLE documentoAlumno ADD COLUMN usuarioTipo VARCHAR(50);
+
+
+-- Eliminar triggers existentes
+DROP TRIGGER IF EXISTS documentoAlumno_insert;
+DROP TRIGGER IF EXISTS documentoAlumno_update;
+DROP TRIGGER IF EXISTS documentoAlumno_delete;
+
+DELIMITER $$
+
+CREATE TRIGGER documentoAlumno_insert
+AFTER INSERT ON documentoAlumno
+FOR EACH ROW
+BEGIN
+    INSERT INTO auditoria (tabla, accion, usuarioTipo, fecha) VALUES ('documentoAlumno', 'INSERT', NEW.usuarioTipo, NOW());
+END$$
+
+DELIMITER $$
+
+DROP TRIGGER IF EXISTS documentoAlumno_update$$
+CREATE TRIGGER documentoAlumno_update
+AFTER UPDATE ON documentoAlumno
+FOR EACH ROW
+BEGIN
+    -- Verifica que el usuario tipo no sea nulo y solo inserta si no se ha insertado ya
+    IF NEW.usuarioTipo IS NOT NULL THEN
+        INSERT INTO auditoria (tabla, accion, usuarioTipo, fecha) VALUES ('documentoAlumno', 'UPDATE', NEW.usuarioTipo, NOW());
+    END IF;
+END$$
+
+DELIMITER ;
+
+
+DROP TRIGGER IF EXISTS documentoAlumno_delete;
+DELIMITER $$
+CREATE TRIGGER documentoAlumno_delete
+AFTER DELETE ON documentoAlumno
+FOR EACH ROW
+BEGIN
+    IF OLD.usuarioTipo = 'asesorInterno' THEN
+        INSERT INTO auditoria (tabla, accion, usuarioTipo, fecha) VALUES ('documentoAlumno', 'DELETE', OLD.usuarioTipo, NOW());
+    END IF;
+END$$
+DELIMITER ;

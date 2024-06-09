@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaBars } from 'react-icons/fa';
+import { FaBars, FaEnvelope } from 'react-icons/fa'; // Importar el ícono de mensaje
 import { Link } from 'react-router-dom';
 import Campana from './Campana';
 import './encabezadoInicio.css';
@@ -41,7 +41,13 @@ const EncabezadoInicio = ({ user, userType, toggleSidebar, isCollapsed }) => {
           </div>
         </div>
         <div className="header-principal-right">
-          <Campana userType={userType} />
+          <div className="icon-group">
+            <div className="separator"></div>
+            <div className="message-icon-container">
+              <FaEnvelope className="message-icon" />
+            </div>
+            <Campana userType={userType} />
+          </div>
           {user && user.logo && (
             <Link to={getProfileLink()}>
               <img src={user.logo} alt="Profile" className="profile-picture" />

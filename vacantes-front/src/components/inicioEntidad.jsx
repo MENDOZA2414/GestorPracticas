@@ -9,6 +9,7 @@ import EncabezadoInicio from './EncabezadoInicio';
 import MenuLateral from './MenuLateral';
 import RegistrarAsesorExterno from './RegistrarAsesorExterno'; // Importa el componente de registro de asesor
 import './inicioEntidad.css';
+import RegistrarVacantes from './RegistrarVacantes';
 
 const InicioEntidad = ({ user, logOut }) => {
   const [collapsed, setCollapsed] = useState(false);
@@ -62,7 +63,7 @@ const InicioEntidad = ({ user, logOut }) => {
         <Routes>
           <Route path="/" element={<h1>Resumen de la entidad</h1>} />
           <Route path="perfil" element={<PerfilEntidadReceptora user={currentUser} setUser={setCurrentUser} />} />
-          <Route path="vacantes" element={<Vacantes />} />
+          <Route path="registrarVacantes" element={<RegistrarVacantes />} />
           <Route path="documentos" element={<Documentos />} />
           <Route path="registrar-asesor" element={<RegistrarAsesorExterno />} /> {/* Nueva ruta para registrar asesor */}
           {/* Agrega aquí las rutas para las otras secciones */}

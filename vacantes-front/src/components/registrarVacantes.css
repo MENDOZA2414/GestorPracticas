@@ -47,11 +47,17 @@
 }
 
 .registrar-vacantes-input,
-.registrar-vacantes-select {
+.registrar-vacantes-select,
+.registrar-vacantes-textarea {
     width: 100%;
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 5px;
+}
+
+.registrar-vacantes-textarea {
+    height: 80px; /* Doble alto que los otros inputs */
+    resize: none; /* Deshabilita el cambio de tamaño */
 }
 
 .registrar-vacantes-label {

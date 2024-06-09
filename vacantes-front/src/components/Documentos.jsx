@@ -4,7 +4,7 @@ import { FaFilePdf, FaEye, FaDownload, FaPaperPlane, FaTrash, FaFolder } from 'r
 import Swal from 'sweetalert2';
 import './documentos.css';
 
-const Documentos = () => {
+const Documentos = ({ userType }) => {
     const [documents, setDocuments] = useState([]);
     const [sentDocuments, setSentDocuments] = useState([]);
     const [loadingDocuments, setLoadingDocuments] = useState(true);
@@ -218,10 +218,11 @@ const Documentos = () => {
         const storedUser = JSON.parse(localStorage.getItem('user'));
         const numControl = storedUser ? storedUser.id : null;
 
-        if (numControl && selectedDocument) {
+        if (numControl && selectedDocument && userType) {
             try {
                 const response = await axios.post('http://localhost:3001/enviarDocumentoAlumno', {
-                    documentoID: selectedDocument.id
+                    documentoID: selectedDocument.id,
+                    userType: userType // Incluir el tipo de usuario en la solicitud
                 });
 
                 Swal.fire({

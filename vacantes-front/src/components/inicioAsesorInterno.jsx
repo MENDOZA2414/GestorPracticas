@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import axios from 'axios';
-import Perfil from './Perfil';
+import PerfilAsesorInterno from './PerfilAsesorInterno';
+import Administrar from './Administrar';
 import DocumentosInterno from './DocumentosInterno'; 
-import Vacantes from './Vacantes'; 
 import EncabezadoInicio from './EncabezadoInicio'; 
 import MenuLateral from './MenuLateral'; 
 import './inicioAsesorInterno.css';
-import PerfilAsesorInterno from './PerfilAsesorInterno';
-import Administrar from './Administrar';
 
 const InicioAsesorInterno = ({ user, logOut }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [userType, setUserType] = useState(null);
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
@@ -28,8 +27,10 @@ const InicioAsesorInterno = ({ user, logOut }) => {
           userData.foto = userData.fotoPerfil ? `data:image/jpeg;base64,${userData.fotoPerfil}` : 'ruta/a/imagen/predeterminada.png';
           setCurrentUser({
             username: `${userData.nombre}`,
-            logo: userData.foto
+            logo: userData.foto,
+            userType: storedUser.userType || 'asesorInterno'
           });
+          setUserType(storedUser.userType || 'asesorInterno');
           // Guardar en localStorage
           localStorage.setItem('user', JSON.stringify({
             ...storedUser,
@@ -40,10 +41,9 @@ const InicioAsesorInterno = ({ user, logOut }) => {
         console.error('Error fetching user data:', error);
       }
     };
-  
+
     fetchUserData();
   }, []);
-  
 
   return (
     <div className={`inicio-asesor-interno ${collapsed ? 'collapsed' : ''}`}>
@@ -53,9 +53,9 @@ const InicioAsesorInterno = ({ user, logOut }) => {
         collapsed={collapsed} 
         toggleSidebar={toggleSidebar} 
       />
-       <EncabezadoInicio 
+      <EncabezadoInicio 
         user={currentUser} 
-        userType="asesorInterno"  // Pasa userType directamente 
+        userType="asesorInterno" 
         toggleSidebar={toggleSidebar} 
         isCollapsed={collapsed} 
       />
@@ -64,8 +64,7 @@ const InicioAsesorInterno = ({ user, logOut }) => {
           <Route path="/" element={<h1>Gestor de prácticas</h1>} />
           <Route path="perfil" element={<PerfilAsesorInterno user={currentUser} setUser={setCurrentUser} />} />
           <Route path="administrar" element={<Administrar />} />
-          <Route path="documentos" element={<DocumentosInterno />} />
-         
+          <Route path="documentos" element={<DocumentosInterno userType={userType} />} /> {/* Pasar userType */}
         </Routes>
       </div>
     </div>

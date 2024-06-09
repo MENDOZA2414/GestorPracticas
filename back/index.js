@@ -40,6 +40,17 @@ function handleDisconnect() {
 handleDisconnect();
 
 
+app.use(cors());
+app.use(bodyParser.json({ limit: '100mb' }));
+app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
+
+const PORT = process.env.PORT || 3001;
+
+app.listen(PORT, () => {
+    console.log(`Listening on port ${PORT}`);
+});
+
+
 // Configuración para imágenes (JPG, JPEG, PNG)
 const storage = multer.memoryStorage();
 const upload = multer({
@@ -76,18 +87,37 @@ const pdfUpload = multer({
 });
 
 
+app.get('/checkDbChanges', (req, res) => {
+    const query = `
+        SELECT 
+            COUNT(*) AS changeCount, 
+            usuarioTipo 
+        FROM 
+            auditoria 
+        WHERE 
+            tabla = "documentoAlumno" 
+            AND fecha > NOW() - INTERVAL 10 SECOND 
+        GROUP BY 
+            usuarioTipo
+    `;
 
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error('Error checking for changes:', err);
+            return res.status(500).send({ message: 'Error checking for changes' });
+        }
 
-app.use(cors());
-app.use(bodyParser.json({ limit: '100mb' }));
-app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
-
-const PORT = process.env.PORT || 3001;
-
-app.listen(PORT, () => {
-    console.log(`Listening on port ${PORT}`);
+        const hasChanges = results.length > 0;
+        const changeTypes = results.map(result => result.usuarioTipo);
+        res.json({ hasChanges, changeTypes });
+    });
 });
 
+
+
+
+  
+  
 
 app.get('/alumno/:numControl', (req, res) => {
     const numControl = req.params.numControl;
@@ -1084,7 +1114,7 @@ app.get('/asesorExterno/:id', (req, res) => {
 });
 
 app.post('/uploadDocumentoAlumno', pdfUpload.single('file'), (req, res) => {
-    const { alumnoID, nombreArchivo } = req.body;
+    const { alumnoID, nombreArchivo, usuarioTipo } = req.body;
     const archivo = req.file.buffer;
 
     const query = `INSERT INTO documentoAlumno (alumnoID, nombreArchivo, archivo) VALUES (?, ?, ?)`;
@@ -1096,13 +1126,25 @@ app.post('/uploadDocumentoAlumno', pdfUpload.single('file'), (req, res) => {
                 message: 'Error al guardar el documento en la base de datos: ' + err.message,
             });
         }
-        return res.status(201).send({
-            status: 201,
-            message: 'Documento subido con éxito',
-            documentoID: result.insertId,
+        // Insertar registro en la tabla de auditoría
+        const auditQuery = `INSERT INTO auditoria (tabla, accion, usuarioTipo) VALUES ('documentoAlumno', 'INSERT', ?)`;
+        connection.query(auditQuery, [usuarioTipo], (auditErr, auditResult) => {
+            if (auditErr) {
+                console.error('Error al registrar en la auditoría:', auditErr);
+                return res.status(500).send({
+                    status: 500,
+                    message: 'Error al registrar en la auditoría: ' + auditErr.message,
+                });
+            }
+            return res.status(201).send({
+                status: 201,
+                message: 'Documento subido con éxito',
+                documentoID: result.insertId,
+            });
         });
     });
 });
+
 
 app.post('/uploadDocumentoAlumnoSubido', pdfUpload.single('file'), (req, res) => {
     const { alumnoID, nombreArchivo } = req.body;
@@ -1259,7 +1301,7 @@ app.get('/documentoAlumno/:id', (req, res) => {
 
 // Ruta para enviar un documento de un alumno a la tabla documentoAlumno
 app.post('/enviarDocumentoAlumno', (req, res) => {
-    const { documentoID } = req.body;
+    const { documentoID, userType } = req.body; // Asegúrate de recibir el userType del frontend
     const selectQuery = 'SELECT * FROM documentosAlumnoSubido WHERE documentoID = ?';
 
     connection.query(selectQuery, [documentoID], (err, result) => {
@@ -1273,9 +1315,9 @@ app.post('/enviarDocumentoAlumno', (req, res) => {
 
         if (result.length > 0) {
             const documento = result[0];
-            const insertQuery = 'INSERT INTO documentoAlumno (alumnoID, nombreArchivo, archivo, estatus) VALUES (?, ?, ?, "En proceso")';
+            const insertQuery = 'INSERT INTO documentoAlumno (alumnoID, nombreArchivo, archivo, estatus, usuarioTipo) VALUES (?, ?, ?, "En proceso", ?)';
 
-            connection.query(insertQuery, [documento.alumnoID, documento.nombreArchivo, documento.archivo], (err, insertResult) => {
+            connection.query(insertQuery, [documento.alumnoID, documento.nombreArchivo, documento.archivo, userType], (err, insertResult) => {
                 if (err) {
                     console.error('Error al guardar el documento en la base de datos:', err);
                     return res.status(500).send({
@@ -1312,6 +1354,8 @@ app.post('/enviarDocumentoAlumno', (req, res) => {
 });
 
 
+
+
 // Ruta para obtener todos los documentos de un alumno desde la tabla documentoAlumno
 app.get('/documentoAlumnoRegistrado/:alumnoID', (req, res) => {
     const alumnoID = req.params.alumnoID;
@@ -1326,10 +1370,10 @@ app.get('/documentoAlumnoRegistrado/:alumnoID', (req, res) => {
 });
 
 // Ruta para aprobar un documento
+// Ruta para aprobar un documento
 app.post('/documentoAlumno/approve', (req, res) => {
-    const { documentId } = req.body;
-    
-    // Asegurarse de obtener el documento correcto antes de actualizar
+    const { documentId, userType } = req.body;
+
     const selectQuery = 'SELECT * FROM documentoAlumno WHERE documentoID = ?';
     connection.query(selectQuery, [documentId], (err, results) => {
         if (err) {
@@ -1341,8 +1385,8 @@ app.post('/documentoAlumno/approve', (req, res) => {
             return res.status(404).send({ message: 'Document not found' });
         }
 
-        const updateQuery = 'UPDATE documentoAlumno SET estatus = "Aceptado" WHERE documentoID = ?';
-        connection.query(updateQuery, [documentId], (err, result) => {
+        const updateQuery = 'UPDATE documentoAlumno SET estatus = "Aceptado", usuarioTipo = ? WHERE documentoID = ?';
+        connection.query(updateQuery, [userType, documentId], (err, result) => {
             if (err) {
                 console.error('Error approving documentoAlumno:', err);
                 return res.status(500).send({ message: 'Error approving document' });
@@ -1355,7 +1399,16 @@ app.post('/documentoAlumno/approve', (req, res) => {
                     return res.status(500).send({ message: 'Error updating document status' });
                 }
 
-                res.status(200).send({ message: 'Document approved successfully' });
+                // Registrar la acción en la tabla de auditoría
+                const auditQuery = 'INSERT INTO auditoria (tabla, accion, fecha, usuarioTipo) VALUES (?, ?, ?, ?)';
+                connection.query(auditQuery, ['documentoAlumno', 'UPDATE', new Date(), userType], (err, auditResult) => {
+                    if (err) {
+                        console.error('Error inserting into auditoria:', err);
+                        return res.status(500).send({ message: 'Error logging audit' });
+                    }
+
+                    res.status(200).send({ message: 'Document approved successfully' });
+                });
             });
         });
     });
@@ -1365,9 +1418,8 @@ app.post('/documentoAlumno/approve', (req, res) => {
 
 // Ruta para rechazar un documento
 app.post('/documentoAlumno/reject', (req, res) => {
-    const { documentId } = req.body;
+    const { documentId, userType } = req.body;  // Asegúrate de que userType se recibe aquí
 
-    // Asegurarse de obtener el documento correcto antes de actualizar
     const selectQuery = 'SELECT * FROM documentoAlumno WHERE documentoID = ?';
     connection.query(selectQuery, [documentId], (err, results) => {
         if (err) {
@@ -1393,11 +1445,23 @@ app.post('/documentoAlumno/reject', (req, res) => {
                     return res.status(500).send({ message: 'Error updating document status' });
                 }
 
-                res.status(200).send({ message: 'Document rejected successfully' });
+                // Registrar la acción en la tabla de auditoría
+                const auditQuery = 'INSERT INTO auditoria (tabla, accion, fecha, usuarioTipo) VALUES (?, ?, ?, ?)';
+                connection.query(auditQuery, ['documentoAlumno', 'DELETE', new Date(), userType], (err, auditResult) => {
+                    if (err) {
+                        console.error('Error inserting into auditoria:', err);
+                        return res.status(500).send({ message: 'Error logging audit' });
+                    }
+
+                    res.status(200).send({ message: 'Document rejected successfully' });
+                });
             });
         });
     });
 });
+
+
+
 
 
 // Ruta para obtener los documentos aprobados de un alumno

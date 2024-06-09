@@ -13,6 +13,7 @@ import './inicioAlumno.css';
 const InicioAlumno = ({ user, logOut }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [userType, setUserType] = useState(null);
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
@@ -30,6 +31,7 @@ const InicioAlumno = ({ user, logOut }) => {
             username: `${userData.nombre}`,
             logo: userData.foto
           });
+          setUserType(storedUser.userType || "alumno"); // Aseguramos que userType se obtenga correctamente
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -42,18 +44,18 @@ const InicioAlumno = ({ user, logOut }) => {
   return (
     <div className={`inicio-alumno ${collapsed ? 'collapsed' : ''}`}>
       <MenuLateral 
-        userType={currentUser?.tipo || "alumno"} 
+        userType={userType || "alumno"} 
         logOut={logOut} 
         collapsed={collapsed} 
         toggleSidebar={toggleSidebar} 
       />
-      <EncabezadoInicio user={currentUser} toggleSidebar={toggleSidebar} isCollapsed={collapsed} />
+      <EncabezadoInicio user={currentUser} userType={userType} toggleSidebar={toggleSidebar} isCollapsed={collapsed} />
       <div className={`content ${collapsed ? 'collapsed' : ''}`}>
         <Routes>
           <Route path="/" element={<h1>Resumen de práctica profesional</h1>} />
           <Route path="perfil" element={<Perfil user={currentUser} setUser={setCurrentUser} />} />
           <Route path="asesor" element={<Asesor />} />
-          <Route path="documentos" element={<Documentos />} />
+          <Route path="documentos" element={<Documentos userType={userType} />} />
           <Route path="avance" element={<Avance />} />
           <Route path="vacantes" element={<Vacantes />} /> 
         </Routes>

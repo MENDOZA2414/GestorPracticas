@@ -1,6 +1,7 @@
 import React from 'react';
 import { FaBars } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import Campana from './Campana';
 import './encabezadoInicio.css';
 
 const EncabezadoInicio = ({ user, userType, toggleSidebar, isCollapsed }) => {
@@ -40,6 +41,7 @@ const EncabezadoInicio = ({ user, userType, toggleSidebar, isCollapsed }) => {
           </div>
         </div>
         <div className="header-principal-right">
+          <Campana userType={userType} />
           {user && user.logo && (
             <Link to={getProfileLink()}>
               <img src={user.logo} alt="Profile" className="profile-picture" />

@@ -6,7 +6,7 @@ import { TbArrowBigLeftLineFilled } from "react-icons/tb";
 import Swal from 'sweetalert2';
 import './documentosInterno.css';
 
-const DocumentosInterno = () => {
+const DocumentosInterno = ({ userType }) => {  // Asegúrate de recibir userType aquí
     const [students, setStudents] = useState([]);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [pendingDocuments, setPendingDocuments] = useState([]);
@@ -81,7 +81,8 @@ const DocumentosInterno = () => {
 
     const handleApprove = async (documentId) => {
         try {
-            await axios.post(`http://localhost:3001/documentoAlumno/approve`, { documentId });
+            console.log("handleApprove - userType:", userType);  // Agregar console.log para verificar userType
+            await axios.post(`http://localhost:3001/documentoAlumno/approve`, { documentId, userType });
             setPendingDocuments(prev => prev.filter(doc => doc.id !== documentId));
             const approvedDoc = pendingDocuments.find(doc => doc.id === documentId);
             setApprovedDocuments(prev => [...prev, approvedDoc]);
@@ -103,10 +104,12 @@ const DocumentosInterno = () => {
             });
         }
     };
-
+    
+    
     const handleReject = async (documentId) => {
         try {
-            await axios.post(`http://localhost:3001/documentoAlumno/reject`, { documentId });
+            console.log("handleReject - userType:", userType);  // Agregar log para verificar
+            await axios.post(`http://localhost:3001/documentoAlumno/reject`, { documentId, userType });
             setPendingDocuments(prev => prev.filter(doc => doc.id !== documentId));
             Swal.fire({
                 position: 'top-end',
@@ -126,6 +129,7 @@ const DocumentosInterno = () => {
             });
         }
     };
+    
 
     const handleBackClick = () => {
         setSelectedStudent(null);

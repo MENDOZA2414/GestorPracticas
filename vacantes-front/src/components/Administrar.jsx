@@ -23,31 +23,39 @@ const Administrar = ({ currentUser }) => {
         if (isRegistered) {
           switch (selectedOption) {
             case 'entidades':
-              response = await axios.get('http://localhost:3001/entidades/registered');
+              response = await axios.get('http://localhost:3001/entidades', {
+                params: { estatus: 'Aceptado' }
+              });
               break;
             case 'alumnos':
-              response = await axios.get('http://localhost:3001/alumnos/all', {
-                params: { asesorInternoID: currentUser.asesorInternoID }
+              response = await axios.get('http://localhost:3001/alumnos', {
+                params: { asesorInternoID: currentUser.asesorInternoID, estatus: 'Aceptado' }
               });
               break;
             case 'vacantes':
             default:
-              response = await axios.get('http://localhost:3001/vacantePractica/registered');
+              response = await axios.get('http://localhost:3001/vacantePractica', {
+                params: { estatus: 'Aceptado' }
+              });
               break;
           }
         } else {
           switch (selectedOption) {
             case 'entidades':
-              response = await axios.get('http://localhost:3001/entidades/all');
+              response = await axios.get('http://localhost:3001/entidades', {
+                params: { estatus: null }
+              });
               break;
             case 'alumnos':
-              response = await axios.get('http://localhost:3001/alumnos/all', {
-                params: { asesorInternoID: currentUser.asesorInternoID }
+              response = await axios.get('http://localhost:3001/alumnos', {
+                params: { asesorInternoID: currentUser.asesorInternoID, estatus: null }
               });
               break;
             case 'vacantes':
             default:
-              response = await axios.get('http://localhost:3001/vacantePractica/all/1/100');
+              response = await axios.get('http://localhost:3001/vacantePractica', {
+                params: { estatus: null }
+              });
               break;
           }
         }
@@ -65,28 +73,36 @@ const Administrar = ({ currentUser }) => {
   const handleAcceptClick = (item) => {
     setSelectedItem(item);
     setConfirmAction('accept');
-    setConfirmMessage('¿Estás seguro de que deseas aceptar este alumno?');
+    setConfirmMessage(`¿Estás seguro de que deseas aceptar esta ${selectedOption.slice(0, -1)}?`);
     setShowConfirmModal(true);
   };
 
   const handleRejectClick = (item) => {
     setSelectedItem(item);
     setConfirmAction('reject');
-    setConfirmMessage('¿Estás seguro de que deseas rechazar este alumno?');
+    setConfirmMessage(`¿Estás seguro de que deseas rechazar esta ${selectedOption.slice(0, -1)}?`);
     setShowConfirmModal(true);
   };
 
   const handleDeleteClick = (item) => {
-    setSelectedItem(item);
-    setConfirmAction('delete');
-    setConfirmMessage(`¿Estás seguro de que deseas eliminar esta ${selectedOption.slice(0, -1)}?`);
-    setShowConfirmModal(true);
+    if (item.estatus !== 'Aceptado') {
+      Swal.fire({
+        position: 'center',
+        icon: 'warning',
+        title: 'Solo se pueden eliminar elementos aceptados',
+        showConfirmButton: true
+      });
+    } else {
+      setSelectedItem(item);
+      setConfirmAction('delete');
+      setConfirmMessage(`¿Estás seguro de que deseas eliminar esta ${selectedOption.slice(0, -1)}?`);
+      setShowConfirmModal(true);
+    }
   };
 
   const handleViewClick = async (item) => {
     try {
       let response;
-      console.log('Item:', item); // Imprime el item para depuración
       if (selectedOption === 'alumnos') {
         response = await axios.get(`http://localhost:3001/alumno/${item.numControl}`);
       } else if (selectedOption === 'entidades') {
@@ -101,18 +117,16 @@ const Administrar = ({ currentUser }) => {
     }
   };
 
-
   const handleConfirm = async () => {
     setShowConfirmModal(false);
     try {
-      let response;
       if (confirmAction === 'accept') {
         if (selectedOption === 'alumnos') {
-          response = await axios.put(`http://localhost:3001/alumno/aceptar/${selectedItem.numControl}`);
+          await axios.put(`http://localhost:3001/alumno/aceptar/${selectedItem.numControl}`);
         } else if (selectedOption === 'vacantes') {
-          response = await axios.put(`http://localhost:3001/vacantePractica/aceptar/${selectedItem.vacantePracticaID}`);
+          await axios.put(`http://localhost:3001/vacantePractica/aceptar/${selectedItem.vacantePracticaID}`);
         } else if (selectedOption === 'entidades') {
-          response = await axios.put(`http://localhost:3001/entidadReceptora/aceptar/${selectedItem.entidadID}`);
+          await axios.put(`http://localhost:3001/entidadReceptora/aceptar/${selectedItem.entidadID}`);
         }
         Swal.fire({
           position: 'center',
@@ -123,11 +137,11 @@ const Administrar = ({ currentUser }) => {
         });
       } else if (confirmAction === 'reject') {
         if (selectedOption === 'alumnos') {
-          response = await axios.put(`http://localhost:3001/alumno/rechazar/${selectedItem.numControl}`);
+          await axios.put(`http://localhost:3001/alumno/rechazar/${selectedItem.numControl}`);
         } else if (selectedOption === 'vacantes') {
-          response = await axios.put(`http://localhost:3001/vacantePractica/rechazar/${selectedItem.vacantePracticaID}`);
+          await axios.put(`http://localhost:3001/vacantePractica/rechazar/${selectedItem.vacantePracticaID}`);
         } else if (selectedOption === 'entidades') {
-          response = await axios.put(`http://localhost:3001/entidadReceptora/rechazar/${selectedItem.entidadID}`);
+          await axios.put(`http://localhost:3001/entidadReceptora/rechazar/${selectedItem.entidadID}`);
         }
         Swal.fire({
           position: 'center',
@@ -136,49 +150,27 @@ const Administrar = ({ currentUser }) => {
           showConfirmButton: false,
           timer: 2000
         });
-      }
-      // Recargar datos después de aceptar o rechazar
-      const fetchData = async () => {
-        let response;
-        if (isRegistered) {
-          switch (selectedOption) {
-            case 'entidades':
-              response = await axios.get('http://localhost:3001/entidades/registered');
-              break;
-            case 'alumnos':
-              response = await axios.get('http://localhost:3001/alumnos/all', {
-                params: { asesorInternoID: currentUser.asesorInternoID }
-              });
-              break;
-            case 'vacantes':
-            default:
-              response = await axios.get('http://localhost:3001/vacantePractica/registered');
-              break;
-          }
-        } else {
-          switch (selectedOption) {
-            case 'entidades':
-              response = await axios.get('http://localhost:3001/entidades/all');
-              break;
-            case 'alumnos':
-              response = await axios.get('http://localhost:3001/alumnos/all', {
-                params: { asesorInternoID: currentUser.asesorInternoID }
-              });
-              break;
-            case 'vacantes':
-            default:
-              response = await axios.get('http://localhost:3001/vacantePractica/all/1/100');
-              break;
-          }
+      } else if (confirmAction === 'delete') {
+        if (selectedOption === 'alumnos') {
+          await axios.delete(`http://localhost:3001/alumno/${selectedItem.numControl}`);
+        } else if (selectedOption === 'vacantes') {
+          await axios.delete(`http://localhost:3001/vacantePractica/${selectedItem.vacantePracticaID}`);
+        } else if (selectedOption === 'entidades') {
+          await axios.delete(`http://localhost:3001/entidadReceptora/${selectedItem.entidadID}`);
         }
-        setData(response.data);
-      };
-      fetchData();
+        Swal.fire({
+          position: 'center',
+          icon: 'success',
+          title: `${selectedOption.slice(0, -1).charAt(0).toUpperCase() + selectedOption.slice(1, -1).slice(1)} eliminado con éxito`,
+          showConfirmButton: false,
+          timer: 2000
+        });
+      }
+      fetchData(); // Recargar datos después de aceptar, rechazar o eliminar
     } catch (error) {
       console.error('Error updating status:', error);
     }
   };
-  
 
   const renderTitle = () => {
     switch (selectedOption) {
@@ -293,21 +285,25 @@ const Administrar = ({ currentUser }) => {
       </div>
       <div className="admin-administrar-card">
         <div className="admin-administrar-list">
-          {data.map((item, index) => (
-            <div key={index} className="admin-administrar-list-item">
-              <img 
-                src={item.logoEmpresa || item.fotoPerfil || 'https://via.placeholder.com/50'} 
-                alt="Foto de Perfil" 
-                className="admin-company-logo" 
-              />
-              <div className="admin-administrar-list-item-content">
-                <h2>{item.titulo || item.nombre || 'Nombre Desconocido'}</h2>
+          {data.length > 0 ? (
+            data.map((item, index) => (
+              <div key={index} className="admin-administrar-list-item">
+                <img 
+                  src={item.logoEmpresa || item.fotoPerfil || 'https://via.placeholder.com/50'} 
+                  alt="Foto de Perfil" 
+                  className="admin-company-logo" 
+                />
+                <div className="admin-administrar-list-item-content">
+                  <h2>{item.titulo || item.nombre || 'Nombre Desconocido'}</h2>
+                </div>
+                <div className="admin-administrar-footer">
+                  {renderButtons(item)}
+                </div>
               </div>
-              <div className="admin-administrar-footer">
-                {renderButtons(item)}
-              </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p>Sin registros de {selectedOption.slice(0, -1)}</p>
+          )}
         </div>
       </div>
 

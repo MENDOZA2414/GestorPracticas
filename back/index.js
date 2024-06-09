@@ -1404,7 +1404,26 @@ app.get('/entidades/all', (req, res) => {
       res.status(200).send(results);
     });
 });
+// Ruta para obtener los alumnos asignados a un asesor
+app.get('/alumnos/:asesorID', (req, res) => {
+    const asesorID = req.params.asesorID;
+    console.log(`Received request to fetch students for asesorID: ${asesorID}`);
 
+    const query = 'SELECT numControl, nombre, turno, carrera, fotoPerfil FROM alumno WHERE asesorInternoID = ?';
+
+    connection.query(query, [asesorID], (err, results) => {
+        if (err) {
+            console.error('Error fetching students:', err);
+            return res.status(500).send({ message: 'Error fetching students', error: err });
+        }
+        if (results.length === 0) {
+            console.log('No students found for asesorID:', asesorID);
+            return res.status(404).send({ message: 'No students found' });
+        }
+        console.log(`Found ${results.length} students for asesorID: ${asesorID}`);
+        res.send(results);
+    });
+});
 
 
 // Obtener todos los alumnos
@@ -1589,3 +1608,183 @@ app.put('/entidadReceptora/aceptar/:entidadID', (req, res) => {
     });
   });
   
+  // Obtener alumnos por estatus y asesorInternoID
+app.get('/alumnos', (req, res) => {
+    const { estatus, asesorInternoID } = req.query;
+    let query = 'SELECT numControl, estatus, CONCAT(nombre, " ", apellidoPaterno, " ", apellidoMaterno) AS nombre, fotoPerfil FROM alumno WHERE 1=1';
+    const params = [];
+
+    if (estatus) {
+        query += ' AND estatus = ?';
+        params.push(estatus);
+    } else {
+        query += ' AND (estatus IS NULL OR estatus = "")';
+    }
+
+    if (asesorInternoID) {
+        query += ' AND asesorInternoID = ?';
+        params.push(asesorInternoID);
+    }
+
+    query += ' ORDER BY nombre';
+
+    connection.query(query, params, (err, results) => {
+        if (err) {
+            console.error('Error fetching students:', err);
+            return res.status(500).send({ message: 'Error en el servidor' });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).send({ message: 'No students found' });
+        }
+
+        results = results.map(student => ({
+            ...student,
+            fotoPerfil: student.fotoPerfil ? `data:image/jpeg;base64,${Buffer.from(student.fotoPerfil).toString('base64')}` : null
+        }));
+
+        res.status(200).send(results);
+    });
+});
+
+// Obtener vacantes por estatus
+app.get('/vacantePractica', (req, res) => {
+    const { estatus } = req.query;
+    let query = `
+      SELECT vp.*, 
+             ae.nombre AS nombreAsesorExterno, 
+             ae.apellidoPaterno AS apellidoPaternoAsesorExterno, 
+             ae.apellidoMaterno AS apellidoMaternoAsesorExterno, 
+             er.nombreEntidad AS nombreEmpresa, 
+             er.fotoPerfil AS logoEmpresa 
+      FROM vacantePractica vp
+      JOIN asesorExterno ae ON vp.asesorExternoID = ae.asesorExternoID
+      JOIN entidadReceptora er ON vp.entidadID = er.entidadID
+      WHERE 1=1
+    `;
+    const params = [];
+
+    if (estatus) {
+        query += ' AND vp.estatus = ?';
+        params.push(estatus);
+    } else {
+        query += ' AND (vp.estatus IS NULL OR vp.estatus = "")';
+    }
+
+    query += ' ORDER BY vp.vacantePracticaID DESC';
+
+    connection.query(query, params, (err, results) => {
+        if (err) {
+            console.error('Error fetching internships:', err);
+            return res.status(500).send({ message: 'Error en el servidor' });
+        }
+
+        results.forEach(row => {
+            if (row.logoEmpresa) {
+                row.logoEmpresa = `data:image/jpeg;base64,${Buffer.from(row.logoEmpresa).toString('base64')}`;
+            }
+        });
+
+        res.status(200).send(results);
+    });
+});
+
+// Obtener entidades por estatus
+app.get('/entidades', (req, res) => {
+    const { estatus } = req.query;
+    let query = 'SELECT entidadID, estatus, nombreEntidad AS nombre, fotoPerfil AS logoEmpresa FROM entidadReceptora WHERE 1=1';
+    const params = [];
+
+    if (estatus) {
+        query += ' AND estatus = ?';
+        params.push(estatus);
+    } else {
+        query += ' AND (estatus IS NULL OR estatus = "")';
+    }
+
+    query += ' ORDER BY nombreEntidad';
+
+    connection.query(query, params, (err, results) => {
+        if (err) {
+            console.error('Error fetching entities:', err);
+            return res.status(500).send({ message: 'Error en el servidor' });
+        }
+
+        results.forEach(row => {
+            if (row.logoEmpresa) {
+                row.logoEmpresa = `data:image/jpeg;base64,${Buffer.from(row.logoEmpresa).toString('base64')}`;
+            }
+        });
+
+        res.status(200).send(results);
+    });
+});
+
+// Eliminar alumno
+app.delete('/alumno/:numControl', (req, res) => {
+    const numControl = req.params.numControl;
+
+    const checkStatusQuery = 'SELECT estatus FROM alumno WHERE numControl = ?';
+    connection.query(checkStatusQuery, [numControl], (err, result) => {
+        if (err) {
+            return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
+        }
+        if (result.length > 0 && result[0].estatus === 'Aceptado') {
+            const deleteQuery = 'DELETE FROM alumno WHERE numControl = ?';
+            connection.query(deleteQuery, [numControl], (err, result) => {
+                if (err) {
+                    return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
+                }
+                res.status(200).send({ message: 'Alumno eliminado con éxito' });
+            });
+        } else {
+            res.status(403).send({ message: 'Solo se pueden eliminar elementos aceptados' });
+        }
+    });
+});
+
+// Eliminar vacante
+app.delete('/vacantePractica/:vacantePracticaID', (req, res) => {
+    const vacantePracticaID = req.params.vacantePracticaID;
+
+    const checkStatusQuery = 'SELECT estatus FROM vacantePractica WHERE vacantePracticaID = ?';
+    connection.query(checkStatusQuery, [vacantePracticaID], (err, result) => {
+        if (err) {
+            return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
+        }
+        if (result.length > 0 && result[0].estatus === 'Aceptado') {
+            const deleteQuery = 'DELETE FROM vacantePractica WHERE vacantePracticaID = ?';
+            connection.query(deleteQuery, [vacantePracticaID], (err, result) => {
+                if (err) {
+                    return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
+                }
+                res.status(200).send({ message: 'Vacante eliminada con éxito' });
+            });
+        } else {
+            res.status(403).send({ message: 'Solo se pueden eliminar elementos aceptados' });
+        }
+    });
+});
+
+// Eliminar entidad
+app.delete('/entidadReceptora/:entidadID', (req, res) => {
+    const entidadID = req.params.entidadID;
+
+    const checkStatusQuery = 'SELECT estatus FROM entidadReceptora WHERE entidadID = ?';
+    connection.query(checkStatusQuery, [entidadID], (err, result) => {
+        if (err) {
+            return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
+        }
+        if (result.length > 0 && result[0].estatus === 'Aceptado') {
+            const deleteQuery = 'DELETE FROM entidadReceptora WHERE entidadID = ?';
+            connection.query(deleteQuery, [entidadID], (err, result) => {
+                if (err) {
+                    return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
+                }
+                res.status(200).send({ message: 'Entidad eliminada con éxito' });
+            });
+        } else {
+            res.status(403).send({ message: 'Solo se pueden eliminar elementos aceptados' });
+        }
+    });
+});

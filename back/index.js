@@ -138,26 +138,6 @@ app.get('/alumno/:numControl', (req, res) => {
     );
 });
 
-// Ruta para obtener los alumnos asignados a un asesor
-app.get('/alumnos/:asesorID', (req, res) => {
-    const asesorID = req.params.asesorID;
-    console.log(`Received request to fetch students for asesorID: ${asesorID}`);
-
-    const query = 'SELECT numControl, nombre, turno, carrera, fotoPerfil FROM alumno WHERE asesorInternoID = ?';
-
-    connection.query(query, [asesorID], (err, results) => {
-        if (err) {
-            console.error('Error fetching students:', err);
-            return res.status(500).send({ message: 'Error fetching students', error: err });
-        }
-        if (results.length === 0) {
-            console.log('No students found for asesorID:', asesorID);
-            return res.status(404).send({ message: 'No students found' });
-        }
-        console.log(`Found ${results.length} students for asesorID: ${asesorID}`);
-        res.send(results);
-    });
-});
 
 app.get('/image/:numControl', (req, res) => {
     const numControl = req.params.numControl;
@@ -292,6 +272,7 @@ app.get('/vacantePractica/all/:page/:limit', (req, res) => {
         }
     });
 });
+
 
 
 app.get('/aplicaciones/:vacanteID', (req, res) => {
@@ -1474,5 +1455,54 @@ app.get('/documentoAlumnoAprobado/:alumnoID', (req, res) => {
             return res.status(500).send({ message: 'Error fetching approved documents' });
         }
         res.send(result.length > 0 ? result : []);
+    });
+});
+
+
+
+// Obtener todas las entidades
+app.get('/entidades/all', (req, res) => {
+    const query = 'SELECT nombreEntidad AS nombre, fotoPerfil AS logoEmpresa FROM entidadReceptora ORDER BY nombreEntidad';
+    connection.query(query, (err, results) => {
+      if (err) {
+        return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
+      }
+      results.forEach(row => {
+        if (row.logoEmpresa) {
+          row.logoEmpresa = `data:image/jpeg;base64,${Buffer.from(row.logoEmpresa).toString('base64')}`;
+        }
+      });
+      res.status(200).send(results);
+    });
+  });
+
+
+  
+// Obtener todos los alumnos
+app.get('/alumnos/all', (req, res) => {
+    const asesorInternoID = req.query.asesorInternoID; // Obtener el ID del asesor interno del query parameter
+    console.log('asesorInternoID recibido:', asesorInternoID);
+
+    if (!asesorInternoID) {
+        return res.status(400).send({ message: 'asesorInternoID es requerido' });
+    }
+
+    const query = 'SELECT CONCAT(nombre, " ", apellidoPaterno, " ", apellidoMaterno) AS nombre, fotoPerfil FROM alumno WHERE asesorInternoID = ? ORDER BY nombre';
+    
+    connection.query(query, [asesorInternoID], (err, results) => {
+        if (err) {
+            console.error('Error en la consulta SQL:', err.message);
+            return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
+        }
+        console.log('Resultados de la consulta:', results);
+        if (results.length === 0) {
+            return res.status(404).send({ message: 'No students found' });
+        }
+        // Convertir la imagen a base64
+        results = results.map(student => ({
+            ...student,
+            fotoPerfil: student.fotoPerfil ? `data:image/jpeg;base64,${Buffer.from(student.fotoPerfil).toString('base64')}` : null
+        }));
+        res.status(200).send(results);
     });
 });

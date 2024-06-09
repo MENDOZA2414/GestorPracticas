@@ -6,7 +6,7 @@ import Switch from 'react-switch';
 import moment from 'moment';
 import './administrar.css';
 
-const Administrar = () => {
+const Administrar = ({ currentUser }) => {
   const [data, setData] = useState([]);
   const [selectedOption, setSelectedOption] = useState('vacantes');
   const [showModal, setShowModal] = useState(false);
@@ -26,7 +26,9 @@ const Administrar = () => {
               response = await axios.get('http://localhost:3001/entidades/registered');
               break;
             case 'alumnos':
-              response = await axios.get('http://localhost:3001/alumnos/registered');
+              response = await axios.get('http://localhost:3001/alumnos/all', {
+                params: { asesorInternoID: currentUser.asesorInternoID }
+              });
               break;
             case 'vacantes':
             default:
@@ -39,7 +41,9 @@ const Administrar = () => {
               response = await axios.get('http://localhost:3001/entidades/all');
               break;
             case 'alumnos':
-              response = await axios.get('http://localhost:3001/alumnos/all');
+              response = await axios.get('http://localhost:3001/alumnos/all', {
+                params: { asesorInternoID: currentUser.asesorInternoID }
+              });
               break;
             case 'vacantes':
             default:
@@ -53,8 +57,10 @@ const Administrar = () => {
       }
     };
 
-    fetchData();
-  }, [selectedOption, isRegistered]);
+    if (currentUser) {
+      fetchData();
+    }
+  }, [selectedOption, isRegistered, currentUser]);
 
   const handleAcceptClick = (item) => {
     setSelectedItem(item);
@@ -183,7 +189,7 @@ const Administrar = () => {
         <div className="admin-administrar-list">
           {data.map((item, index) => (
             <div key={index} className="admin-administrar-list-item">
-              <img src={item.logoEmpresa || 'https://via.placeholder.com/50'} alt="Logo" className="admin-company-logo" />
+              <img src={item.logoEmpresa || item.fotoPerfil || 'https://via.placeholder.com/50'} alt="Foto de Perfil" className="admin-company-logo" />
               <div className="admin-administrar-list-item-content">
                 <h2>{item.titulo || item.nombre || 'Nombre Desconocido'}</h2>
               </div>
@@ -198,19 +204,20 @@ const Administrar = () => {
       {showModal && (
         <div className="admin-administrar-modal">
           <div className="admin-administrar-modal-content">
-            <span className="admin-close-button" onClick={() => setShowModal(false)}>&times;</span>
-            <h2>Detalles</h2>
-            <div className="admin-details">
-              <h3>{selectedItem?.titulo || selectedItem?.nombre}</h3>
-              <h4>{selectedItem?.nombreEmpresa || 'Empresa/Entidad Desconocida'}</h4>
-              <p>{selectedItem?.descripcion || 'Descripción no disponible'}</p>
-              <div className="admin-info-horizontal">
-                <p><strong>Ubicación:</strong> {selectedItem?.ciudad || 'Ciudad Desconocida'}</p>
-                <p><strong>Duración:</strong> {selectedItem?.fechaInicio ? moment(selectedItem.fechaInicio).format('DD/MM/YYYY') : 'Fecha Desconocida'} - {selectedItem?.fechaFinal ? moment(selectedItem.fechaFinal).format('DD/MM/YYYY') : 'Fecha Desconocida'}</p>
-                <p><strong>Tipo de Trabajo:</strong> {selectedItem?.tipoTrabajo || 'Tipo Desconocido'}</p>
-                <p><strong>Asesor Externo:</strong> {`${selectedItem?.nombreAsesorExterno || ''} ${selectedItem?.apellidoPaternoAsesorExterno || ''} ${selectedItem?.apellidoMaternoAsesorExterno || ''}`.trim()}</p>
-              </div>
-            </div>
+            <span className="admin-close-button" onClick={() => setShowModal(false)}>
+              &times;
+            </span>
+            <h2>{selectedItem.titulo || selectedItem.nombre}</h2>
+            <img src={selectedItem.logoEmpresa || selectedItem.fotoPerfil || 'https://via.placeholder.com/150'} alt="Logo" className="admin-modal-company-logo" />
+            <p>
+              <strong>Descripción:</strong> {selectedItem.descripcion || 'No disponible'}
+            </p>
+            <p>
+              <strong>Fecha de inicio:</strong> {selectedItem.fechaInicio ? moment(selectedItem.fechaInicio).format('YYYY-MM-DD') : 'No disponible'}
+            </p>
+            <p>
+              <strong>Fecha de fin:</strong> {selectedItem.fechaFin ? moment(selectedItem.fechaFin).format('YYYY-MM-DD') : 'No disponible'}
+            </p>
           </div>
         </div>
       )}
@@ -218,11 +225,14 @@ const Administrar = () => {
       {showConfirmModal && (
         <div className="admin-confirm-modal">
           <div className="admin-confirm-modal-content">
-            <h2>Confirmar Acción</h2>
+            <span className="admin-close-button" onClick={() => setShowConfirmModal(false)}>
+              &times;
+            </span>
+            <h2>Confirmación</h2>
             <p>{confirmMessage}</p>
             <div className="admin-confirm-buttons">
-              <button className="admin-confirm-button blue" onClick={handleConfirm}>Confirmar</button>
-              <button className="admin-confirm-button red" onClick={() => setShowConfirmModal(false)}>Cancelar</button>
+              <button className="admin-confirm-button blue" onClick={handleConfirm}>Sí</button>
+              <button className="admin-confirm-button red" onClick={() => setShowConfirmModal(false)}>No</button>
             </div>
           </div>
         </div>

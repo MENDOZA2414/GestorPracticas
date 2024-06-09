@@ -28,7 +28,8 @@ const InicioAsesorInterno = ({ user, logOut }) => {
           setCurrentUser({
             username: `${userData.nombre}`,
             logo: userData.foto,
-            userType: storedUser.userType || 'asesorInterno'
+            userType: storedUser.userType || 'asesorInterno',
+            asesorInternoID: storedUser.id // Asegúrate de que el ID del asesor interno se establezca correctamente aquí
           });
           setUserType(storedUser.userType || 'asesorInterno');
           // Guardar en localStorage
@@ -63,12 +64,13 @@ const InicioAsesorInterno = ({ user, logOut }) => {
         <Routes>
           <Route path="/" element={<h1>Gestor de prácticas</h1>} />
           <Route path="perfil" element={<PerfilAsesorInterno user={currentUser} setUser={setCurrentUser} />} />
-          <Route path="administrar" element={<Administrar />} />
-          <Route path="documentos" element={<DocumentosInterno userType={userType} />} /> {/* Pasar userType */}
+          <Route path="administrar" element={<Administrar currentUser={currentUser} />} /> {/* Asegúrate de pasar currentUser aquí */}
+          <Route path="documentos" element={<DocumentosInterno userType={userType} />} />
         </Routes>
       </div>
     </div>
   );
 };
+
 
 export default InicioAsesorInterno;

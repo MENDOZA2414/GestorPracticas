@@ -1,10 +1,12 @@
 import React from 'react';
-import { FaBars, FaEnvelope } from 'react-icons/fa'; // Importar el ícono de mensaje
-import { Link } from 'react-router-dom';
+import { FaBars, FaBell, FaEnvelope } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
 import Campana from './Campana';
 import './encabezadoInicio.css';
 
 const EncabezadoInicio = ({ user, userType, toggleSidebar, isCollapsed }) => {
+  const navigate = useNavigate();
+
   const getCurrentDate = () => {
     const date = new Date();
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -26,6 +28,22 @@ const EncabezadoInicio = ({ user, userType, toggleSidebar, isCollapsed }) => {
     }
   };
 
+  const handleMessageClick = () => {
+    switch (userType) {
+      case 'alumno':
+        navigate('/inicioAlumno/asesor');
+        break;
+      case 'asesorInterno':
+        navigate('/inicioAsesorInterno/administrar');
+        break;
+      case 'entidadReceptora':
+        window.location.href = 'mailto:dasc@gmail.com';
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <header className={`header-principal ${isCollapsed ? 'collapsed' : ''} sticky`}>
       <div className="header-principal-content">
@@ -43,7 +61,7 @@ const EncabezadoInicio = ({ user, userType, toggleSidebar, isCollapsed }) => {
         <div className="header-principal-right">
           <div className="icon-group">
             <div className="separator"></div>
-            <div className="message-icon-container">
+            <div className="message-icon-container" onClick={handleMessageClick}>
               <FaEnvelope className="message-icon" />
             </div>
             <Campana userType={userType} />

@@ -83,10 +83,24 @@ const Administrar = ({ currentUser }) => {
     setShowConfirmModal(true);
   };
 
-  const handleViewClick = (item) => {
-    setSelectedItem(item);
-    setShowModal(true);
+  const handleViewClick = async (item) => {
+    try {
+      let response;
+      console.log('Item:', item); // Imprime el item para depuración
+      if (selectedOption === 'alumnos') {
+        response = await axios.get(`http://localhost:3001/alumno/${item.numControl}`);
+      } else if (selectedOption === 'entidades') {
+        response = await axios.get(`http://localhost:3001/entidadReceptora/${item.entidadID}`);
+      } else if (selectedOption === 'vacantes') {
+        response = await axios.get(`http://localhost:3001/vacantePractica/${item.vacantePracticaID}`);
+      }
+      setSelectedItem({ ...response.data, logoEmpresa: item.logoEmpresa }); // Agrega logoEmpresa al selectedItem
+      setShowModal(true);
+    } catch (error) {
+      console.error('Error fetching item details:', error);
+    }
   };
+
 
   const handleConfirm = () => {
     setShowConfirmModal(false);
@@ -147,6 +161,49 @@ const Administrar = ({ currentUser }) => {
     );
   };
 
+  const renderModalContent = () => {
+    if (!selectedItem) return null;
+    if (selectedOption === 'alumnos') {
+      return (
+        <>
+          <h2>{selectedItem.nombre}</h2>
+          <img src={`data:image/jpeg;base64,${selectedItem.fotoPerfil}`} alt="Foto de Perfil" className="admin-modal-company-logo" />
+          <p><strong>Número de Control:</strong> {selectedItem.numControl}</p>
+          <p><strong>Fecha de Nacimiento:</strong> {moment(selectedItem.fechaNacimiento).format('YYYY-MM-DD')}</p>
+          <p><strong>Carrera:</strong> {selectedItem.carrera}</p>
+          <p><strong>Semestre:</strong> {selectedItem.semestre}</p>
+          <p><strong>Turno:</strong> {selectedItem.turno}</p>
+          <p><strong>Correo:</strong> {selectedItem.correo}</p>
+          <p><strong>Teléfono:</strong> {selectedItem.numCelular}</p>
+        </>
+      );
+    } else if (selectedOption === 'vacantes') {
+      return (
+        <>
+          <h2>{selectedItem.titulo}</h2>
+          <img src={selectedItem.logoEmpresa || 'https://via.placeholder.com/50'} alt="Logo Empresa" className="admin-modal-company-logo" />
+          <p><strong>Descripción:</strong> {selectedItem.descripcion}</p>
+          <p><strong>Fecha de Inicio:</strong> {moment(selectedItem.fechaInicio).format('YYYY-MM-DD')}</p>
+          <p><strong>Fecha de Fin:</strong> {moment(selectedItem.fechaFin).format('YYYY-MM-DD')}</p>
+          <p><strong>Ciudad:</strong> {selectedItem.ciudad}</p>
+          <p><strong>Tipo de Trabajo:</strong> {selectedItem.tipoTrabajo}</p>
+        </>
+      );
+    } else if (selectedOption === 'entidades') {
+      return (
+        <>
+          <h2>{selectedItem.nombreEntidad}</h2>
+          <img src={`data:image/jpeg;base64,${selectedItem.fotoPerfil}`} alt="Logo Empresa" className="admin-modal-company-logo" />
+          <p><strong>Nombre Usuario:</strong> {selectedItem.nombreUsuario}</p>
+          <p><strong>Dirección:</strong> {selectedItem.direccion}</p>
+          <p><strong>Categoría:</strong> {selectedItem.categoria}</p>
+          <p><strong>Correo:</strong> {selectedItem.correo}</p>
+          <p><strong>Teléfono:</strong> {selectedItem.numCelular}</p>
+        </>
+      );
+    }
+  };
+
   return (
     <div className="admin-administrar">
       <div className="admin-administrar-header">
@@ -189,7 +246,11 @@ const Administrar = ({ currentUser }) => {
         <div className="admin-administrar-list">
           {data.map((item, index) => (
             <div key={index} className="admin-administrar-list-item">
-              <img src={item.logoEmpresa || item.fotoPerfil || 'https://via.placeholder.com/50'} alt="Foto de Perfil" className="admin-company-logo" />
+              <img 
+                src={item.logoEmpresa || item.fotoPerfil || 'https://via.placeholder.com/50'} 
+                alt="Foto de Perfil" 
+                className="admin-company-logo" 
+              />
               <div className="admin-administrar-list-item-content">
                 <h2>{item.titulo || item.nombre || 'Nombre Desconocido'}</h2>
               </div>
@@ -207,17 +268,7 @@ const Administrar = ({ currentUser }) => {
             <span className="admin-close-button" onClick={() => setShowModal(false)}>
               &times;
             </span>
-            <h2>{selectedItem.titulo || selectedItem.nombre}</h2>
-            <img src={selectedItem.logoEmpresa || selectedItem.fotoPerfil || 'https://via.placeholder.com/150'} alt="Logo" className="admin-modal-company-logo" />
-            <p>
-              <strong>Descripción:</strong> {selectedItem.descripcion || 'No disponible'}
-            </p>
-            <p>
-              <strong>Fecha de inicio:</strong> {selectedItem.fechaInicio ? moment(selectedItem.fechaInicio).format('YYYY-MM-DD') : 'No disponible'}
-            </p>
-            <p>
-              <strong>Fecha de fin:</strong> {selectedItem.fechaFin ? moment(selectedItem.fechaFin).format('YYYY-MM-DD') : 'No disponible'}
-            </p>
+            {renderModalContent()}
           </div>
         </div>
       )}

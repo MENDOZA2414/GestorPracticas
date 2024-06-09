@@ -79,6 +79,14 @@
     border-radius: 10px;
     margin-right: 10px;
   }
+  .admin-modal-company-logo {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+  
   
   .admin-administrar-list-item-content {
     flex-grow: 1;
@@ -127,6 +135,8 @@
     justify-content: center;
     align-items: center;
     background: rgba(0, 0, 0, 0.5);
+    z-index: 1300; /* Agrega esta línea */
+
   }
   
   .admin-administrar-modal-content,

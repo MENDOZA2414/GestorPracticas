@@ -114,11 +114,7 @@ app.get('/checkDbChanges', (req, res) => {
 });
 
 
-
-
-  
-  
-
+// Ruta para obtener un alumno por número de control
 app.get('/alumno/:numControl', (req, res) => {
     const numControl = req.params.numControl;
     connection.query(`SELECT * FROM alumno WHERE numControl = ?`, [numControl],
@@ -187,91 +183,24 @@ app.post('/vacantePractica', (req, res) => {
 
 app.get('/vacantePractica/:id', (req, res) => {
     const vacantePracticaID = req.params.id;
-    connection.query(`SELECT * FROM vacantePractica WHERE vacantePracticaID = ?`, [vacantePracticaID],
+    connection.query('SELECT * FROM vacantePractica WHERE vacantePracticaID = ?', [vacantePracticaID],
         (err, result) => {
-            if (result.length > 0) {
-                res.status(200).send(result[0]);
+            if (err) {
+                console.error(err);
+                res.status(500).send({ message: 'Error en el servidor' });
+            } else if (result.length > 0) {
+                let vacante = result[0];
+                if (vacante.logoEmpresa) {
+                    vacante.logoEmpresa = `data:image/jpeg;base64,${Buffer.from(vacante.logoEmpresa).toString('base64')}`;
+                }
+                res.status(200).json(vacante);
             } else {
-                res.status(400).send({
-                    message: 'No existe la vacante'
-                });
+                res.status(400).send({ message: 'No existe la vacante' });
             }
         }
     );
 });
 
-app.get('/vacantePractica/all/:entidadID/:page/:limit', (req, res) => {
-    const entidadID = req.params.entidadID;
-    const page = req.params.page;
-    const limit = req.params.limit;
-    const start = (page - 1) * limit;
-
-    const query = `
-        SELECT vp.*, 
-               ae.nombre AS nombreAsesorExterno, 
-               ae.apellidoPaterno AS apellidoPaternoAsesorExterno, 
-               ae.apellidoMaterno AS apellidoMaternoAsesorExterno, 
-               er.nombreEntidad AS nombreEmpresa, 
-               er.fotoPerfil AS logoEmpresa 
-        FROM vacantePractica vp
-        JOIN asesorExterno ae ON vp.asesorExternoID = ae.asesorExternoID
-        JOIN entidadReceptora er ON vp.entidadID = er.entidadID
-        WHERE vp.entidadID = ? 
-        ORDER BY vp.vacantePracticaID DESC 
-        LIMIT ?, ?
-    `;
-
-    connection.query(query, [entidadID, start, parseInt(limit)], (err, result) => {
-        if (err) {
-            res.status(500).send({
-                message: err.message
-            });
-        } else {
-            result.forEach(row => {
-                if (row.logoEmpresa) {
-                    row.logoEmpresa = `data:image/jpeg;base64,${Buffer.from(row.logoEmpresa).toString('base64')}`;
-                }
-            });
-            res.status(200).send(result);
-        }
-    });
-});
-
-
-app.get('/vacantePractica/all/:page/:limit', (req, res) => {
-    const page = req.params.page;
-    const limit = req.params.limit;
-    const start = (page - 1) * limit;
-
-    const query = `
-        SELECT vp.*, 
-               ae.nombre AS nombreAsesorExterno, 
-               ae.apellidoPaterno AS apellidoPaternoAsesorExterno, 
-               ae.apellidoMaterno AS apellidoMaternoAsesorExterno, 
-               er.nombreEntidad AS nombreEmpresa, 
-               er.fotoPerfil AS logoEmpresa 
-        FROM vacantePractica vp
-        JOIN asesorExterno ae ON vp.asesorExternoID = ae.asesorExternoID
-        JOIN entidadReceptora er ON vp.entidadID = er.entidadID
-        ORDER BY vp.vacantePracticaID DESC 
-        LIMIT ?, ?
-    `;
-
-    connection.query(query, [start, parseInt(limit)], (err, result) => {
-        if (err) {
-            res.status(500).send({
-                message: err.message
-            });
-        } else {
-            result.forEach(row => {
-                if (row.logoEmpresa) {
-                    row.logoEmpresa = `data:image/jpeg;base64,${Buffer.from(row.logoEmpresa).toString('base64')}`;
-                }
-            });
-            res.status(200).send(result);
-        }
-    });
-});
 
 
 
@@ -688,7 +617,7 @@ app.get('/entidadReceptora/:id', (req, res) => {
         }
       }
     );
-  });
+});
 
   app.put('/entidadReceptora/:id', upload.single('foto'), (req, res) => {
     const entidadID = req.params.id;
@@ -1462,7 +1391,7 @@ app.get('/documentoAlumnoAprobado/:alumnoID', (req, res) => {
 
 // Obtener todas las entidades
 app.get('/entidades/all', (req, res) => {
-    const query = 'SELECT nombreEntidad AS nombre, fotoPerfil AS logoEmpresa FROM entidadReceptora ORDER BY nombreEntidad';
+    const query = 'SELECT entidadID, nombreEntidad AS nombre, fotoPerfil AS logoEmpresa FROM entidadReceptora ORDER BY nombreEntidad';
     connection.query(query, (err, results) => {
       if (err) {
         return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
@@ -1474,10 +1403,10 @@ app.get('/entidades/all', (req, res) => {
       });
       res.status(200).send(results);
     });
-  });
+});
 
 
-  
+
 // Obtener todos los alumnos
 app.get('/alumnos/all', (req, res) => {
     const asesorInternoID = req.query.asesorInternoID; // Obtener el ID del asesor interno del query parameter
@@ -1487,7 +1416,7 @@ app.get('/alumnos/all', (req, res) => {
         return res.status(400).send({ message: 'asesorInternoID es requerido' });
     }
 
-    const query = 'SELECT CONCAT(nombre, " ", apellidoPaterno, " ", apellidoMaterno) AS nombre, fotoPerfil FROM alumno WHERE asesorInternoID = ? ORDER BY nombre';
+    const query = 'SELECT numControl, CONCAT(nombre, " ", apellidoPaterno, " ", apellidoMaterno) AS nombre, fotoPerfil FROM alumno WHERE asesorInternoID = ? ORDER BY nombre';
     
     connection.query(query, [asesorInternoID], (err, results) => {
         if (err) {
@@ -1506,3 +1435,77 @@ app.get('/alumnos/all', (req, res) => {
         res.status(200).send(results);
     });
 });
+
+app.get('/vacantePractica/all/:entidadID/:page/:limit', (req, res) => {
+    const entidadID = req.params.entidadID;
+    const page = req.params.page;
+    const limit = req.params.limit;
+    const start = (page - 1) * limit;
+
+    const query = `
+        SELECT vp.*, 
+               ae.nombre AS nombreAsesorExterno, 
+               ae.apellidoPaterno AS apellidoPaternoAsesorExterno, 
+               ae.apellidoMaterno AS apellidoMaternoAsesorExterno, 
+               er.nombreEntidad AS nombreEmpresa, 
+               er.fotoPerfil AS logoEmpresa 
+        FROM vacantePractica vp
+        JOIN asesorExterno ae ON vp.asesorExternoID = ae.asesorExternoID
+        JOIN entidadReceptora er ON vp.entidadID = er.entidadID
+        WHERE vp.entidadID = ? 
+        ORDER BY vp.vacantePracticaID DESC 
+        LIMIT ?, ?
+    `;
+
+    connection.query(query, [entidadID, start, parseInt(limit)], (err, result) => {
+        if (err) {
+            res.status(500).send({
+                message: err.message
+            });
+        } else {
+            result.forEach(row => {
+                if (row.logoEmpresa) {
+                    row.logoEmpresa = `data:image/jpeg;base64,${Buffer.from(row.logoEmpresa).toString('base64')}`;
+                }
+            });
+            res.status(200).send(result);
+        }
+    });
+});
+
+// Obtener todas las vacantes prácticas
+app.get('/vacantePractica/all/:page/:limit', (req, res) => {
+    const page = req.params.page;
+    const limit = req.params.limit;
+    const start = (page - 1) * limit;
+  
+    const query = `
+      SELECT vp.*, 
+             ae.nombre AS nombreAsesorExterno, 
+             ae.apellidoPaterno AS apellidoPaternoAsesorExterno, 
+             ae.apellidoMaterno AS apellidoMaternoAsesorExterno, 
+             er.nombreEntidad AS nombreEmpresa, 
+             er.fotoPerfil AS logoEmpresa 
+      FROM vacantePractica vp
+      JOIN asesorExterno ae ON vp.asesorExternoID = ae.asesorExternoID
+      JOIN entidadReceptora er ON vp.entidadID = er.entidadID
+      ORDER BY vp.vacantePracticaID DESC 
+      LIMIT ?, ?
+    `;
+  
+    connection.query(query, [start, parseInt(limit)], (err, result) => {
+      if (err) {
+        res.status(500).send({
+          message: err.message
+        });
+      } else {
+        result.forEach(row => {
+          if (row.logoEmpresa) {
+            row.logoEmpresa = `data:image/jpeg;base64,${Buffer.from(row.logoEmpresa).toString('base64')}`;
+          }
+        });
+        res.status(200).send(result);
+      }
+    });
+  });
+  

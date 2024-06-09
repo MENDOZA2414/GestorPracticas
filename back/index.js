@@ -1788,3 +1788,27 @@ app.delete('/entidadReceptora/:entidadID', (req, res) => {
         }
     });
 });
+
+app.put('/vacantePractica/:id', (req, res) => {
+    const { id } = req.params;
+    const { titulo, fechaInicio, fechaFinal, ciudad, tipoTrabajo, descripcion } = req.body;
+  
+    if (!titulo || !fechaInicio || !fechaFinal || !ciudad || !tipoTrabajo || !descripcion) {
+      return res.status(400).send({ message: 'Todos los campos son requeridos' });
+    }
+  
+    const query = 'UPDATE vacantePractica SET titulo = ?, fechaInicio = ?, fechaFinal = ?, ciudad = ?, tipoTrabajo = ?, descripcion = ? WHERE vacantePracticaID = ?';
+    const values = [titulo, fechaInicio, fechaFinal, ciudad, tipoTrabajo, descripcion, id];
+  
+    connection.query(query, values, (error, results) => {
+      if (error) {
+        console.error('Error updating vacante:', error);
+        return res.status(500).send({ message: 'Error al actualizar la vacante', error: error.message });
+      }
+      if (results.affectedRows === 0) {
+        return res.status(404).send({ message: 'Vacante no encontrada' });
+      }
+      res.status(200).send({ message: 'Vacante actualizada con éxito' });
+    });
+  });
+  

@@ -4,6 +4,7 @@ import ListaVacantes from "./ListaVacantes";
 import ListaPostulaciones from "./ListaPostulaciones";
 import PropTypes from 'prop-types';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import './registrarVacantes.css';
 
 const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
@@ -14,6 +15,10 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
   const [until_date, setUntil_date] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [vacantes, setVacantes] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingVacanteId, setEditingVacanteId] = useState(null);
+  const [isFormModified, setIsFormModified] = useState(false); // Nuevo estado
+
   const job_type_list = ['Remoto', 'Presencial', 'Semi-presencial'];
 
   const limpiarCampos = () => {
@@ -23,45 +28,98 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
     setUntil_date('');
     setJob_type('');
     setDescripcion('');
+    setIsEditing(false);
+    setEditingVacanteId(null);
+    setIsFormModified(false); // Restablece el estado del formulario modificado
+  };
+
+  const handleChange = () => {
+    setIsFormModified(true); // Marca el formulario como modificado
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Formatear fechas correctamente
+    if (!isFormModified) {
+      return; // No enviar si el formulario no ha sido modificado
+    }
+
     const formattedFromDate = new Date(from_date).toISOString().split('T')[0];
     const formattedUntilDate = new Date(until_date).toISOString().split('T')[0];
 
     try {
-      const response = await axios.post('/vacantePractica', {
-        titulo: title,
-        fechaInicio: formattedFromDate,
-        fechaFinal: formattedUntilDate,
-        ciudad: city,
-        tipoTrabajo: job_type,
-        descripcion: descripcion,
-        entidadID: 1, // Reemplazar con la entidadID correspondiente
-        asesorExternoID: 1 // Reemplazar con el asesorExternoID correspondiente
-      });
+      if (isEditing) {
+        const response = await axios.put(`/vacantePractica/${editingVacanteId}`, {
+          titulo: title,
+          fechaInicio: formattedFromDate,
+          fechaFinal: formattedUntilDate,
+          ciudad: city,
+          tipoTrabajo: job_type,
+          descripcion: descripcion,
+          entidadID: 1,
+          asesorExternoID: 1
+        });
 
-      if (response.status === 201) {
-        alert('Vacante creada con éxito');
-        limpiarCampos();
-        fetchVacantes(); // Actualiza la lista de vacantes después de crear una nueva
+        if (response.status === 200) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Vacante actualizada con éxito',
+            showConfirmButton: false,
+            timer: 1500
+          });
+          limpiarCampos();
+          fetchVacantes();
+        }
+      } else {
+        const response = await axios.post('/vacantePractica', {
+          titulo: title,
+          fechaInicio: formattedFromDate,
+          fechaFinal: formattedUntilDate,
+          ciudad: city,
+          tipoTrabajo: job_type,
+          descripcion: descripcion,
+          entidadID: 1,
+          asesorExternoID: 1
+        });
+
+        if (response.status === 201) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Vacante creada con éxito',
+            showConfirmButton: false,
+            timer: 1500
+          });
+          limpiarCampos();
+          fetchVacantes();
+        }
       }
     } catch (error) {
-      alert('Error al crear la vacante: ' + error.response.data.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Error al crear/actualizar la vacante: ' + error.response.data.message,
+      });
     }
   };
 
   const fetchVacantes = async () => {
     try {
-      const response = await axios.get(`/vacantePractica/all/1/1/10`); // Reemplazar con la entidadID, page y limit correspondientes
-      console.log(response.data);
+      const response = await axios.get(`/vacantePractica/all/1/1/10`);
       setVacantes(response.data);
     } catch (error) {
       alert('Error al obtener las vacantes: ' + error.response.data.message);
     }
+  };
+
+  const handleEditVacante = (vacante) => {
+    setTitle(vacante.titulo);
+    setCity(vacante.ciudad);
+    setJob_type(vacante.tipoTrabajo);
+    setFrom_date(vacante.fechaInicio.split('T')[0]);
+    setUntil_date(vacante.fechaFinal.split('T')[0]);
+    setDescripcion(vacante.descripcion);
+    setIsEditing(true);
+    setEditingVacanteId(vacante.vacantePracticaID);
   };
 
   useEffect(() => {
@@ -73,7 +131,7 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
       <div className="registrar-vacantes-container">
         <div className="registrar-vacantes-row">
           <div className="registrar-vacantes-col left-col">
-            <Titulo titulo='Registrar Vacantes' />
+            <Titulo titulo={isEditing ? 'Editar Vacante' : 'Registrar Vacantes'} />
             <div className="registrar-vacantes-card">
               <div className="registrar-vacantes-card-body">
                 <h5 className="registrar-vacantes-card-title">Ingrese los datos</h5>
@@ -83,8 +141,9 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
                     type="text"
                     placeholder="Nombre de la vacante ej:React Dev"
                     className="registrar-vacantes-input"
-                    onChange={(e) => setTitle(e.target.value)}
+                    onChange={(e) => { setTitle(e.target.value); handleChange(); }}
                     value={title}
+                    required
                   />
                 </div>
                 <div className="registrar-vacantes-input-group">
@@ -92,15 +151,17 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
                     type="text"
                     placeholder="Ciudad/País"
                     className="registrar-vacantes-input"
-                    onChange={(e) => setCity(e.target.value)}
+                    onChange={(e) => { setCity(e.target.value); handleChange(); }}
                     value={city}
+                    required
                   />
                 </div>
                 <div className="registrar-vacantes-input-group">
                   <select
                     className="registrar-vacantes-select"
                     value={job_type}
-                    onChange={(e) => setJob_type(e.target.value)}
+                    onChange={(e) => { setJob_type(e.target.value); handleChange(); }}
+                    required
                   >
                     <option value=''>Tipo de trabajo</option>
                     {
@@ -116,8 +177,9 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
                     type="date"
                     className="registrar-vacantes-input"
                     min={new Date().toISOString().slice(0, 10)}
-                    onChange={(e) => setFrom_date(e.target.value)}
+                    onChange={(e) => { setFrom_date(e.target.value); handleChange(); }}
                     value={from_date}
+                    required
                   />
                 </div>
                 <div className="registrar-vacantes-input-group">
@@ -126,21 +188,23 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
                     type="date"
                     className="registrar-vacantes-input"
                     min={new Date().toISOString().slice(0, 10)}
-                    onChange={(e) => setUntil_date(e.target.value)}
+                    onChange={(e) => { setUntil_date(e.target.value); handleChange(); }}
                     value={until_date}
+                    required
                   />
                 </div>
                 <div className="registrar-vacantes-input-group">
                   <textarea
                     placeholder="Descripción de la vacante"
                     className="registrar-vacantes-textarea"
-                    onChange={(e) => setDescripcion(e.target.value)}
+                    onChange={(e) => { setDescripcion(e.target.value); handleChange(); }}
                     value={descripcion}
-                    style={{ height: '80px', resize: 'none' }} // Ajusta el alto y deshabilita el cambio de tamaño
+                    style={{ height: '80px', resize: 'none' }}
+                    required
                   />
                 </div>
                 <div className="registrar-vacantes-button-group">
-                  <button className="registrar-vacantes-button primary" type="submit">Publicar vacante</button>
+                  <button className="registrar-vacantes-button primary" type="submit">{isEditing ? 'Confirmar' : 'Publicar vacante'}</button>
                   <button className="registrar-vacantes-button secondary" type="button" onClick={limpiarCampos}>Cancelar</button>
                 </div>
               </div>
@@ -156,12 +220,12 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
             </div>
             <Titulo titulo='Lista de vacantes' />
             <div className="registrar-vacantes-card">
-              <div className="registrar-vacantes-card-body">
+              <div className="registrar-vacantes-card-body vacantes-lista">
                 <ListaVacantes
                   setSelected_job={() => {}}
                   setEliminar={() => {}}
                   vacante={null}
-                  setVacante={() => {}}
+                  setVacante={handleEditVacante}
                   vacantes={vacantes}
                 />
               </div>

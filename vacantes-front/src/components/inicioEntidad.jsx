@@ -14,6 +14,7 @@ import RegistrarVacantes from './RegistrarVacantes';
 const InicioEntidad = ({ user, logOut }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [pagina, setPagina] = useState(1); // Estado para la página actual
   const location = useLocation();
 
   const toggleSidebar = () => {
@@ -63,7 +64,7 @@ const InicioEntidad = ({ user, logOut }) => {
         <Routes>
           <Route path="/" element={<h1>Resumen de la entidad</h1>} />
           <Route path="perfil" element={<PerfilEntidadReceptora user={currentUser} setUser={setCurrentUser} />} />
-          <Route path="registrarVacantes" element={<RegistrarVacantes />} />
+          <Route path="registrarVacantes" element={<RegistrarVacantes setUser={setCurrentUser} pagina={pagina} setPagina={setPagina} />} />
           <Route path="documentos" element={<Documentos />} />
           <Route path="registrar-asesor" element={<RegistrarAsesorExterno />} /> {/* Nueva ruta para registrar asesor */}
           {/* Agrega aquí las rutas para las otras secciones */}

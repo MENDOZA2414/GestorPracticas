@@ -1509,3 +1509,83 @@ app.get('/vacantePractica/all/:page/:limit', (req, res) => {
     });
   });
   
+
+
+  // Aceptar alumno
+app.put('/alumno/aceptar/:numControl', (req, res) => {
+    const numControl = req.params.numControl;
+    const query = 'UPDATE alumno SET estatus = "Aceptado" WHERE numControl = ?';
+  
+    connection.query(query, [numControl], (err, results) => {
+      if (err) {
+        return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
+      }
+      res.status(200).send({ message: 'Alumno aceptado con éxito' });
+    });
+  });
+  
+  // Rechazar alumno
+  app.put('/alumno/rechazar/:numControl', (req, res) => {
+    const numControl = req.params.numControl;
+    const query = 'UPDATE alumno SET estatus = "Rechazado" WHERE numControl = ?';
+  
+    connection.query(query, [numControl], (err, results) => {
+      if (err) {
+        return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
+      }
+      res.status(200).send({ message: 'Alumno rechazado con éxito' });
+    });
+  });
+  
+  // Aceptar vacante
+app.put('/vacantePractica/aceptar/:vacantePracticaID', (req, res) => {
+    const vacantePracticaID = req.params.vacantePracticaID;
+    const query = 'UPDATE vacantePractica SET estatus = "Aceptado" WHERE vacantePracticaID = ?';
+  
+    connection.query(query, [vacantePracticaID], (err, results) => {
+      if (err) {
+        return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
+      }
+      res.status(200).send({ message: 'Vacante aceptada con éxito' });
+    });
+  });
+  
+  // Rechazar vacante
+  app.put('/vacantePractica/rechazar/:vacantePracticaID', (req, res) => {
+    const vacantePracticaID = req.params.vacantePracticaID;
+    const query = 'UPDATE vacantePractica SET estatus = "Rechazado" WHERE vacantePracticaID = ?';
+  
+    connection.query(query, [vacantePracticaID], (err, results) => {
+      if (err) {
+        return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
+      }
+      res.status(200).send({ message: 'Vacante rechazada con éxito' });
+    });
+  });
+  
+  // Aceptar entidad
+app.put('/entidadReceptora/aceptar/:entidadID', (req, res) => {
+    const entidadID = req.params.entidadID;
+    const query = 'UPDATE entidadReceptora SET estatus = "Aceptado" WHERE entidadID = ?';
+  
+    connection.query(query, [entidadID], (err, results) => {
+      if (err) {
+        return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
+      }
+      res.status(200).send({ message: 'Entidad aceptada con éxito' });
+    });
+  });
+  
+  // Rechazar entidad
+  app.put('/entidadReceptora/rechazar/:entidadID', (req, res) => {
+    const entidadID = req.params.entidadID;
+    const query = 'UPDATE entidadReceptora SET estatus = "Rechazado" WHERE entidadID = ?';
+  
+    connection.query(query, [entidadID], (err, results) => {
+      if (err) {
+        return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
+      }
+      res.status(200).send({ message: 'Entidad rechazada con éxito' });
+    });
+  });
+  

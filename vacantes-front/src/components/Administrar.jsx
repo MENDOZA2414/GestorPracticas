@@ -102,34 +102,83 @@ const Administrar = ({ currentUser }) => {
   };
 
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     setShowConfirmModal(false);
-    if (confirmAction === 'accept') {
-      Swal.fire({
-        position: 'center',
-        icon: 'success',
-        title: 'Alumno aceptado con éxito',
-        showConfirmButton: false,
-        timer: 2000
-      });
-    } else if (confirmAction === 'reject') {
-      Swal.fire({
-        position: 'center',
-        icon: 'error',
-        title: 'Alumno rechazado',
-        showConfirmButton: false,
-        timer: 2000
-      });
-    } else if (confirmAction === 'delete') {
-      Swal.fire({
-        position: 'center',
-        icon: 'success',
-        title: `${selectedOption.slice(0, -1).charAt(0).toUpperCase() + selectedOption.slice(1, -1).slice(1)} eliminada con éxito`,
-        showConfirmButton: false,
-        timer: 2000
-      });
+    try {
+      let response;
+      if (confirmAction === 'accept') {
+        if (selectedOption === 'alumnos') {
+          response = await axios.put(`http://localhost:3001/alumno/aceptar/${selectedItem.numControl}`);
+        } else if (selectedOption === 'vacantes') {
+          response = await axios.put(`http://localhost:3001/vacantePractica/aceptar/${selectedItem.vacantePracticaID}`);
+        } else if (selectedOption === 'entidades') {
+          response = await axios.put(`http://localhost:3001/entidadReceptora/aceptar/${selectedItem.entidadID}`);
+        }
+        Swal.fire({
+          position: 'center',
+          icon: 'success',
+          title: `${selectedOption.slice(0, -1).charAt(0).toUpperCase() + selectedOption.slice(1, -1).slice(1)} aceptado con éxito`,
+          showConfirmButton: false,
+          timer: 2000
+        });
+      } else if (confirmAction === 'reject') {
+        if (selectedOption === 'alumnos') {
+          response = await axios.put(`http://localhost:3001/alumno/rechazar/${selectedItem.numControl}`);
+        } else if (selectedOption === 'vacantes') {
+          response = await axios.put(`http://localhost:3001/vacantePractica/rechazar/${selectedItem.vacantePracticaID}`);
+        } else if (selectedOption === 'entidades') {
+          response = await axios.put(`http://localhost:3001/entidadReceptora/rechazar/${selectedItem.entidadID}`);
+        }
+        Swal.fire({
+          position: 'center',
+          icon: 'error',
+          title: `${selectedOption.slice(0, -1).charAt(0).toUpperCase() + selectedOption.slice(1, -1).slice(1)} rechazado con éxito`,
+          showConfirmButton: false,
+          timer: 2000
+        });
+      }
+      // Recargar datos después de aceptar o rechazar
+      const fetchData = async () => {
+        let response;
+        if (isRegistered) {
+          switch (selectedOption) {
+            case 'entidades':
+              response = await axios.get('http://localhost:3001/entidades/registered');
+              break;
+            case 'alumnos':
+              response = await axios.get('http://localhost:3001/alumnos/all', {
+                params: { asesorInternoID: currentUser.asesorInternoID }
+              });
+              break;
+            case 'vacantes':
+            default:
+              response = await axios.get('http://localhost:3001/vacantePractica/registered');
+              break;
+          }
+        } else {
+          switch (selectedOption) {
+            case 'entidades':
+              response = await axios.get('http://localhost:3001/entidades/all');
+              break;
+            case 'alumnos':
+              response = await axios.get('http://localhost:3001/alumnos/all', {
+                params: { asesorInternoID: currentUser.asesorInternoID }
+              });
+              break;
+            case 'vacantes':
+            default:
+              response = await axios.get('http://localhost:3001/vacantePractica/all/1/100');
+              break;
+          }
+        }
+        setData(response.data);
+      };
+      fetchData();
+    } catch (error) {
+      console.error('Error updating status:', error);
     }
   };
+  
 
   const renderTitle = () => {
     switch (selectedOption) {

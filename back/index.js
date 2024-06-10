@@ -1881,6 +1881,28 @@ app.delete('/vacantePractica/:vacantePracticaID', (req, res) => {
     });
 });
 
+// Endpoint para eliminar una vacante junto con sus postulaciones
+app.delete('/vacantePracticaProf/:id', (req, res) => {
+    const { id } = req.params;
+
+    const queryDeletePostulaciones = 'DELETE FROM postulacionalumno WHERE vacanteID = ?';
+    const queryDeleteVacante = 'DELETE FROM vacantePractica WHERE vacantePracticaID = ?';
+
+    connection.query(queryDeletePostulaciones, [id], (err, result) => {
+        if (err) {
+            return res.status(500).send({ message: 'Error al eliminar las postulaciones: ' + err.message });
+        }
+
+        connection.query(queryDeleteVacante, [id], (err, result) => {
+            if (err) {
+                return res.status(500).send({ message: 'Error al eliminar la vacante: ' + err.message });
+            }
+            res.status(200).send({ message: 'Vacante eliminada con éxito' });
+        });
+    });
+});
+
+
 // Eliminar entidad
 app.delete('/entidadReceptora/:entidadID', (req, res) => {
     const entidadID = req.params.entidadID;

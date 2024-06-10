@@ -210,16 +210,39 @@ app.get('/aplicaciones/:vacanteID', (req, res) => {
         WHERE P.vacanteID = ?`, [vacanteID], 
         (err, result) => {
             if (err) {
-                console.error('Error en la consulta:', err); // Añadir este log
+                console.error('Error en la consulta:', err);
                 return res.status(500).send({ message: 'Error en el servidor', error: err });
             }
             if (result.length > 0) {
-                res.status(200).send(result);
+                res.status(200).send(result.map(postulacion => ({
+                    ...postulacion,
+                    cartaPresentacion: Buffer.from(postulacion.cartaPresentacion).toString('base64') // Convierte a base64
+                })));
             } else {
                 res.status(404).send({ message: 'No hay postulaciones' });
             }
         });
 });
+
+
+app.get('/postulacionalumno/:id', (req, res) => {
+    const documentoID = req.params.id;
+    const query = 'SELECT cartaPresentacion FROM postulacionalumno WHERE postulacionID = ?'; // Cambiado 'id' por 'postulacionID'
+
+    connection.query(query, [documentoID], (err, result) => {
+        if (err) {
+            return res.status(500).send({ message: 'Error en el servidor: ' + err.message });
+        }
+        if (result.length > 0) {
+            const documento = result[0];
+            res.setHeader('Content-Type', 'application/pdf');
+            res.send(Buffer.from(documento.cartaPresentacion, 'binary'));
+        } else {
+            res.status(404).send({ message: 'Documento no encontrado' });
+        }
+    });
+});
+
 
 
 

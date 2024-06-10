@@ -26,7 +26,11 @@ const ListaPostulaciones = ({ postulaciones, handleApprove, handleReject }) => {
                             <td data-label="Nombre Completo">{item.nombreAlumno}</td>
                             <td data-label="Correo">{item.correoAlumno}</td>
                             <td data-label="Carta de Presentación">
-                                <a href={`http://localhost:3001/documento/${item.cartaPresentacion}`} className="lista-postu-link" target="_blank" rel="noopener noreferrer">
+                                <a 
+                                  href={`http://localhost:3001/postulacionalumno/${item.id}`} 
+                                  className="lista-postu-link" 
+                                  target="_blank" 
+                                  rel="noopener noreferrer">
                                     <FaFilePdf className="lista-postu-icon" />
                                 </a>
                             </td>
@@ -53,7 +57,6 @@ ListaPostulaciones.propTypes = {
             vacanteTitulo: PropTypes.string.isRequired,
             nombreAlumno: PropTypes.string.isRequired,
             correoAlumno: PropTypes.string.isRequired,
-            cartaPresentacion: PropTypes.string.isRequired
         })
     ).isRequired,
     handleApprove: PropTypes.func.isRequired,

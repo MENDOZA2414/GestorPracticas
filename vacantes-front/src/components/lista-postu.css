@@ -44,7 +44,6 @@
     transition: background-color 0.3s; 
 }
 
-
 .lista-postu-button.approve {
     color: green;
 }
@@ -56,6 +55,7 @@
 .lista-postu-icon {
     font-size: 1.5em;
     cursor: pointer;
+    color: #FF0000; /* Color característico del icono PDF */
 }
 
 .lista-postu-link {
@@ -65,6 +65,7 @@
     height: 100%; /* Asegura que el enlace ocupe toda la altura de la celda */
     margin-right: 40px;
 }
+
 .lista-postu-button:hover {
     background-color: #ddd; /* Cambiar el color de fondo al pasar el cursor */
 }

@@ -1,55 +1,63 @@
 import PropTypes from 'prop-types';
+import { FaFilePdf, FaCheck, FaTimes } from 'react-icons/fa';
+import './lista-postu.css';
 
-const ListaPostulaciones = ({ postulaciones }) => {
+const ListaPostulaciones = ({ postulaciones, handleApprove, handleReject }) => {
     if (!Array.isArray(postulaciones) || postulaciones.length === 0) {
         return <p>No hay postulaciones disponibles.</p>;
     }
 
     return (
-        <table className="table">
-            <thead>
-                <tr>
-                    <th scope="col">Cargo</th>
-                    <th scope="col">Foto</th>
-                    <th scope="col">Postulados</th>
-                    <th scope="col">DNI</th>
-                    <th scope="col">EMAIL</th>
-                </tr>
-            </thead>
-            <tbody>
-                {postulaciones.map((item, index) => (
-                    <tr key={index}>
-                        <td>{item.title}</td>
-                        <td>
-                            <img 
-                                src={item.img || 'path/to/default/image.png'} 
-                                width={50} 
-                                height={50} 
-                                alt={`Foto de ${item.name}`} 
-                                onError={(e) => { e.target.src = 'path/to/default/image.png'; }}
-                            />
-                        </td>
-                        <td>{item.name}</td>
-                        <td>{item.dni}</td>
-                        <td>{item.email}</td>
+        <div className="lista-postu-table-container">
+            <table className="lista-postu-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Título de la Vacante</th>
+                        <th scope="col">Nombre Completo</th>
+                        <th scope="col">Correo</th>
+                        <th scope="col">Carta de Presentación</th>
+                        <th scope="col">Acciones</th>
                     </tr>
-                ))}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {postulaciones.map((item, index) => (
+                        <tr key={index}>
+                            <td data-label="Título de la Vacante">{item.vacanteTitulo}</td>
+                            <td data-label="Nombre Completo">{item.nombreAlumno}</td>
+                            <td data-label="Correo">{item.correoAlumno}</td>
+                            <td data-label="Carta de Presentación">
+                                <a href={`http://localhost:3001/documento/${item.cartaPresentacion}`} className="lista-postu-link" target="_blank" rel="noopener noreferrer">
+                                    <FaFilePdf className="lista-postu-icon" />
+                                </a>
+                            </td>
+                            <td data-label="Acciones">
+                                <button className="lista-postu-button approve" onClick={() => handleApprove(item.id)}>
+                                    <FaCheck />
+                                </button>
+                                <button className="lista-postu-button reject" onClick={() => handleReject(item.id)}>
+                                    <FaTimes />
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
     );
 };
 
 ListaPostulaciones.propTypes = {
     postulaciones: PropTypes.arrayOf(
         PropTypes.shape({
-            job_id: PropTypes.number,
-            title: PropTypes.string.isRequired,
-            img: PropTypes.string,
-            name: PropTypes.string.isRequired,
-            dni: PropTypes.string.isRequired,
-            email: PropTypes.string.isRequired
+            id: PropTypes.number.isRequired,
+            vacanteTitulo: PropTypes.string.isRequired,
+            nombreAlumno: PropTypes.string.isRequired,
+            correoAlumno: PropTypes.string.isRequired,
+            cartaPresentacion: PropTypes.string.isRequired
         })
-    ).isRequired
+    ).isRequired,
+    handleApprove: PropTypes.func.isRequired,
+    handleReject: PropTypes.func.isRequired
 };
 
 export default ListaPostulaciones;

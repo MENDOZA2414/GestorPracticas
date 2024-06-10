@@ -18,6 +18,10 @@
 .vacantes-enti-item:last-child {
     border-bottom: none; /* Eliminar borde del último elemento */
 }
+.vacantes-enti-item-title {
+    font-size: 1.5em; /* Aumenta el tamaño de la fuente */
+    font-weight: medium; /* Hace el texto negrita */
+}
 
 .icon-button {
     background: none; /* Asegura que no haya fondo por defecto */

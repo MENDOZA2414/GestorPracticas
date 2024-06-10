@@ -201,27 +201,29 @@ app.get('/vacantePractica/:id', (req, res) => {
     );
 });
 
-
-
-
 app.get('/aplicaciones/:vacanteID', (req, res) => {
     const vacanteID = req.params.vacanteID;
-    connection.query(`SELECT A.*, V.titulo, AL.nombre, AL.apellidoPaterno, AL.apellidoMaterno, AL.correo 
-              FROM aplicarVacante A 
-              INNER JOIN vacantePractica V ON A.vacanteID = V.vacantePracticaID 
-              INNER JOIN alumno AL ON A.alumnoID = AL.numControl 
-              WHERE A.vacanteID = ?`, [vacanteID], 
+    connection.query(`
+        SELECT P.*, V.titulo AS vacanteTitulo
+        FROM postulacionalumno P
+        INNER JOIN vacantePractica V ON P.vacanteID = V.vacantePracticaID
+        WHERE P.vacanteID = ?`, [vacanteID], 
         (err, result) => {
             if (err) {
-                return res.status(500).send({ message: 'Error en el servidor' });
+                console.error('Error en la consulta:', err); // Añadir este log
+                return res.status(500).send({ message: 'Error en el servidor', error: err });
             }
             if (result.length > 0) {
                 res.status(200).send(result);
             } else {
-                res.status(400).send({ message: 'No hay postulaciones' });
+                res.status(404).send({ message: 'No hay postulaciones' });
             }
         });
 });
+
+
+
+
 
 app.get('/checkPostulacion/:alumnoID/:vacanteID', (req, res) => {
     const { alumnoID, vacanteID } = req.params;

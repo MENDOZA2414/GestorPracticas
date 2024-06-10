@@ -4,18 +4,20 @@ import { FaEye, FaEdit, FaTrashAlt } from 'react-icons/fa';
 import moment from 'moment';
 import './vacantesEntidad.css';
 
-const ListaVacantes = ({ setSelected_job, vacantes, setVacante, setEliminar }) => {
+const ListaVacantes = ({ setSelected_job, vacantes, setVacante, setEliminar, setIsModalOpen, setSelectedPostulaciones }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedVacante, setSelectedVacante] = useState(null);
 
   const handleViewVacante = (vacante) => {
     setSelectedVacante(vacante);
     setShowModal(true);
+    setIsModalOpen(true); // Marca el modal como abierto
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedVacante(null);
+    setIsModalOpen(false); // Marca el modal como cerrado
   };
 
   return (
@@ -27,11 +29,14 @@ const ListaVacantes = ({ setSelected_job, vacantes, setVacante, setEliminar }) =
           {vacantes.map((item) => (
             <div key={item.vacantePracticaID} className="vacantes-enti-item">
               <div>
-                <span>{item.titulo}</span>
+                <span className="vacantes-enti-item-title">{item.titulo}</span>
                 <br />
                 <span>{item.ciudad}</span>
               </div>
               <div className="vacantes-enti-actions">
+                <button className="icon-button" onClick={() => setSelectedPostulaciones(item.vacantePracticaID)} aria-label={`Ver postulaciones ${item.titulo}`}>
+                  Postulaciones
+                </button>
                 <button className="icon-button" onClick={() => handleViewVacante(item)} aria-label={`Ver vacante ${item.titulo}`}>
                   <FaEye />
                 </button>
@@ -47,7 +52,7 @@ const ListaVacantes = ({ setSelected_job, vacantes, setVacante, setEliminar }) =
         </div>
       )}
       {showModal && selectedVacante && (
-        <div className="vacantes-enti-modal">
+        <div className="vacantes-enti-modal" tabindex="-1" aria-hidden="true">
           <div className="vacantes-enti-modal-content">
             <span className="vacantes-enti-close-button" onClick={handleCloseModal}>&times;</span>
             <h2>{selectedVacante.titulo}</h2>
@@ -78,6 +83,8 @@ ListaVacantes.propTypes = {
   ).isRequired,
   setVacante: PropTypes.func.isRequired,
   setEliminar: PropTypes.func.isRequired,
+  setIsModalOpen: PropTypes.func.isRequired, // Añade la prop para controlar el estado del modal
+  setSelectedPostulaciones: PropTypes.func.isRequired, // Añade la prop para manejar la selección de postulaciones
 };
 
 export default ListaVacantes;

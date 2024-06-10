@@ -15,9 +15,11 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
   const [until_date, setUntil_date] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [vacantes, setVacantes] = useState([]);
+  const [postulaciones, setPostulaciones] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editingVacanteId, setEditingVacanteId] = useState(null);
   const [isFormModified, setIsFormModified] = useState(false); // Nuevo estado
+  const [isModalOpen, setIsModalOpen] = useState(false); // Nuevo estado para el modal
 
   const job_type_list = ['Remoto', 'Presencial', 'Semi-presencial'];
 
@@ -111,6 +113,22 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
     }
   };
 
+  const fetchPostulaciones = async (vacanteID) => {
+    try {
+      const response = await axios.get(`/aplicaciones/${vacanteID}`);
+      if (response.status === 200) {
+        setPostulaciones(response.data);
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        setPostulaciones([]);
+      } else {
+        console.error('Error al obtener las postulaciones:', error);
+        alert('Error al obtener las postulaciones: ' + error.response.data.message);
+      }
+    }
+  };
+
   const handleEditVacante = (vacante) => {
     setTitle(vacante.titulo);
     setCity(vacante.ciudad);
@@ -120,6 +138,16 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
     setDescripcion(vacante.descripcion);
     setIsEditing(true);
     setEditingVacanteId(vacante.vacantePracticaID);
+  };
+
+  const handleApprove = async (postulacionID) => {
+    // Implementa la lógica de aprobación
+    console.log(`Aprobar postulación ${postulacionID}`);
+  };
+
+  const handleReject = async (postulacionID) => {
+    // Implementa la lógica de rechazo
+    console.log(`Rechazar postulación ${postulacionID}`);
   };
 
   useEffect(() => {
@@ -144,6 +172,7 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
                     onChange={(e) => { setTitle(e.target.value); handleChange(); }}
                     value={title}
                     required
+                    disabled={isModalOpen} // Deshabilitar si el modal está abierto
                   />
                 </div>
                 <div className="registrar-vacantes-input-group">
@@ -154,6 +183,7 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
                     onChange={(e) => { setCity(e.target.value); handleChange(); }}
                     value={city}
                     required
+                    disabled={isModalOpen} // Deshabilitar si el modal está abierto
                   />
                 </div>
                 <div className="registrar-vacantes-input-group">
@@ -162,6 +192,7 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
                     value={job_type}
                     onChange={(e) => { setJob_type(e.target.value); handleChange(); }}
                     required
+                    disabled={isModalOpen} // Deshabilitar si el modal está abierto
                   >
                     <option value=''>Tipo de trabajo</option>
                     {
@@ -180,6 +211,7 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
                     onChange={(e) => { setFrom_date(e.target.value); handleChange(); }}
                     value={from_date}
                     required
+                    disabled={isModalOpen} // Deshabilitar si el modal está abierto
                   />
                 </div>
                 <div className="registrar-vacantes-input-group">
@@ -191,6 +223,7 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
                     onChange={(e) => { setUntil_date(e.target.value); handleChange(); }}
                     value={until_date}
                     required
+                    disabled={isModalOpen} // Deshabilitar si el modal está abierto
                   />
                 </div>
                 <div className="registrar-vacantes-input-group">
@@ -201,6 +234,7 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
                     value={descripcion}
                     style={{ height: '80px', resize: 'none' }}
                     required
+                    disabled={isModalOpen} // Deshabilitar si el modal está abierto
                   />
                 </div>
                 <div className="registrar-vacantes-button-group">
@@ -215,7 +249,11 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
             <Titulo titulo='Postulaciones' />
             <div className="registrar-vacantes-card">
               <div className="registrar-vacantes-card-body">
-                <ListaPostulaciones postulaciones={[]} />
+                <ListaPostulaciones 
+                  postulaciones={postulaciones} 
+                  handleApprove={handleApprove} 
+                  handleReject={handleReject} 
+                />
               </div>
             </div>
             <Titulo titulo='Lista de vacantes' />
@@ -227,6 +265,8 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
                   vacante={null}
                   setVacante={handleEditVacante}
                   vacantes={vacantes}
+                  setIsModalOpen={setIsModalOpen} // Pasa la función para controlar el estado del modal
+                  setSelectedPostulaciones={fetchPostulaciones} // Pasa la función para obtener postulaciones
                 />
               </div>
             </div>

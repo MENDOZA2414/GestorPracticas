@@ -1,103 +1,116 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaBuilding, FaUserGraduate, FaChalkboardTeacher } from 'react-icons/fa';
 import Titulo from './common/Titulo';
+import './preRegistro.css';
 
 const PreRegistro = () => {
   const navigate = useNavigate();
+  const [selectedRole, setSelectedRole] = useState(null);
 
-  const handleRegisterClick = () => {
-    navigate('/registrarEntidad');
+  const handleRoleChange = (role) => {
+    setSelectedRole(role);
   };
 
-  const handleRegisterClick2 = () => {
-    navigate('/registrarAlumno');
+  const handleNextClick = () => {
+    switch (selectedRole) {
+      case 'empresa':
+        navigate('/registrarEntidad');
+        break;
+      case 'alumno':
+        navigate('/registrarAlumno');
+        break;
+      case 'asesor':
+        navigate('/registrarAsesor');
+        break;
+      default:
+        break;
+    }
   };
 
-  const handleRegisterClick3 = () => {
-    navigate('/registrarAsesor');
-  };
+  const isCardSelected = (role) => selectedRole === role ? 'selected' : '';
 
   return (
-    <div className="container mb-5 p-3">
-      <div className="mt-5 mb-5">
+    <div className="pre-registro-container">
+      <div className="titulo-container">
         <Titulo titulo='Selecciona el tipo de usuario deseado para registrarte' />
       </div>
-      <div className="row row-cols-1 row-cols-md-3 mb-3 text-center">
-        <div className="col">
-          <div className="card mb-4 rounded-3 shadow-sm">
-            <div className="card-header py-3">
-              <h3 className="card-title pricing-card-title">Empresa</h3>
-            </div>
-            <div className="card-body">
-              <h4 className="my-0 fw-normal">
-                <small className="text-body-secondary fw-medium">Registrate como entidad receptora</small>
-              </h4>
-              <ul className="list-unstyled mt-3 mb-4">
-                <li>Gestiona vacantes</li>
-                <li>Visualiza postulaciones</li>
-                <li>Recibe y envía documentos</li>
-                <li>Genera informes</li>
-              </ul>
-              <button 
-                type="button" 
-                className="w-100 btn btn-lg btn-outline-primary"
-                onClick={handleRegisterClick}
-              >
-                Registrarse
-              </button>
-            </div>
+      <div className="cards-container">
+        <div 
+          className={`pre-registro-card ${isCardSelected('empresa')}`}
+          onClick={() => handleRoleChange('empresa')}
+        >
+          <div className={`icon-card ${isCardSelected('empresa')}`}>
+            <FaBuilding className="icon" />
+          </div>
+          <div className="card-content">
+            <h3 className="card-title">Empresa</h3>
+            <h4 className="card-subtitle">
+              <small>Registrate como entidad receptora</small>
+            </h4>
+            <label className="checkbox-container">
+              <input
+                type="checkbox"
+                checked={selectedRole === 'empresa'}
+                readOnly
+              />
+              <span className="checkmark"></span>
+            </label>
           </div>
         </div>
-        <div className="col">
-          <div className="card mb-4 rounded-3 shadow-sm">
-            <div className="card-header py-3">
-              <h3 className="card-title pricing-card-title">Alumno</h3>
-            </div>
-            <div className="card-body">
-              <h4 className="my-0 fw-normal">
-                <small className="text-body-secondary fw-medium">Registrate como alumno del DASC</small>
-              </h4>
-              <ul className="list-unstyled mt-3 mb-4">
-                <li>Aplica a vacantes</li>
-                <li>Lleva el seguimiento de tu PP</li>
-                <li>Recibe y envía documentos</li>
-                <li>Comunícate con asesores y empresas</li>
-              </ul>
-              <button 
-                type="button" 
-                className="w-100 btn btn-lg btn-outline-primary"
-                onClick={handleRegisterClick2}
-              >
-                Registrarse
-              </button>
-            </div>
+        <div 
+          className={`pre-registro-card ${isCardSelected('alumno')}`}
+          onClick={() => handleRoleChange('alumno')}
+        >
+          <div className={`icon-card ${isCardSelected('alumno')}`}>
+            <FaUserGraduate className="icon" />
+          </div>
+          <div className="card-content">
+            <h3 className="card-title">Alumno</h3>
+            <h4 className="card-subtitle">
+              <small>Registrate como alumno del DASC</small>
+            </h4>
+            <label className="checkbox-container">
+              <input
+                type="checkbox"
+                checked={selectedRole === 'alumno'}
+                readOnly
+              />
+              <span className="checkmark"></span>
+            </label>
           </div>
         </div>
-        <div className="col">
-          <div className="card mb-4 rounded-3 shadow-sm">
-            <div className="card-header py-3">
-              <h3 className="card-title pricing-card-title">Asesor</h3>
-            </div>
-            <div className="card-body">
-              <h4 className="my-0 fw-normal">
-                <small className="text-body-secondary fw-medium">Registrate como asesor interno</small>
-              </h4>
-              <ul className="list-unstyled mt-3 mb-4">
-                <li>Gestiona alumnos</li>
-                <li>Visualiza postulaciones</li>
-                <li>Recibe y envía documentos</li>
-                <li>Genera informes</li>
-              </ul>
-              <button 
-                type="button" 
-                className="w-100 btn btn-lg btn-outline-primary"
-                onClick={handleRegisterClick3}
-              >
-                Registrarse
-              </button>
-            </div>
+        <div 
+          className={`pre-registro-card ${isCardSelected('asesor')}`}
+          onClick={() => handleRoleChange('asesor')}
+        >
+          <div className={`icon-card ${isCardSelected('asesor')}`}>
+            <FaChalkboardTeacher className="icon" />
+          </div>
+          <div className="card-content">
+            <h3 className="card-title">Asesor</h3>
+            <h4 className="card-subtitle">
+              <small>Registrate como asesor interno</small>
+            </h4>
+            <label className="checkbox-container">
+              <input
+                type="checkbox"
+                checked={selectedRole === 'asesor'}
+                readOnly
+              />
+              <span className="checkmark"></span>
+            </label>
           </div>
         </div>
+      </div>
+      <div className="next-button-container">
+        <button
+          className="next-button"
+          onClick={handleNextClick}
+          disabled={!selectedRole}
+        >
+          Siguiente
+        </button>
       </div>
     </div>
   );

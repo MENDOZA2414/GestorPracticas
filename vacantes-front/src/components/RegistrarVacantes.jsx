@@ -180,12 +180,27 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
 
 
 const handleReject = async (postulacionID) => {
-    try {
-        // Implementa la lógica para rechazar la postulación si es necesario
-        console.log(`Rechazar postulación ${postulacionID}`);
-    } catch (error) {
-        console.error('Error al rechazar la postulación:', error);
-    }
+  try {
+      const response = await axios.post('/rejectPostulacion', {
+          postulacionID
+      });
+
+      if (response.status === 200) {
+          Swal.fire({
+              icon: 'success',
+              title: 'Postulación rechazada con éxito',
+              showConfirmButton: false,
+              timer: 1500
+          });
+          setPostulaciones(postulaciones.filter(postulacion => postulacion.id !== postulacionID));
+      }
+  } catch (error) {
+      Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Error al rechazar la postulación: ' + (error.response?.data?.message || error.message),
+      });
+  }
 };
 
   useEffect(() => {

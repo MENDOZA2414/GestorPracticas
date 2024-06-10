@@ -987,18 +987,32 @@ app.put('/asesorInterno/:id', upload.single('foto'), (req, res) => {
     res.status(200).send({ message: 'Asesor Interno actualizado con éxito' });
   });
 });
+// Endpoint para rechazar una postulación
 app.post('/rejectPostulacion', (req, res) => {
     const { postulacionID } = req.body;
 
-    const query = 'DELETE FROM postulacionalumno WHERE postulacionID = ?';
-    connection.query(query, [postulacionID], (err, result) => {
-        if (err) {
-            return res.status(500).send({ message: 'Error al rechazar la postulación: ' + err.message });
-        }
+    const queryDeletePostulacion = `
+        DELETE FROM postulacionalumno
+        WHERE postulacionID = ?
+    `;
 
-        res.status(200).send({ message: 'Postulación rechazada con éxito' });
-    });
+    try {
+        connection.query(queryDeletePostulacion, [postulacionID], (err, result) => {
+            if (err) {
+                return res.status(500).send({ message: 'Error al eliminar la postulación: ' + err.message });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).send({ message: 'No se encontró la postulación' });
+            }
+
+            res.status(200).send({ message: 'Postulación eliminada con éxito' });
+        });
+    } catch (error) {
+        res.status(500).send({ message: 'Error en el servidor al eliminar la postulación', error: error.message });
+    }
 });
+
 
 // Endpoint para aceptar una postulación y registrar una práctica profesional
 app.post('/acceptPostulacion', async (req, res) => {

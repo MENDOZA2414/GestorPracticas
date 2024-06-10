@@ -4,6 +4,10 @@
     max-width: 1200px;
 }
 
+small{
+    font-weight: normal;
+    color: #838282;
+}
 .titulo-container {
     margin-bottom: 3rem;
     text-align: center;

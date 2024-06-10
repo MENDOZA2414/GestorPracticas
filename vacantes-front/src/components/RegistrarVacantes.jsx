@@ -135,10 +135,6 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
     }
 };
 
-
-
-
-
   const handleEditVacante = (vacante) => {
     setTitle(vacante.titulo);
     setCity(vacante.ciudad);
@@ -151,14 +147,44 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
   };
 
   const handleApprove = async (postulacionID) => {
-    // Implementa la lógica de aprobación
-    console.log(`Aprobar postulación ${postulacionID}`);
-  };
+    try {
+        const fechaInicio = new Date().toISOString().split('T')[0]; // Asigna una fecha de inicio adecuada
+        const fechaFin = new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString().split('T')[0]; // Asigna una fecha de fin adecuada
 
-  const handleReject = async (postulacionID) => {
-    // Implementa la lógica de rechazo
-    console.log(`Rechazar postulación ${postulacionID}`);
-  };
+        const response = await axios.post('/acceptPostulacion', {
+            postulacionID,
+            fechaInicio,
+            fechaFin,
+            estado: 'Aceptado' // Ajusta según sea necesario
+        });
+
+        if (response.status === 201) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Postulación aceptada con éxito',
+                showConfirmButton: false,
+                timer: 1500
+            });
+            fetchPostulaciones(); // Actualiza la lista de postulaciones
+        }
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al aprobar la postulación: ' + error.response.data.message,
+        });
+    }
+};
+
+
+const handleReject = async (postulacionID) => {
+    try {
+        // Implementa la lógica para rechazar la postulación si es necesario
+        console.log(`Rechazar postulación ${postulacionID}`);
+    } catch (error) {
+        console.error('Error al rechazar la postulación:', error);
+    }
+};
 
   useEffect(() => {
     fetchVacantes();

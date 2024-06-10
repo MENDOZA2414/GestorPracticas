@@ -987,26 +987,77 @@ app.put('/asesorInterno/:id', upload.single('foto'), (req, res) => {
     res.status(200).send({ message: 'Asesor Interno actualizado con éxito' });
   });
 });
+app.post('/rejectPostulacion', (req, res) => {
+    const { postulacionID } = req.body;
 
-app.post('/practicasProfesionales', (req, res) => {
-    const { alumnoID, entidadID, asesorExternoID, asesorInternoID, fechaInicio, fechaFin, estado } = req.body;
-    
-    const query = `INSERT INTO practicasProfesionales (alumnoID, entidadID, asesorExternoID, asesorInternoID, fechaInicio, fechaFin, estado) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-    
-    connection.query(query, [alumnoID, entidadID, asesorExternoID, asesorInternoID, fechaInicio, fechaFin, estado], (err, result) => {
+    const query = 'DELETE FROM postulacionalumno WHERE postulacionID = ?';
+    connection.query(query, [postulacionID], (err, result) => {
         if (err) {
-            return res.status(500).send({
-                status: 500,
-                message: err.message,
-            });
+            return res.status(500).send({ message: 'Error al rechazar la postulación: ' + err.message });
         }
-        return res.status(201).send({
-            status: 201,
-            message: 'Práctica profesional registrada con éxito',
-            data: result.insertId,
-        });
+
+        res.status(200).send({ message: 'Postulación rechazada con éxito' });
     });
 });
+
+// Endpoint para aceptar una postulación y registrar una práctica profesional
+app.post('/acceptPostulacion', async (req, res) => {
+    const { postulacionID, fechaInicio, fechaFin, estado } = req.body;
+
+    const queryPostulacion = `
+        SELECT 
+            p.alumnoID, p.vacanteID, p.nombreAlumno, p.correoAlumno,
+            v.entidadID, v.asesorExternoID, v.titulo AS tituloVacante
+        FROM 
+            postulacionalumno p
+        JOIN 
+            vacantePractica v ON p.vacanteID = v.vacantePracticaID
+        WHERE 
+            p.postulacionID = ?
+    `;
+
+    try {
+        connection.query(queryPostulacion, [postulacionID], (err, result) => {
+            if (err) {
+                return res.status(500).send({ message: 'Error al obtener la postulación: ' + err.message });
+            }
+
+            if (result.length === 0) {
+                return res.status(404).send({ message: 'No se encontró la postulación' });
+            }
+
+            const postulacion = result[0];
+
+            const queryInsertPractica = `
+                INSERT INTO practicasprofesionales 
+                (alumnoID, entidadID, asesorExternoID, fechaInicio, fechaFin, estado, tituloVacante, fechaCreacion)
+                VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
+            `;
+
+            const values = [
+                postulacion.alumnoID, 
+                postulacion.entidadID, 
+                postulacion.asesorExternoID, 
+                fechaInicio, 
+                fechaFin, 
+                estado,
+                postulacion.tituloVacante
+            ];
+
+            connection.query(queryInsertPractica, values, (err, result) => {
+                if (err) {
+                    return res.status(500).send({ message: 'Error al registrar la práctica profesional: ' + err.message });
+                }
+                res.status(201).send({ message: 'Práctica profesional registrada con éxito' });
+            });
+        });
+    } catch (error) {
+        res.status(500).send({ message: 'Error en el servidor al registrar la práctica profesional', error: error.message });
+    }
+});
+
+
+
 
 // Ruta para obtener la práctica profesional de un alumno por su número de control
 app.get('/practicaProfesional/alumno/:numControl', (req, res) => {
@@ -1027,6 +1078,9 @@ app.get('/practicaProfesional/alumno/:numControl', (req, res) => {
         }
     });
 });
+
+
+
 
 
 app.get('/asesorExterno/:id', (req, res) => {

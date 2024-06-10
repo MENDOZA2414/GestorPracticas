@@ -148,14 +148,14 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
 
   const handleApprove = async (postulacionID) => {
     try {
-        const fechaInicio = new Date().toISOString().split('T')[0]; // Asigna una fecha de inicio adecuada
-        const fechaFin = new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString().split('T')[0]; // Asigna una fecha de fin adecuada
+        const fechaInicio = new Date().toISOString().split('T')[0];
+        const fechaFin = new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString().split('T')[0];
 
         const response = await axios.post('/acceptPostulacion', {
             postulacionID,
             fechaInicio,
             fechaFin,
-            estado: 'Aceptado' // Ajusta según sea necesario
+            estado: 'Aceptado'
         });
 
         if (response.status === 201) {
@@ -166,6 +166,7 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
                 timer: 1500
             });
             fetchPostulaciones(); // Actualiza la lista de postulaciones
+            fetchVacantes(); // Actualiza la lista de vacantes
         }
     } catch (error) {
         Swal.fire({
@@ -175,6 +176,7 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
         });
     }
 };
+
 
 
 const handleReject = async (postulacionID) => {

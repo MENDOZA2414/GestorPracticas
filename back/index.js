@@ -1048,13 +1048,35 @@ app.post('/acceptPostulacion', async (req, res) => {
                 if (err) {
                     return res.status(500).send({ message: 'Error al registrar la práctica profesional: ' + err.message });
                 }
-                res.status(201).send({ message: 'Práctica profesional registrada con éxito' });
+
+                const queryDeletePostulacion = `
+                    DELETE FROM postulacionalumno WHERE postulacionID = ?
+                `;
+
+                connection.query(queryDeletePostulacion, [postulacionID], (err, result) => {
+                    if (err) {
+                        return res.status(500).send({ message: 'Error al eliminar la postulación: ' + err.message });
+                    }
+
+                    const queryDeleteVacante = `
+                        DELETE FROM vacantePractica WHERE vacantePracticaID = ?
+                    `;
+
+                    connection.query(queryDeleteVacante, [postulacion.vacanteID], (err, result) => {
+                        if (err) {
+                            return res.status(500).send({ message: 'Error al eliminar la vacante: ' + err.message });
+                        }
+
+                        res.status(201).send({ message: 'Práctica profesional registrada, postulación y vacante eliminadas con éxito' });
+                    });
+                });
             });
         });
     } catch (error) {
         res.status(500).send({ message: 'Error en el servidor al registrar la práctica profesional', error: error.message });
     }
 });
+
 
 
 

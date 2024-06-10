@@ -1,12 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { FaEye, FaEdit, FaTrashAlt } from 'react-icons/fa';
 import moment from 'moment';
+import axios from 'axios';
 import './vacantesEntidad.css';
 
-const ListaVacantes = ({ setSelected_job, vacantes, setVacante, setEliminar, setIsModalOpen, setSelectedPostulaciones }) => {
+const ListaVacantes = ({ vacantes, setVacante, setEliminar, setIsModalOpen, setSelectedPostulaciones }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedVacante, setSelectedVacante] = useState(null);
+
+  useEffect(() => {
+    fetchVacantes();
+  }, []);
+
+  const fetchVacantes = async () => {
+    try {
+      const response = await axios.get('http://localhost:3001/vacantePractica');
+      setVacantes(response.data);
+    } catch (error) {
+      console.error('Error fetching vacantes:', error);
+    }
+  };
+
+  const handleAccept = async (postulacionID) => {
+    try {
+      const response = await axios.post('http://localhost:3001/acceptPostulacion', {
+        postulacionID,
+        fechaInicio: '2024-06-01', // Asegúrate de enviar las fechas correctas
+        fechaFin: '2024-12-01',
+        estado: 'Aceptado'
+      });
+
+      alert('Postulación aceptada: ' + response.data.message);
+      // Actualizar la lista de postulaciones y vacantes después de aceptar una
+      fetchVacantes();
+    } catch (error) {
+      console.error('Error accepting postulacion:', error);
+      alert('Error al aceptar la postulación: ' + error.response.data.message);
+    }
+  };
+
+  const handleReject = async (postulacionID) => {
+    try {
+      const response = await axios.post('http://localhost:3001/rejectPostulacion', { postulacionID });
+      alert('Postulación rechazada: ' + response.data.message);
+      // Actualizar la lista de postulaciones después de rechazar una
+      fetchVacantes();
+    } catch (error) {
+      console.error('Error rejecting postulacion:', error);
+      alert('Error al rechazar la postulación: ' + error.response.data.message);
+    }
+  };
 
   const handleViewVacante = (vacante) => {
     setSelectedVacante(vacante);
@@ -52,7 +96,7 @@ const ListaVacantes = ({ setSelected_job, vacantes, setVacante, setEliminar, set
         </div>
       )}
       {showModal && selectedVacante && (
-        <div className="vacantes-enti-modal" tabindex="-1" aria-hidden="true">
+        <div className="vacantes-enti-modal" tabIndex="-1" aria-hidden="true">
           <div className="vacantes-enti-modal-content">
             <span className="vacantes-enti-close-button" onClick={handleCloseModal}>&times;</span>
             <h2>{selectedVacante.titulo}</h2>
@@ -69,7 +113,10 @@ const ListaVacantes = ({ setSelected_job, vacantes, setVacante, setEliminar, set
 };
 
 ListaVacantes.propTypes = {
-  setSelected_job: PropTypes.func.isRequired,
+  setVacante: PropTypes.func.isRequired,
+  setEliminar: PropTypes.func.isRequired,
+  setIsModalOpen: PropTypes.func.isRequired,
+  setSelectedPostulaciones: PropTypes.func.isRequired,
   vacantes: PropTypes.arrayOf(
     PropTypes.shape({
       vacantePracticaID: PropTypes.number.isRequired,
@@ -81,10 +128,6 @@ ListaVacantes.propTypes = {
       fechaFinal: PropTypes.string.isRequired,
     })
   ).isRequired,
-  setVacante: PropTypes.func.isRequired,
-  setEliminar: PropTypes.func.isRequired,
-  setIsModalOpen: PropTypes.func.isRequired, // Añade la prop para controlar el estado del modal
-  setSelectedPostulaciones: PropTypes.func.isRequired, // Añade la prop para manejar la selección de postulaciones
 };
 
 export default ListaVacantes;

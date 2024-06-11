@@ -160,9 +160,9 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
 
   const handleApprove = async (postulacionID) => {
     try {
-        const resultado = await Swal.fire({
+        const result = await Swal.fire({
             title: '¿Estás seguro?',
-            text: "¡No podrás revertir esto!",
+            text: '¡No podrás revertir esto!',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
@@ -171,12 +171,17 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
             cancelButtonText: 'Cancelar'
         });
 
-        if (!resultado.isConfirmed) {
+        if (!result.isConfirmed) {
             return;
         }
 
+        const fechaInicio = new Date().toISOString().split('T')[0];
+        const fechaFin = new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString().split('T')[0];
+
         const response = await axios.post('/acceptPostulacion', {
             postulacionID,
+            fechaInicio,
+            fechaFin,
             estado: 'Iniciada'
         });
 
@@ -187,19 +192,17 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
                 showConfirmButton: false,
                 timer: 1500
             });
-            fetchPostulaciones(); // Actualiza la lista de postulaciones
-            fetchVacantes(); // Actualiza la lista de vacantes
+            fetchPostulaciones();
+            fetchVacantes();
         }
     } catch (error) {
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'Error al aprobar la postulación: ' + error.response.data.message,
+            text: 'Error al aprobar la postulación: ' + (error.response?.data?.message || error.message),
         });
     }
 };
-
-
 
   const handleReject = async (postulacionID) => {
     try {
@@ -328,7 +331,8 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
                 <ListaPostulaciones 
                   postulaciones={postulaciones} 
                   handleApprove={handleApprove} 
-                  handleReject={handleReject} 
+                  handleReject={handleReject}
+                  fetchPostulaciones={fetchPostulaciones} // Añadir fetchPostulaciones como prop 
                 />
               </div>
             </div>

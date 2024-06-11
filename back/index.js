@@ -1916,6 +1916,7 @@ app.delete('/vacantePracticaProf/:id', (req, res) => {
 });
 
 
+
 // Eliminar entidad
 app.delete('/entidadReceptora/:entidadID', (req, res) => {
     const entidadID = req.params.entidadID;

@@ -112,8 +112,7 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
             text: 'Error al crear/actualizar la vacante: ' + error.response.data.message,
         });
     }
-};
-
+  };
 
   const fetchVacantes = async () => {
     try {
@@ -125,28 +124,27 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
     }
   };
 
-
   const fetchPostulaciones = async (vacanteID) => {
     try {
-        const response = await axios.get(`/aplicaciones/${vacanteID}`);
-        if (response.status === 200) {
-            const data = response.data.map(postulacion => ({
-                ...postulacion,
-                cartaPresentacion: `http://localhost:3001/documento/${postulacion.cartaPresentacion}`,
-                id: postulacion.postulacionID // Agrega esta línea
-            }));
-            console.log(data); // Verificar datos aquí
-            setPostulaciones(data);
-        }
+      const response = await axios.get(`/aplicaciones/${vacanteID}`);
+      if (response.status === 200) {
+        const data = response.data.map(postulacion => ({
+          ...postulacion,
+          cartaPresentacion: `http://localhost:3001/documento/${postulacion.cartaPresentacion}`,
+          id: postulacion.postulacionID // Agrega esta línea
+        }));
+        console.log(data); // Verificar datos aquí
+        setPostulaciones(data);
+      }
     } catch (error) {
-        if (error.response && error.response.status === 404) {
-            setPostulaciones([]);
-        } else {
-            console.error('Error al obtener las postulaciones:', error);
-            alert('Error al obtener las postulaciones: ' + error.response.data.message);
-        }
+      if (error.response && error.response.status === 404) {
+        setPostulaciones([]);
+      } else {
+        console.error('Error al obtener las postulaciones:', error);
+        alert('Error al obtener las postulaciones: ' + error.response.data.message);
+      }
     }
-};
+  };
 
   const handleEditVacante = (vacante) => {
     setTitle(vacante.titulo);
@@ -161,60 +159,58 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
 
   const handleApprove = async (postulacionID) => {
     try {
-        const fechaInicio = new Date().toISOString().split('T')[0];
-        const fechaFin = new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString().split('T')[0];
+      const fechaInicio = new Date().toISOString().split('T')[0];
+      const fechaFin = new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString().split('T')[0];
 
-        const response = await axios.post('/acceptPostulacion', {
-            postulacionID,
-            fechaInicio,
-            fechaFin,
-            estado: 'Aceptado'
-        });
+      const response = await axios.post('/acceptPostulacion', {
+        postulacionID,
+        fechaInicio,
+        fechaFin,
+        estado: 'Aceptado'
+      });
 
-        if (response.status === 201) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Postulación aceptada con éxito',
-                showConfirmButton: false,
-                timer: 1500
-            });
-            fetchPostulaciones(); // Actualiza la lista de postulaciones
-            fetchVacantes(); // Actualiza la lista de vacantes
-        }
-    } catch (error) {
+      if (response.status === 201) {
         Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Error al aprobar la postulación: ' + error.response.data.message,
+          icon: 'success',
+          title: 'Postulación aceptada con éxito',
+          showConfirmButton: false,
+          timer: 1500
         });
+        fetchPostulaciones(); // Actualiza la lista de postulaciones
+        fetchVacantes(); // Actualiza la lista de vacantes
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Error al aprobar la postulación: ' + error.response.data.message,
+      });
     }
-};
+  };
 
-
-
-const handleReject = async (postulacionID) => {
-  try {
+  const handleReject = async (postulacionID) => {
+    try {
       const response = await axios.post('/rejectPostulacion', {
-          postulacionID
+        postulacionID
       });
 
       if (response.status === 200) {
-          Swal.fire({
-              icon: 'success',
-              title: 'Postulación rechazada con éxito',
-              showConfirmButton: false,
-              timer: 1500
-          });
-          setPostulaciones(postulaciones.filter(postulacion => postulacion.id !== postulacionID));
+        Swal.fire({
+          icon: 'success',
+          title: 'Postulación rechazada con éxito',
+          showConfirmButton: false,
+          timer: 1500
+        });
+        setPostulaciones(postulaciones.filter(postulacion => postulacion.id !== postulacionID));
       }
-  } catch (error) {
+    } catch (error) {
       Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Error al rechazar la postulación: ' + (error.response?.data?.message || error.message),
+        icon: 'error',
+        title: 'Error',
+        text: 'Error al rechazar la postulación: ' + (error.response?.data?.message || error.message),
       });
-  }
-};
+    }
+  };
 
   useEffect(() => {
     fetchVacantes();
@@ -331,6 +327,7 @@ const handleReject = async (postulacionID) => {
                   vacante={null}
                   setVacante={handleEditVacante}
                   vacantes={vacantes}
+                  setVacantes={setVacantes} // Asegúrate de pasar setVacantes aquí
                   setIsModalOpen={setIsModalOpen}
                   setSelectedPostulaciones={fetchPostulaciones}
                 />

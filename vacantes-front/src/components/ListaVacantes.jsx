@@ -3,15 +3,12 @@ import PropTypes from 'prop-types';
 import { FaEye, FaEdit, FaTrashAlt } from 'react-icons/fa';
 import moment from 'moment';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import './vacantesEntidad.css';
 
-const ListaVacantes = ({ vacantes, setVacante, setEliminar, setIsModalOpen, setSelectedPostulaciones }) => {
+const ListaVacantes = ({ vacantes, setVacantes, setVacante, setIsModalOpen, setSelectedPostulaciones }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedVacante, setSelectedVacante] = useState(null);
-
-  useEffect(() => {
-    fetchVacantes();
-  }, []);
 
   const fetchVacantes = async () => {
     try {
@@ -22,33 +19,39 @@ const ListaVacantes = ({ vacantes, setVacante, setEliminar, setIsModalOpen, setS
     }
   };
 
-  const handleAccept = async (postulacionID) => {
+  useEffect(() => {
+    fetchVacantes();
+  }, []);
+
+  const handleDelete = async (vacantePracticaID) => {
     try {
-      const response = await axios.post('http://localhost:3001/acceptPostulacion', {
-        postulacionID,
-        fechaInicio: '2024-06-01', // Asegúrate de enviar las fechas correctas
-        fechaFin: '2024-12-01',
-        estado: 'Aceptado'
+      const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: '¡No podrás revertir esto!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
       });
 
-      alert('Postulación aceptada: ' + response.data.message);
-      // Actualizar la lista de postulaciones y vacantes después de aceptar una
-      fetchVacantes();
+      if (result.isConfirmed) {
+        await axios.delete(`http://localhost:3001/vacantePracticaProf/${vacantePracticaID}`);
+        Swal.fire(
+          'Eliminado',
+          'La vacante ha sido eliminada.',
+          'success'
+        );
+        // Actualizar el estado de las vacantes sin necesidad de refrescar la página
+        setVacantes(prevVacantes => prevVacantes.filter(vacante => vacante.vacantePracticaID !== vacantePracticaID));
+      }
     } catch (error) {
-      console.error('Error accepting postulacion:', error);
-      alert('Error al aceptar la postulación: ' + error.response.data.message);
-    }
-  };
-
-  const handleReject = async (postulacionID) => {
-    try {
-      const response = await axios.post('http://localhost:3001/rejectPostulacion', { postulacionID });
-      alert('Postulación rechazada: ' + response.data.message);
-      // Actualizar la lista de postulaciones después de rechazar una
-      fetchVacantes();
-    } catch (error) {
-      console.error('Error rejecting postulacion:', error);
-      alert('Error al rechazar la postulación: ' + error.response.data.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Error al eliminar la vacante: ' + (error.response?.data?.message || error.message),
+      });
     }
   };
 
@@ -87,7 +90,7 @@ const ListaVacantes = ({ vacantes, setVacante, setEliminar, setIsModalOpen, setS
                 <button className="icon-button" onClick={() => setVacante(item)} aria-label={`Editar vacante ${item.titulo}`}>
                   <FaEdit />
                 </button>
-                <button className="icon-button" onClick={() => setEliminar(item.vacantePracticaID)} aria-label={`Eliminar vacante ${item.titulo}`}>
+                <button className="icon-button" onClick={() => handleDelete(item.vacantePracticaID)} aria-label={`Eliminar vacante ${item.titulo}`}>
                   <FaTrashAlt />
                 </button>
               </div>
@@ -113,10 +116,6 @@ const ListaVacantes = ({ vacantes, setVacante, setEliminar, setIsModalOpen, setS
 };
 
 ListaVacantes.propTypes = {
-  setVacante: PropTypes.func.isRequired,
-  setEliminar: PropTypes.func.isRequired,
-  setIsModalOpen: PropTypes.func.isRequired,
-  setSelectedPostulaciones: PropTypes.func.isRequired,
   vacantes: PropTypes.arrayOf(
     PropTypes.shape({
       vacantePracticaID: PropTypes.number.isRequired,
@@ -128,6 +127,10 @@ ListaVacantes.propTypes = {
       fechaFinal: PropTypes.string.isRequired,
     })
   ).isRequired,
+  setVacantes: PropTypes.func.isRequired,
+  setVacante: PropTypes.func.isRequired,
+  setIsModalOpen: PropTypes.func.isRequired,
+  setSelectedPostulaciones: PropTypes.func.isRequired,
 };
 
 export default ListaVacantes;

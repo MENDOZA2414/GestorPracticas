@@ -46,8 +46,7 @@ const InicioEntidad = ({ user, logOut }) => {
         }
     };
     fetchUserData();
-}, []);
-
+  }, []);
 
   return (
     <div className={`inicio-entidad ${collapsed ? 'collapsed' : ''}`}>

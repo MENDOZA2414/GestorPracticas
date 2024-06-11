@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import './registrarVacantes.css';
-
 const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
   const [title, setTitle] = useState('');
   const [city, setCity] = useState('');
@@ -34,6 +33,7 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
     setEditingVacanteId(null);
     setIsFormModified(false);
   };
+
   const handleDeleteVacante = async (vacanteID) => {
     try {
         const result = await Swal.fire({
@@ -69,11 +69,7 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
             text: 'Error al eliminar la vacante: ' + (error.response?.data?.message || error.message),
         });
     }
-};
-
-
-
-
+  };
 
   const handleChange = () => {
     setIsFormModified(true);
@@ -242,45 +238,30 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
             text: 'Error al aprobar la postulación: ' + (error.response?.data?.message || error.message),
         });
     }
-};
+  };
 
-const handleReject = async (postulacionID) => {
-  try {
-      const result = await Swal.fire({
-          title: '¿Estás seguro?',
-          text: '¡No podrás revertir esto!',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Sí, rechazar',
-          cancelButtonText: 'Cancelar'
-      });
-
-      if (!result.isConfirmed) {
-          return;
-      }
-
+  const handleReject = async (postulacionID) => {
+    try {
       const response = await axios.delete(`/postulacion/${postulacionID}`);
 
       if (response.status === 200) {
-          Swal.fire({
-              icon: 'success',
-              title: 'Postulación rechazada con éxito',
-              showConfirmButton: false,
-              timer: 1500
-          });
-          setPostulaciones(prevPostulaciones => prevPostulaciones.filter(postulacion => postulacion.id !== postulacionID));
+        Swal.fire({
+          icon: 'success',
+          title: 'Postulación rechazada con éxito',
+          showConfirmButton: false,
+          timer: 1500
+        });
+        setPostulaciones(postulaciones.filter(postulacion => postulacion.id !== postulacionID));
+        fetchVacantes(); // Actualiza la lista de vacantes
       }
-  } catch (error) {
+    } catch (error) {
       Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Error al rechazar la postulación: ' + (error.response?.data?.message || error.message),
+        icon: 'error',
+        title: 'Error',
+        text: 'Error al rechazar la postulación: ' + (error.response?.data?.message || error.message),
       });
-  }
-};
-
+    }
+  };
 
   useEffect(() => {
     fetchVacantes();

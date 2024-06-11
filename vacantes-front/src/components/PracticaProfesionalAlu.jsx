@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import { FaEnvelope } from 'react-icons/fa';
+import Avance from './Avance';
 import './practicaProfesional.css';
 
 const PracticaProfesionalAlu = ({ alumnoID }) => {
@@ -62,7 +63,7 @@ const PracticaProfesionalAlu = ({ alumnoID }) => {
                             <td data-label="Alumno">{`${practica.nombreAlumno} ${practica.apellidoAlumno} ${practica.apellidoMaternoAlumno}`}</td>
                             <td data-label="Asesor Externo">{`${practica.nombreAsesorExterno} ${practica.apellidoPaternoAsesorExterno} ${practica.apellidoMaternoAsesorExterno}`}</td>
                             <td data-label="Correo Asesor E">
-                                <FaEnvelope 
+                                <FaEnvelope
                                     className="email-icon"
                                     onClick={() => handleEmailClick(practica.correoAsesorExterno)}
                                 />
@@ -74,8 +75,10 @@ const PracticaProfesionalAlu = ({ alumnoID }) => {
                             <td data-label="Contacto Entidad">{practica.numCelularEntidad}</td>
                         </tr>
                     </tbody>
+
                 </table>
             </div>
+            <Avance />
         </div>
     );
 };

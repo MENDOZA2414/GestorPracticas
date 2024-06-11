@@ -155,6 +155,7 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
     setDescripcion(vacante.descripcion);
     setIsEditing(true);
     setEditingVacanteId(vacante.vacantePracticaID);
+    fetchPostulaciones(vacante.vacantePracticaID); // Actualizar las postulaciones para la vacante seleccionada
   };
 
   const handleApprove = async (postulacionID) => {
@@ -176,7 +177,7 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
           showConfirmButton: false,
           timer: 1500
         });
-        fetchPostulaciones(); // Actualiza la lista de postulaciones
+        fetchPostulaciones(editingVacanteId); // Actualiza la lista de postulaciones
         fetchVacantes(); // Actualiza la lista de vacantes
       }
     } catch (error) {
@@ -202,6 +203,7 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
           timer: 1500
         });
         setPostulaciones(postulaciones.filter(postulacion => postulacion.id !== postulacionID));
+        fetchVacantes(); // Actualiza la lista de vacantes
       }
     } catch (error) {
       Swal.fire({
@@ -330,6 +332,7 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
                   setVacantes={setVacantes} // Asegúrate de pasar setVacantes aquí
                   setIsModalOpen={setIsModalOpen}
                   setSelectedPostulaciones={fetchPostulaciones}
+                  fetchPostulaciones={fetchPostulaciones} // Añadir fetchPostulaciones como prop
                 />
               </div>
             </div>

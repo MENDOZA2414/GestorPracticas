@@ -6,7 +6,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import './vacantesEntidad.css';
 
-const ListaVacantes = ({ vacantes, setVacantes, setVacante, setIsModalOpen, setSelectedPostulaciones }) => {
+const ListaVacantes = ({ vacantes, setVacantes, setVacante, setIsModalOpen, setSelectedPostulaciones, fetchPostulaciones }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedVacante, setSelectedVacante] = useState(null);
 
@@ -45,6 +45,7 @@ const ListaVacantes = ({ vacantes, setVacantes, setVacante, setIsModalOpen, setS
         );
         // Actualizar el estado de las vacantes sin necesidad de refrescar la página
         setVacantes(prevVacantes => prevVacantes.filter(vacante => vacante.vacantePracticaID !== vacantePracticaID));
+        fetchPostulaciones(null); // Actualizar las postulaciones
       }
     } catch (error) {
       Swal.fire({
@@ -131,6 +132,7 @@ ListaVacantes.propTypes = {
   setVacante: PropTypes.func.isRequired,
   setIsModalOpen: PropTypes.func.isRequired,
   setSelectedPostulaciones: PropTypes.func.isRequired,
+  fetchPostulaciones: PropTypes.func.isRequired, // Añadido como prop
 };
 
 export default ListaVacantes;

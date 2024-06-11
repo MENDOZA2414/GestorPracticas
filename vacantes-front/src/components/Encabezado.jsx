@@ -23,16 +23,16 @@ const Encabezado = ({ user, logOut }) => {
                   <Link to="/" className="nav-link active" aria-current="page">Inicio</Link>
                 </li>
                 <li className="nav-item">
-                  <Link to="/ofertas" className="nav-link">Ofertas</Link>
+                  <Link to="#" className="nav-link">Estudiantes</Link>
                 </li>
                 <li className="nav-item">
-                  <a href="#" className="nav-link">Pricing</a>
+                  <a href="#" className="nav-link">Empresas</a>
                 </li>
                 <li className="nav-item">
-                  <a href="#" className="nav-link">FAQs</a>
+                  <a href="#" className="nav-link">DASC</a>
                 </li>
                 <li className="nav-item">
-                  <a href="#" className="nav-link">About</a>
+                  <a href="#" className="nav-link">Contacto</a>
                 </li>
               </ul>
               <ul className="navbar-nav ms-auto">

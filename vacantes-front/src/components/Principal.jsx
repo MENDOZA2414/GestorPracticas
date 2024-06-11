@@ -21,7 +21,7 @@ const Principal = () => {
                 <div className="card-wrapper">
                     <div className="custom-card">
                         <div className="card-body">
-                            <h5 className="card-title">¿Qué son las prácticas profesionales?</h5>
+                            <h5 className="card-title-principal">¿Qué son las prácticas profesionales?</h5>
                             <p className="card-text">
                                 Las Prácticas Profesionales son actividades curriculares que el alumnado del DASC realiza en alguna organización pública, privada o social, con el propósito de consolidar y complementar el desarrollo de sus competencias y conocimientos adquiridos en su formación académica.
                             </p>
@@ -31,7 +31,7 @@ const Principal = () => {
                 <div className="card-wrapper">
                     <div className="custom-card">
                         <div className="card-body">
-                            <h5 className="card-title">Su objetivo</h5>
+                            <h5 className="card-title-principal">Su objetivo</h5>
                             <p className="card-text">
                                 Las prácticas Profesionales tienen como objetivo general que los alumnos pongan en práctica los conocimientos adquiridos en el transcurso de su formación profesional.
                             </p>

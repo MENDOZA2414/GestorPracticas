@@ -1014,14 +1014,14 @@ app.post('/rejectPostulacion', (req, res) => {
 });
 
 
-// Endpoint para aceptar una postulación y registrar una práctica profesional
 app.post('/acceptPostulacion', async (req, res) => {
-    const { postulacionID, fechaInicio, fechaFin, estado } = req.body;
+    const { postulacionID, estado } = req.body;
 
     const queryPostulacion = `
         SELECT 
             p.alumnoID, p.vacanteID, p.nombreAlumno, p.correoAlumno,
-            v.entidadID, v.asesorExternoID, v.titulo AS tituloVacante
+            v.entidadID, v.asesorExternoID, v.titulo AS tituloVacante,
+            v.fechaInicio, v.fechaFinal
         FROM 
             postulacionalumno p
         JOIN 
@@ -1052,8 +1052,8 @@ app.post('/acceptPostulacion', async (req, res) => {
                 postulacion.alumnoID, 
                 postulacion.entidadID, 
                 postulacion.asesorExternoID, 
-                fechaInicio, 
-                fechaFin, 
+                postulacion.fechaInicio.split('T')[0], // Solo la fecha
+                postulacion.fechaFinal.split('T')[0], // Solo la fecha
                 estado,
                 postulacion.tituloVacante
             ];
@@ -1090,6 +1090,10 @@ app.post('/acceptPostulacion', async (req, res) => {
         res.status(500).send({ message: 'Error en el servidor al registrar la práctica profesional', error: error.message });
     }
 });
+
+
+
+
 
 
 
@@ -1570,11 +1574,11 @@ app.get('/alumnos/all', (req, res) => {
     });
 });
 
-app.get('/vacantePractica/all/:entidadID/:page/:limit', (req, res) => {
+
+
+
+app.get('/vacantePractica/:entidadID', (req, res) => {
     const entidadID = req.params.entidadID;
-    const page = req.params.page;
-    const limit = req.params.limit;
-    const start = (page - 1) * limit;
 
     const query = `
         SELECT vp.*, 
@@ -1587,11 +1591,10 @@ app.get('/vacantePractica/all/:entidadID/:page/:limit', (req, res) => {
         JOIN asesorExterno ae ON vp.asesorExternoID = ae.asesorExternoID
         JOIN entidadReceptora er ON vp.entidadID = er.entidadID
         WHERE vp.entidadID = ? 
-        ORDER BY vp.vacantePracticaID DESC 
-        LIMIT ?, ?
+        ORDER BY vp.vacantePracticaID DESC
     `;
 
-    connection.query(query, [entidadID, start, parseInt(limit)], (err, result) => {
+    connection.query(query, [entidadID], (err, result) => {
         if (err) {
             res.status(500).send({
                 message: err.message
@@ -1606,6 +1609,8 @@ app.get('/vacantePractica/all/:entidadID/:page/:limit', (req, res) => {
         }
     });
 });
+
+  
 
 // Obtener todas las vacantes prácticas
 app.get('/vacantePractica/all/:page/:limit', (req, res) => {

@@ -1042,9 +1042,9 @@ app.post('/acceptPostulacion', async (req, res) => {
                 postulacion.alumnoID, 
                 postulacion.entidadID, 
                 postulacion.asesorExternoID, 
-                postulacion.fechaInicio.split('T')[0], // Solo la fecha
-                postulacion.fechaFinal.split('T')[0], // Solo la fecha
-                estado,
+                postulacion.fechaInicio, 
+                postulacion.fechaFinal, 
+                estado, // Aquí pasamos el valor de estado que viene del frontend
                 postulacion.tituloVacante
             ];
 
@@ -1080,6 +1080,7 @@ app.post('/acceptPostulacion', async (req, res) => {
         res.status(500).send({ message: 'Error en el servidor al registrar la práctica profesional', error: error.message });
     }
 });
+
 
 
 

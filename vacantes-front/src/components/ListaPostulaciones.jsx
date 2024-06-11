@@ -1,11 +1,29 @@
 import PropTypes from 'prop-types';
 import { FaFilePdf, FaCheck, FaTimes } from 'react-icons/fa';
+import Swal from 'sweetalert2';
 import './lista-postu.css';
 
 const ListaPostulaciones = ({ postulaciones, handleApprove, handleReject }) => {
     if (!Array.isArray(postulaciones) || postulaciones.length === 0) {
         return <p>No hay postulaciones disponibles.</p>;
     }
+
+    const confirmApprove = (id) => {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: '¡No podrás revertir esto!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, aceptar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                handleApprove(id);
+            }
+        });
+    };
 
     return (
         <div className="lista-postu-table-container">
@@ -35,7 +53,7 @@ const ListaPostulaciones = ({ postulaciones, handleApprove, handleReject }) => {
                                 </a>
                             </td>
                             <td data-label="Acciones">
-                                <button className="lista-postu-button approve" onClick={() => handleApprove(item.id)}>
+                                <button className="lista-postu-button approve" onClick={() => confirmApprove(item.id)}>
                                     <FaCheck />
                                 </button>
                                 <button className="lista-postu-button reject" onClick={() => handleReject(item.id)}>

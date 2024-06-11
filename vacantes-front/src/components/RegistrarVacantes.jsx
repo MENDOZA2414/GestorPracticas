@@ -160,34 +160,46 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
 
   const handleApprove = async (postulacionID) => {
     try {
-      const fechaInicio = new Date().toISOString().split('T')[0];
-      const fechaFin = new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString().split('T')[0];
-
-      const response = await axios.post('/acceptPostulacion', {
-        postulacionID,
-        fechaInicio,
-        fechaFin,
-        estado: 'Aceptado'
-      });
-
-      if (response.status === 201) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Postulación aceptada con éxito',
-          showConfirmButton: false,
-          timer: 1500
+        const resultado = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡No podrás revertir esto!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, aceptar',
+            cancelButtonText: 'Cancelar'
         });
-        fetchPostulaciones(editingVacanteId); // Actualiza la lista de postulaciones
-        fetchVacantes(); // Actualiza la lista de vacantes
-      }
+
+        if (!resultado.isConfirmed) {
+            return;
+        }
+
+        const response = await axios.post('/acceptPostulacion', {
+            postulacionID,
+            estado: 'Iniciada'
+        });
+
+        if (response.status === 201) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Postulación aceptada con éxito',
+                showConfirmButton: false,
+                timer: 1500
+            });
+            fetchPostulaciones(); // Actualiza la lista de postulaciones
+            fetchVacantes(); // Actualiza la lista de vacantes
+        }
     } catch (error) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Error al aprobar la postulación: ' + error.response.data.message,
-      });
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al aprobar la postulación: ' + error.response.data.message,
+        });
     }
-  };
+};
+
+
 
   const handleReject = async (postulacionID) => {
     try {

@@ -30,7 +30,7 @@ function handleDisconnect() {
     connection.on('error', (err) => {
         console.error('MySQL error:', err);
         if (err.code === 'PROTOCOL_CONNECTION_LOST' || err.code === 'ECONNRESET') {
-            handleDisconnect(); // Reconectar
+            handleDisconnect(); 
         } else {
             throw err;
         }
@@ -2001,3 +2001,33 @@ app.put('/vacantePractica/:id', (req, res) => {
     });
   });
   
+  app.get('/practicas/:entidadID', (req, res) => {
+    const { entidadID } = req.params;
+
+    const query = `
+        SELECT
+            pp.practicaID,
+            pp.tituloVacante,
+            a.nombre AS nombreAlumno,
+            a.apellidoPaterno AS apellidoAlumno,
+            ae.nombre AS nombreAsesorExterno,
+            ae.apellidoPaterno AS apellidoAsesorExterno,
+            pp.fechaInicio,
+            pp.fechaFin,
+            pp.estado
+        FROM
+            practicasprofesionales pp
+        JOIN alumno a ON pp.alumnoID = a.numControl
+        JOIN asesorExterno ae ON pp.asesorExternoID = ae.asesorExternoID
+        WHERE
+            pp.entidadID = ?;
+    `;
+
+    connection.query(query, [entidadID], (err, results) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error fetching practicas profesionales', error: err });
+        }
+        res.json(results);
+    });
+});
+

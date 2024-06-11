@@ -3,13 +3,12 @@ import { FaHome, FaUser, FaFileAlt, FaChartLine, FaBuilding, FaSignOutAlt, FaBar
 import { Link, Routes, Route, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import PerfilEntidadReceptora from './PerfilEntidadReceptora';
-import Documentos from './Documentos';
-import Vacantes from './Vacantes';
 import EncabezadoInicio from './EncabezadoInicio';
 import MenuLateral from './MenuLateral';
-import RegistrarAsesorExterno from './RegistrarAsesorExterno'; // Importa el componente de registro de asesor
+import RegistrarAsesorExterno from './RegistrarAsesorExterno';
 import './inicioEntidad.css';
 import RegistrarVacantes from './RegistrarVacantes';
+import ListaPracticas from './ListaPracticas';
 
 const InicioEntidad = ({ user, logOut }) => {
   const [collapsed, setCollapsed] = useState(false);
@@ -23,27 +22,27 @@ const InicioEntidad = ({ user, logOut }) => {
 
   useEffect(() => {
     const fetchUserData = async () => {
-        try {
-            const storedUser = JSON.parse(localStorage.getItem('user'));
-            if (storedUser) {
-                const response = await axios.get(`http://localhost:3001/entidadReceptora/${storedUser.id}`);
-                const userData = response.data;
-                userData.foto = userData.fotoPerfil ? `data:image/jpeg;base64,${userData.fotoPerfil}` : 'ruta/a/imagen/predeterminada.png';
-                setCurrentUser({
-                    username: `${userData.nombreUsuario}`,
-                    logo: userData.foto,
-                    entidadID: userData.entidadID // Asegúrate de obtener y almacenar el entidadID
-                });
-                // Guardar en localStorage
-                localStorage.setItem('user', JSON.stringify({
-                    ...storedUser,
-                    logo: userData.foto,
-                    entidadID: userData.entidadID // Guarda el entidadID en el localStorage
-                }));
-            }
-        } catch (error) {
-            console.error('Error fetching user data:', error);
+      try {
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        if (storedUser) {
+          const response = await axios.get(`http://localhost:3001/entidadReceptora/${storedUser.id}`);
+          const userData = response.data;
+          userData.foto = userData.fotoPerfil ? `data:image/jpeg;base64,${userData.fotoPerfil}` : 'ruta/a/imagen/predeterminada.png';
+          setCurrentUser({
+            username: `${userData.nombreUsuario}`,
+            logo: userData.foto,
+            entidadID: userData.entidadID // Asegúrate de obtener y almacenar el entidadID
+          });
+          // Guardar en localStorage
+          localStorage.setItem('user', JSON.stringify({
+            ...storedUser,
+            logo: userData.foto,
+            entidadID: userData.entidadID // Guarda el entidadID en el localStorage
+          }));
         }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
     };
     fetchUserData();
   }, []);
@@ -67,9 +66,8 @@ const InicioEntidad = ({ user, logOut }) => {
           <Route path="/" element={<h1>Resumen de la entidad</h1>} />
           <Route path="perfil" element={<PerfilEntidadReceptora user={currentUser} setUser={setCurrentUser} />} />
           <Route path="registrarVacantes" element={<RegistrarVacantes setUser={setCurrentUser} pagina={pagina} setPagina={setPagina} />} />
-          <Route path="documentos" element={<Documentos />} />
-          <Route path="registrar-asesor" element={<RegistrarAsesorExterno />} /> {/* Nueva ruta para registrar asesor */}
-          {/* Agrega aquí las rutas para las otras secciones */}
+          <Route path="listaPracticas" element={<ListaPracticas entidadID={currentUser?.entidadID} />} />
+          <Route path="registrar-asesor" element={<RegistrarAsesorExterno />} />
         </Routes>
       </div>
     </div>

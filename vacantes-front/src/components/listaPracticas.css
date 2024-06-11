@@ -1,0 +1,61 @@
+.pract-enti-card {
+    margin: 0 auto;
+    padding: 20px;
+    max-width: 1000px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    text-align: center;
+    overflow: hidden; /* Añadido */
+}
+
+.pract-enti-card h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+    z-index: 2; /* Aumentado para asegurar que esté encima del contenido */
+    padding: 10px;
+}
+
+.pract-enti-table-wrapper {
+    max-height: 400px; /* Ajusta según tu preferencia */
+    overflow-y: auto;
+}
+
+.pract-enti-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.pract-enti-table th, .pract-enti-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+.pract-enti-table th {
+    background-color: #f4f4f4;
+    color: #333;
+    position: -webkit-sticky; /* Para Safari */
+    position: sticky;
+    top: 0;
+    z-index: 1; /* Para asegurarse de que esté encima del contenido */
+}
+
+.pract-enti-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.pract-enti-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.pract-enti-table thead {
+    background-color: #fff; /* Asegura que el fondo sea blanco */
+    z-index: 1; /* Para asegurar que el encabezado esté encima del contenido */
+}

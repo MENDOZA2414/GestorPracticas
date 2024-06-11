@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
+import { FaEnvelope } from 'react-icons/fa'; // Importar el ícono
 import './listaPracticas.css';
 
 const ListaPracticas = ({ entidadID }) => {
@@ -61,11 +62,10 @@ const ListaPracticas = ({ entidadID }) => {
                                 <td>{practica.tituloVacante}</td>
                                 <td>{`${practica.nombreAlumno} ${practica.apellidoAlumno}`}</td>
                                 <td>
-                                    <span>{practica.correoAlumno}</span>
-                                    <i 
-                                        className="fas fa-envelope email-icon"
+                                    <FaEnvelope 
+                                        className="email-icon" 
                                         onClick={() => handleEmailClick(practica.correoAlumno)}
-                                    ></i>
+                                    />
                                 </td>
                                 <td>{`${practica.nombreAsesorExterno} ${practica.apellidoAsesorExterno}`}</td>
                                 <td>{new Date(practica.fechaInicio).toLocaleDateString()}</td>

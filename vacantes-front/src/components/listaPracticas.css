@@ -6,7 +6,7 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     text-align: center;
-    overflow: hidden;
+    overflow: hidden; /* Añadido */
 }
 
 .pract-enti-card h2 {
@@ -16,12 +16,12 @@
     position: sticky;
     top: 0;
     background-color: #fff;
-    z-index: 2;
+    z-index: 2; /* Aumentado para asegurar que esté encima del contenido */
     padding: 10px;
 }
 
 .pract-enti-table-wrapper {
-    max-height: 400px;
+    max-height: 400px; /* Ajusta según tu preferencia */
     overflow-y: auto;
 }
 
@@ -41,10 +41,10 @@
 .pract-enti-table th {
     background-color: #f4f4f4;
     color: #333;
-    position: -webkit-sticky;
+    position: -webkit-sticky; /* Para Safari */
     position: sticky;
     top: 0;
-    z-index: 1;
+    z-index: 1; /* Para asegurarse de que esté encima del contenido */
 }
 
 .pract-enti-table tr:nth-child(even) {
@@ -55,6 +55,11 @@
     background-color: #f1f1f1;
 }
 
+.pract-enti-table thead {
+    background-color: #fff; /* Asegura que el fondo sea blanco */
+    z-index: 1; /* Para asegurar que el encabezado esté encima del contenido */
+}
+
 .email-icon {
     cursor: pointer;
     color: #007bff;
@@ -62,4 +67,10 @@
 
 .email-icon:hover {
     color: #0056b3;
+}
+
+.email-cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

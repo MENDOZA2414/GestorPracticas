@@ -1933,15 +1933,26 @@ app.delete('/vacantePractica/:id', async (req, res) => {
     }
 });
 
+// Endpoint para rechazar una postulación (eliminarla de la base de datos)
+app.delete('/postulacion/:id', async (req, res) => {
+    const postulacionID = req.params.id;
 
+    try {
+        const deletePostulacionQuery = 'DELETE FROM postulacionalumno WHERE postulacionID = ?';
+        await new Promise((resolve, reject) => {
+            connection.query(deletePostulacionQuery, [postulacionID], (err, result) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(result);
+            });
+        });
 
-
-
-
-
-
-
-
+        res.status(200).send({ message: 'Postulación eliminada con éxito' });
+    } catch (error) {
+        res.status(500).send({ message: 'Error al eliminar la postulación: ' + error.message });
+    }
+});
 
 
 // Eliminar entidad

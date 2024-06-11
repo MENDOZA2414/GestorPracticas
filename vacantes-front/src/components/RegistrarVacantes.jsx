@@ -244,30 +244,43 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
     }
 };
 
-  const handleReject = async (postulacionID) => {
-    try {
-      const response = await axios.post('/rejectPostulacion', {
-        postulacionID
+const handleReject = async (postulacionID) => {
+  try {
+      const result = await Swal.fire({
+          title: '¿Estás seguro?',
+          text: '¡No podrás revertir esto!',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Sí, rechazar',
+          cancelButtonText: 'Cancelar'
       });
 
-      if (response.status === 200) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Postulación rechazada con éxito',
-          showConfirmButton: false,
-          timer: 1500
-        });
-        setPostulaciones(postulaciones.filter(postulacion => postulacion.id !== postulacionID));
-        fetchVacantes(); // Actualiza la lista de vacantes
+      if (!result.isConfirmed) {
+          return;
       }
-    } catch (error) {
+
+      const response = await axios.delete(`/postulacion/${postulacionID}`);
+
+      if (response.status === 200) {
+          Swal.fire({
+              icon: 'success',
+              title: 'Postulación rechazada con éxito',
+              showConfirmButton: false,
+              timer: 1500
+          });
+          setPostulaciones(prevPostulaciones => prevPostulaciones.filter(postulacion => postulacion.id !== postulacionID));
+      }
+  } catch (error) {
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Error al rechazar la postulación: ' + (error.response?.data?.message || error.message),
+          icon: 'error',
+          title: 'Error',
+          text: 'Error al rechazar la postulación: ' + (error.response?.data?.message || error.message),
       });
-    }
-  };
+  }
+};
+
 
   useEffect(() => {
     fetchVacantes();

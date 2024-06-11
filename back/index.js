@@ -1004,12 +1004,13 @@ app.post('/rejectPostulacion', (req, res) => {
 });
 
 app.post('/acceptPostulacion', async (req, res) => {
-    const { postulacionID, fechaInicio, fechaFin, estado } = req.body;
+    const { postulacionID } = req.body;
 
     const queryPostulacion = `
         SELECT 
             p.alumnoID, p.vacanteID, p.nombreAlumno, p.correoAlumno,
-            v.entidadID, v.asesorExternoID, v.titulo AS tituloVacante
+            v.entidadID, v.asesorExternoID, v.titulo AS tituloVacante,
+            v.fechaInicio, v.fechaFinal
         FROM 
             postulacionalumno p
         JOIN 
@@ -1030,6 +1031,9 @@ app.post('/acceptPostulacion', async (req, res) => {
 
             const postulacion = result[0];
 
+            const fechaInicio = postulacion.fechaInicio instanceof Date ? postulacion.fechaInicio.toISOString().split('T')[0] : postulacion.fechaInicio;
+            const fechaFinal = postulacion.fechaFinal instanceof Date ? postulacion.fechaFinal.toISOString().split('T')[0] : postulacion.fechaFinal;
+
             const queryInsertPractica = `
                 INSERT INTO practicasprofesionales 
                 (alumnoID, entidadID, asesorExternoID, fechaInicio, fechaFin, estado, tituloVacante, fechaCreacion)
@@ -1041,8 +1045,8 @@ app.post('/acceptPostulacion', async (req, res) => {
                 postulacion.entidadID, 
                 postulacion.asesorExternoID, 
                 fechaInicio, 
-                fechaFin, 
-                estado,
+                fechaFinal, 
+                'Iniciada',
                 postulacion.tituloVacante
             ];
 
@@ -1051,16 +1055,26 @@ app.post('/acceptPostulacion', async (req, res) => {
                     return res.status(500).send({ message: 'Error al registrar la práctica profesional: ' + err.message });
                 }
 
-                const queryDeletePostulaciones = `
+                const queryDeletePostulacion = `
                     DELETE FROM postulacionalumno WHERE alumnoID = ?
                 `;
 
-                connection.query(queryDeletePostulaciones, [postulacion.alumnoID], (err, result) => {
+                connection.query(queryDeletePostulacion, [postulacion.alumnoID], (err, result) => {
                     if (err) {
-                        return res.status(500).send({ message: 'Error al eliminar las postulaciones: ' + err.message });
+                        return res.status(500).send({ message: 'Error al eliminar las postulaciones del alumno: ' + err.message });
                     }
 
-                    res.status(201).send({ message: 'Práctica profesional registrada y postulaciones eliminadas con éxito' });
+                    const queryDeleteVacante = `
+                        DELETE FROM vacantePractica WHERE vacantePracticaID = ?
+                    `;
+
+                    connection.query(queryDeleteVacante, [postulacion.vacanteID], (err, result) => {
+                        if (err) {
+                            return res.status(500).send({ message: 'Error al eliminar la vacante: ' + err.message });
+                        }
+
+                        res.status(201).send({ message: 'Práctica profesional registrada, postulaciones eliminadas y vacante eliminada con éxito' });
+                    });
                 });
             });
         });
@@ -1885,26 +1899,48 @@ app.delete('/vacantePractica/:vacantePracticaID', (req, res) => {
     });
 });
 
+
 // Endpoint para eliminar una vacante junto con sus postulaciones
-app.delete('/vacantePracticaProf/:id', (req, res) => {
-    const { id } = req.params;
+app.delete('/vacantePractica/:id', async (req, res) => {
+    const vacanteID = req.params.id;
 
-    const queryDeletePostulaciones = 'DELETE FROM postulacionalumno WHERE vacanteID = ?';
-    const queryDeleteVacante = 'DELETE FROM vacantePractica WHERE vacantePracticaID = ?';
-
-    connection.query(queryDeletePostulaciones, [id], (err, result) => {
-        if (err) {
-            return res.status(500).send({ message: 'Error al eliminar las postulaciones: ' + err.message });
-        }
-
-        connection.query(queryDeleteVacante, [id], (err, result) => {
-            if (err) {
-                return res.status(500).send({ message: 'Error al eliminar la vacante: ' + err.message });
-            }
-            res.status(200).send({ message: 'Vacante eliminada con éxito' });
+    try {
+        // Primero, elimina todas las postulaciones asociadas a esta vacante
+        const deletePostulacionesQuery = 'DELETE FROM postulacionalumno WHERE vacanteID = ?';
+        await new Promise((resolve, reject) => {
+            connection.query(deletePostulacionesQuery, [vacanteID], (err, result) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(result);
+            });
         });
-    });
+
+        // Luego, elimina la vacante
+        const deleteVacanteQuery = 'DELETE FROM vacantepractica WHERE vacantePracticaID = ?';
+        await new Promise((resolve, reject) => {
+            connection.query(deleteVacanteQuery, [vacanteID], (err, result) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(result);
+            });
+        });
+
+        res.status(200).send({ message: 'Vacante y sus postulaciones eliminadas con éxito' });
+    } catch (error) {
+        res.status(500).send({ message: 'Error al eliminar la vacante y sus postulaciones: ' + error.message });
+    }
 });
+
+
+
+
+
+
+
+
+
 
 
 

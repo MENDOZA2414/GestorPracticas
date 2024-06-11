@@ -34,6 +34,46 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
     setEditingVacanteId(null);
     setIsFormModified(false);
   };
+  const handleDeleteVacante = async (vacanteID) => {
+    try {
+        const result = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: '¡No podrás revertir esto!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (!result.isConfirmed) {
+            return;
+        }
+
+        const response = await axios.delete(`/vacantePractica/${vacanteID}`);
+
+        if (response.status === 200) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Vacante eliminada con éxito',
+                showConfirmButton: false,
+                timer: 1500
+            });
+            fetchVacantes(); // Actualiza la lista de vacantes después de eliminar
+        }
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al eliminar la vacante: ' + (error.response?.data?.message || error.message),
+        });
+    }
+};
+
+
+
+
 
   const handleChange = () => {
     setIsFormModified(true);
@@ -349,6 +389,7 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
                   setIsModalOpen={setIsModalOpen}
                   setSelectedPostulaciones={fetchPostulaciones}
                   fetchPostulaciones={fetchPostulaciones} // Añadir fetchPostulaciones como prop
+                  handleDeleteVacante={handleDeleteVacante} // Pasa la función aquí
                 />
               </div>
             </div>

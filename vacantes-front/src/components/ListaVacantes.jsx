@@ -39,10 +39,10 @@ const ListaVacantes = ({ vacantes, setVacantes, setVacante, setIsModalOpen, setS
       });
 
       if (result.isConfirmed) {
-        await axios.delete(`http://localhost:3001/vacantePracticaProf/${vacantePracticaID}`);
+        await axios.delete(`http://localhost:3001/vacantePractica/${vacantePracticaID}`);
         Swal.fire(
           'Eliminado',
-          'La vacante ha sido eliminada.',
+          'La vacante y sus postulaciones han sido eliminadas.',
           'success'
         );
         // Actualizar el estado de las vacantes sin necesidad de refrescar la página

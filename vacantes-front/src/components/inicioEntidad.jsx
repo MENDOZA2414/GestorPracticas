@@ -23,28 +23,31 @@ const InicioEntidad = ({ user, logOut }) => {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      try {
-        const storedUser = JSON.parse(localStorage.getItem('user'));
-        if (storedUser) {
-          const response = await axios.get(`http://localhost:3001/entidadReceptora/${storedUser.id}`);
-          const userData = response.data;
-          userData.foto = userData.fotoPerfil ? `data:image/jpeg;base64,${userData.fotoPerfil}` : 'ruta/a/imagen/predeterminada.png';
-          setCurrentUser({
-            username: `${userData.nombreUsuario}`,
-            logo: userData.foto
-          });
-          // Guardar en localStorage
-          localStorage.setItem('user', JSON.stringify({
-            ...storedUser,
-            logo: userData.foto
-          }));
+        try {
+            const storedUser = JSON.parse(localStorage.getItem('user'));
+            if (storedUser) {
+                const response = await axios.get(`http://localhost:3001/entidadReceptora/${storedUser.id}`);
+                const userData = response.data;
+                userData.foto = userData.fotoPerfil ? `data:image/jpeg;base64,${userData.fotoPerfil}` : 'ruta/a/imagen/predeterminada.png';
+                setCurrentUser({
+                    username: `${userData.nombreUsuario}`,
+                    logo: userData.foto,
+                    entidadID: userData.entidadID // Asegúrate de obtener y almacenar el entidadID
+                });
+                // Guardar en localStorage
+                localStorage.setItem('user', JSON.stringify({
+                    ...storedUser,
+                    logo: userData.foto,
+                    entidadID: userData.entidadID // Guarda el entidadID en el localStorage
+                }));
+            }
+        } catch (error) {
+            console.error('Error fetching user data:', error);
         }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
     };
     fetchUserData();
-  }, []);
+}, []);
+
 
   return (
     <div className={`inicio-entidad ${collapsed ? 'collapsed' : ''}`}>

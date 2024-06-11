@@ -156,6 +156,12 @@ app.get('/image/:numControl', (req, res) => {
 app.post('/vacantePractica', (req, res) => {
     const { titulo, fechaInicio, fechaFinal, ciudad, tipoTrabajo, descripcion, entidadID, asesorExternoID } = req.body;
 
+    if (!entidadID) {
+        return res.status(400).send({
+            message: "El campo 'entidadID' es requerido."
+        });
+    }
+
     connection.query(`INSERT INTO vacantePractica (titulo, fechaInicio, fechaFinal, ciudad, tipoTrabajo, descripcion, entidadID, asesorExternoID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [titulo, fechaInicio, fechaFinal, ciudad, tipoTrabajo, descripcion, entidadID, asesorExternoID],
         (err, result) => {
@@ -181,25 +187,9 @@ app.post('/vacantePractica', (req, res) => {
         });
 });
 
-app.get('/vacantePractica/:id', (req, res) => {
-    const vacantePracticaID = req.params.id;
-    connection.query('SELECT * FROM vacantePractica WHERE vacantePracticaID = ?', [vacantePracticaID],
-        (err, result) => {
-            if (err) {
-                console.error(err);
-                res.status(500).send({ message: 'Error en el servidor' });
-            } else if (result.length > 0) {
-                let vacante = result[0];
-                if (vacante.logoEmpresa) {
-                    vacante.logoEmpresa = `data:image/jpeg;base64,${Buffer.from(vacante.logoEmpresa).toString('base64')}`;
-                }
-                res.status(200).json(vacante);
-            } else {
-                res.status(400).send({ message: 'No existe la vacante' });
-            }
-        }
-    );
-});
+
+
+
 
 app.get('/aplicaciones/:vacanteID', (req, res) => {
     const vacanteID = req.params.vacanteID;
@@ -1575,7 +1565,25 @@ app.get('/alumnos/all', (req, res) => {
 });
 
 
-
+app.get('/vacantesPractica/:id', (req, res) => {
+    const vacantePracticaID = req.params.id;
+    connection.query('SELECT * FROM vacantePractica WHERE vacantePracticaID = ?', [vacantePracticaID],
+        (err, result) => {
+            if (err) {
+                console.error(err);
+                res.status(500).send({ message: 'Error en el servidor' });
+            } else if (result.length > 0) {
+                let vacante = result[0];
+                if (vacante.logoEmpresa) {
+                    vacante.logoEmpresa = `data:image/jpeg;base64,${Buffer.from(vacante.logoEmpresa).toString('base64')}`;
+                }
+                res.status(200).json(vacante);
+            } else {
+                res.status(400).send({ message: 'No existe la vacante' });
+            }
+        }
+    );
+});
 
 app.get('/vacantePractica/:entidadID', (req, res) => {
     const entidadID = req.params.entidadID;

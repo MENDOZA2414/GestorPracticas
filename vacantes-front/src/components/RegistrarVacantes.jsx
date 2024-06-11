@@ -43,75 +43,88 @@ const RegistrarVacantes = ({ setUser, pagina, setPagina }) => {
     e.preventDefault();
 
     if (!isFormModified) {
-      return;
+        return;
     }
 
     const formattedFromDate = new Date(from_date).toISOString().split('T')[0];
     const formattedUntilDate = new Date(until_date).toISOString().split('T')[0];
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+
+    if (!storedUser || !storedUser.entidadID) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo obtener el ID de la entidad. Asegúrese de haber iniciado sesión correctamente.',
+        });
+        return;
+    }
 
     try {
-      if (isEditing) {
-        const response = await axios.put(`/vacantePractica/${editingVacanteId}`, {
-          titulo: title,
-          fechaInicio: formattedFromDate,
-          fechaFinal: formattedUntilDate,
-          ciudad: city,
-          tipoTrabajo: job_type,
-          descripcion: descripcion,
-          entidadID: 1,
-          asesorExternoID: 1
-        });
+        if (isEditing) {
+            const response = await axios.put(`/vacantePractica/${editingVacanteId}`, {
+                titulo: title,
+                fechaInicio: formattedFromDate,
+                fechaFinal: formattedUntilDate,
+                ciudad: city,
+                tipoTrabajo: job_type,
+                descripcion: descripcion,
+                entidadID: storedUser.entidadID,
+                asesorExternoID: 1
+            });
 
-        if (response.status === 200) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Vacante actualizada con éxito',
-            showConfirmButton: false,
-            timer: 1500
-          });
-          limpiarCampos();
-          fetchVacantes();
-        }
-      } else {
-        const response = await axios.post('/vacantePractica', {
-          titulo: title,
-          fechaInicio: formattedFromDate,
-          fechaFinal: formattedUntilDate,
-          ciudad: city,
-          tipoTrabajo: job_type,
-          descripcion: descripcion,
-          entidadID: 1,
-          asesorExternoID: 1
-        });
+            if (response.status === 200) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Vacante actualizada con éxito',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                limpiarCampos();
+                fetchVacantes();
+            }
+        } else {
+            const response = await axios.post('/vacantePractica', {
+                titulo: title,
+                fechaInicio: formattedFromDate,
+                fechaFinal: formattedUntilDate,
+                ciudad: city,
+                tipoTrabajo: job_type,
+                descripcion: descripcion,
+                entidadID: storedUser.entidadID,
+                asesorExternoID: 1
+            });
 
-        if (response.status === 201) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Vacante creada con éxito',
-            showConfirmButton: false,
-            timer: 1500
-          });
-          limpiarCampos();
-          fetchVacantes();
+            if (response.status === 201) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Vacante creada con éxito',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                limpiarCampos();
+                fetchVacantes();
+            }
         }
-      }
     } catch (error) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Error al crear/actualizar la vacante: ' + error.response.data.message,
-      });
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al crear/actualizar la vacante: ' + error.response.data.message,
+        });
     }
-  };
+};
+
 
   const fetchVacantes = async () => {
     try {
-      const response = await axios.get(`/vacantePractica/all/1/1/10`);
+      const storedUser = JSON.parse(localStorage.getItem('user'));
+      const response = await axios.get(`/vacantePractica/${storedUser.entidadID}`);
       setVacantes(response.data);
     } catch (error) {
       alert('Error al obtener las vacantes: ' + error.response.data.message);
     }
   };
+
 
   const fetchPostulaciones = async (vacanteID) => {
     try {

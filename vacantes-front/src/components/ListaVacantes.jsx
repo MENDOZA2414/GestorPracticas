@@ -6,7 +6,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import './vacantesEntidad.css';
 
-const ListaVacantes = ({ vacantes, setVacantes, setVacante, setIsModalOpen, setSelectedPostulaciones, fetchPostulaciones }) => {
+const ListaVacantes = ({ vacantes, setVacantes, setVacante, setIsModalOpen, setSelectedPostulaciones }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedVacante, setSelectedVacante] = useState(null);
 
@@ -23,7 +23,9 @@ const ListaVacantes = ({ vacantes, setVacantes, setVacante, setIsModalOpen, setS
     fetchVacantes();
   }, []);
 
-  const handleDelete = async (vacantePracticaID) => {
+  const handleDelete = async (vacantePracticaID, event) => {
+    event.preventDefault();
+    event.stopPropagation(); // Evita la propagación del evento
     try {
       const result = await Swal.fire({
         title: '¿Estás seguro?',
@@ -45,7 +47,6 @@ const ListaVacantes = ({ vacantes, setVacantes, setVacante, setIsModalOpen, setS
         );
         // Actualizar el estado de las vacantes sin necesidad de refrescar la página
         setVacantes(prevVacantes => prevVacantes.filter(vacante => vacante.vacantePracticaID !== vacantePracticaID));
-        fetchPostulaciones(null); // Actualizar las postulaciones
       }
     } catch (error) {
       Swal.fire({
@@ -56,7 +57,9 @@ const ListaVacantes = ({ vacantes, setVacantes, setVacante, setIsModalOpen, setS
     }
   };
 
-  const handleViewVacante = (vacante) => {
+  const handleViewVacante = (vacante, event) => {
+    event.preventDefault();
+    event.stopPropagation(); // Evita la propagación del evento
     setSelectedVacante(vacante);
     setShowModal(true);
     setIsModalOpen(true); // Marca el modal como abierto
@@ -82,16 +85,16 @@ const ListaVacantes = ({ vacantes, setVacantes, setVacante, setIsModalOpen, setS
                 <span>{item.ciudad}</span>
               </div>
               <div className="vacantes-enti-actions">
-                <button className="icon-button" onClick={() => setSelectedPostulaciones(item.vacantePracticaID)} aria-label={`Ver postulaciones ${item.titulo}`}>
+                <button className="icon-button" onClick={(event) => { event.preventDefault(); event.stopPropagation(); setSelectedPostulaciones(item.vacantePracticaID); }} aria-label={`Ver postulaciones ${item.titulo}`}>
                   Postulaciones
                 </button>
-                <button className="icon-button" onClick={() => handleViewVacante(item)} aria-label={`Ver vacante ${item.titulo}`}>
+                <button className="icon-button" onClick={(event) => handleViewVacante(item, event)} aria-label={`Ver vacante ${item.titulo}`}>
                   <FaEye />
                 </button>
-                <button className="icon-button" onClick={() => setVacante(item)} aria-label={`Editar vacante ${item.titulo}`}>
+                <button className="icon-button" onClick={(event) => { event.preventDefault(); event.stopPropagation(); setVacante(item); }} aria-label={`Editar vacante ${item.titulo}`}>
                   <FaEdit />
                 </button>
-                <button className="icon-button" onClick={() => handleDelete(item.vacantePracticaID)} aria-label={`Eliminar vacante ${item.titulo}`}>
+                <button className="icon-button" onClick={(event) => handleDelete(item.vacantePracticaID, event)} aria-label={`Eliminar vacante ${item.titulo}`}>
                   <FaTrashAlt />
                 </button>
               </div>
@@ -132,7 +135,6 @@ ListaVacantes.propTypes = {
   setVacante: PropTypes.func.isRequired,
   setIsModalOpen: PropTypes.func.isRequired,
   setSelectedPostulaciones: PropTypes.func.isRequired,
-  fetchPostulaciones: PropTypes.func.isRequired, // Añadido como prop
 };
 
 export default ListaVacantes;

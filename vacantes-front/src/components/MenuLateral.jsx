@@ -13,7 +13,7 @@ const MenuLateral = ({ userType, logOut, collapsed, toggleSidebar }) => {
       { path: '/inicioAlumno/vacantes', icon: FaBuilding, label: 'Vacantes' },
       { path: '/inicioAlumno/documentos', icon: FaFileAlt, label: 'Documentos' },
       { path: '/inicioAlumno/asesor', icon: FaChalkboardTeacher, label: 'Asesor' },
-      { path: '/inicioAlumno/avance', icon: FaChartLine, label: 'Avance' }
+      { path: '/inicioAlumno/practicaProfesionalAlu', icon: FaChartLine, label: 'Practica Profesional' }
     ],
     entidadReceptora: [
       { path: '/inicioEntidad', icon: FaHome, label: 'Inicio' },

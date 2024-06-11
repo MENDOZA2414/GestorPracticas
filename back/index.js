@@ -2031,3 +2031,43 @@ app.put('/vacantePractica/:id', (req, res) => {
         res.json(results);
     });
 });
+
+// Ruta para obtener la práctica profesional de un alumno por su alumnoID
+app.get('/practica/alumno/:alumnoID', (req, res) => {
+    const { alumnoID } = req.params;
+
+    const query = `
+        SELECT
+            pp.practicaID,
+            a.numControl,
+            a.nombre AS nombreAlumno,
+            a.apellidoPaterno AS apellidoAlumno,
+            a.apellidoMaterno AS apellidoMaternoAlumno,
+            ae.correo AS correoAsesorExterno,
+            ae.nombre AS nombreAsesorExterno,
+            ae.apellidoPaterno AS apellidoPaternoAsesorExterno,
+            ae.apellidoMaterno AS apellidoMaternoAsesorExterno,
+            er.numCelular AS numCelularEntidad,
+            pp.fechaInicio,
+            pp.fechaFin,
+            pp.estado,
+            pp.tituloVacante
+        FROM
+            practicasprofesionales pp
+        JOIN alumno a ON pp.alumnoID = a.numControl
+        JOIN asesorExterno ae ON pp.asesorExternoID = ae.asesorExternoID
+        JOIN entidadReceptora er ON pp.entidadID = er.entidadID
+        WHERE
+            a.numControl = ?;
+    `;
+
+    connection.query(query, [alumnoID], (err, results) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error fetching practica profesional', error: err });
+        }
+        if (results.length === 0) {
+            return res.status(404).json({ message: 'No practica profesional found for this alumnoID' });
+        }
+        res.json(results[0]);
+    });
+});

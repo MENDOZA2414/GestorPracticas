@@ -4,10 +4,10 @@ import axios from 'axios';
 import Perfil from './Perfil';
 import Asesor from './Asesor';
 import Documentos from './Documentos';
-import Avance from './Avance';
-import Vacantes from './Vacantes'; 
-import EncabezadoInicio from './EncabezadoInicio'; 
-import MenuLateral from './MenuLateral'; 
+import PracticaProfesionalAlu from './PracticaProfesionalAlu';
+import Vacantes from './Vacantes';
+import EncabezadoInicio from './EncabezadoInicio';
+import MenuLateral from './MenuLateral';
 import './inicioAlumno.css';
 
 const InicioAlumno = ({ user, logOut }) => {
@@ -28,10 +28,11 @@ const InicioAlumno = ({ user, logOut }) => {
           const userData = response.data;
           userData.foto = userData.fotoPerfil ? `data:image/jpeg;base64,${userData.fotoPerfil}` : 'ruta/a/imagen/predeterminada.png';
           setCurrentUser({
+            id: userData.numControl,
             username: `${userData.nombre}`,
             logo: userData.foto
           });
-          setUserType(storedUser.userType || "alumno"); // Aseguramos que userType se obtenga correctamente
+          setUserType(storedUser.userType || "alumno");
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -56,7 +57,7 @@ const InicioAlumno = ({ user, logOut }) => {
           <Route path="perfil" element={<Perfil user={currentUser} setUser={setCurrentUser} />} />
           <Route path="asesor" element={<Asesor />} />
           <Route path="documentos" element={<Documentos userType={userType} />} />
-          <Route path="avance" element={<Avance />} />
+          <Route path="practicaProfesionalAlu" element={<PracticaProfesionalAlu alumnoID={Number(currentUser ? currentUser.id : 0)} />} />
           <Route path="vacantes" element={<Vacantes />} /> 
         </Routes>
       </div>

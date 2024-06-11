@@ -21,6 +21,14 @@ const ListaPracticas = ({ entidadID }) => {
         }
     }, [entidadID]);
 
+    const handleEmailClick = (correoAlumno) => {
+        const emailProvider = correoAlumno.includes('gmail.com') ? 'gmail' : 'outlook';
+        const mailtoLink = emailProvider === 'gmail'
+            ? `https://mail.google.com/mail/?view=cm&fs=1&to=${correoAlumno}`
+            : `https://outlook.live.com/owa/?path=/mail/action/compose&to=${correoAlumno}`;
+        window.open(mailtoLink, '_blank');
+    };
+
     if (error) {
         return <p>{error}</p>;
     }
@@ -39,6 +47,7 @@ const ListaPracticas = ({ entidadID }) => {
                             <th>No. de Práctica</th>
                             <th>Título de la Vacante</th>
                             <th>Nombre Completo del Alumno</th>
+                            <th>Contacto Alumno</th>
                             <th>Nombre Completo del Asesor Externo</th>
                             <th>Fecha de Inicio</th>
                             <th>Fecha de Fin</th>
@@ -51,6 +60,13 @@ const ListaPracticas = ({ entidadID }) => {
                                 <td>{index + 1}</td>
                                 <td>{practica.tituloVacante}</td>
                                 <td>{`${practica.nombreAlumno} ${practica.apellidoAlumno}`}</td>
+                                <td>
+                                    <span>{practica.correoAlumno}</span>
+                                    <i 
+                                        className="fas fa-envelope email-icon"
+                                        onClick={() => handleEmailClick(practica.correoAlumno)}
+                                    ></i>
+                                </td>
                                 <td>{`${practica.nombreAsesorExterno} ${practica.apellidoAsesorExterno}`}</td>
                                 <td>{new Date(practica.fechaInicio).toLocaleDateString()}</td>
                                 <td>{new Date(practica.fechaFin).toLocaleDateString()}</td>
@@ -69,4 +85,3 @@ ListaPracticas.propTypes = {
 };
 
 export default ListaPracticas;
-

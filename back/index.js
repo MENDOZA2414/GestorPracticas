@@ -2010,6 +2010,7 @@ app.put('/vacantePractica/:id', (req, res) => {
             pp.tituloVacante,
             a.nombre AS nombreAlumno,
             a.apellidoPaterno AS apellidoAlumno,
+            a.correo AS correoAlumno,
             ae.nombre AS nombreAsesorExterno,
             ae.apellidoPaterno AS apellidoAsesorExterno,
             pp.fechaInicio,
@@ -2030,4 +2031,3 @@ app.put('/vacantePractica/:id', (req, res) => {
         res.json(results);
     });
 });
-

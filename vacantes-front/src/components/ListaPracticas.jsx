@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
-import { FaEnvelope } from 'react-icons/fa'; // Importar el ícono
+import { FaEnvelope } from 'react-icons/fa';
 import './listaPracticas.css';
 
 const ListaPracticas = ({ entidadID }) => {
@@ -47,9 +47,9 @@ const ListaPracticas = ({ entidadID }) => {
                         <tr>
                             <th>No. de Práctica</th>
                             <th>Título de la Vacante</th>
-                            <th>Nombre Completo del Alumno</th>
+                            <th>Nombre Alumno</th>
                             <th>Contacto Alumno</th>
-                            <th>Nombre Completo del Asesor Externo</th>
+                            <th>Nombre Asesor</th>
                             <th>Fecha de Inicio</th>
                             <th>Fecha de Fin</th>
                             <th>Estado</th>
@@ -58,19 +58,19 @@ const ListaPracticas = ({ entidadID }) => {
                     <tbody>
                         {practicas.map((practica, index) => (
                             <tr key={practica.practicaID}>
-                                <td>{index + 1}</td>
-                                <td>{practica.tituloVacante}</td>
-                                <td>{`${practica.nombreAlumno} ${practica.apellidoAlumno}`}</td>
-                                <td>
+                                <td data-title="No. de Práctica">{index + 1}</td>
+                                <td data-title="Título de la Vacante">{practica.tituloVacante}</td>
+                                <td data-title="Nombre Alumno">{`${practica.nombreAlumno} ${practica.apellidoAlumno}`}</td>
+                                <td data-title="Contacto Alumno">
                                     <FaEnvelope 
-                                        className="email-icon" 
+                                        className="email-icon"
                                         onClick={() => handleEmailClick(practica.correoAlumno)}
                                     />
                                 </td>
-                                <td>{`${practica.nombreAsesorExterno} ${practica.apellidoAsesorExterno}`}</td>
-                                <td>{new Date(practica.fechaInicio).toLocaleDateString()}</td>
-                                <td>{new Date(practica.fechaFin).toLocaleDateString()}</td>
-                                <td>{practica.estado}</td>
+                                <td data-title="Nombre Asesor">{`${practica.nombreAsesorExterno} ${practica.apellidoAsesorExterno}`}</td>
+                                <td data-title="Fecha de Inicio">{new Date(practica.fechaInicio).toLocaleDateString()}</td>
+                                <td data-title="Fecha de Fin">{new Date(practica.fechaFin).toLocaleDateString()}</td>
+                                <td data-title="Estado">{practica.estado}</td>
                             </tr>
                         ))}
                     </tbody>

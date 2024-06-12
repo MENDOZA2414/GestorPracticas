@@ -23,7 +23,7 @@ const Formatos = () => {
 
     const handleView = async (nombreArchivo, base64) => {
         const fileURL = `data:application/pdf;base64,${base64}`;
-        const newWindow = window.open();
+        const newWindow = window.open("", nombreArchivo);
         if (newWindow) {
             newWindow.document.write(`
                 <html>
@@ -47,7 +47,7 @@ const Formatos = () => {
                         </style>
                     </head>
                     <body>
-                        <iframe src="${fileURL}"></iframe>
+                        <iframe src="${fileURL}" title="${nombreArchivo}"></iframe>
                     </body>
                 </html>
             `);
@@ -65,23 +65,25 @@ const Formatos = () => {
     };
 
     return (
-        <div className="formatos-card">
-            <h3>Formatos</h3>
-            {error ? (
-                <p>{error}</p>
-            ) : (
-                <ul>
-                    {formatos.map((formato) => (
-                        <li key={formato.documentoID}>
-                            <span className="formato-name">{formato.nombreArchivo}</span>
-                            <div className="formato-actions">
-                                <FaEye className="action-icon" title="Ver" onClick={() => handleView(formato.nombreArchivo, formato.archivo)} />
-                                <FaDownload className="action-icon" title="Descargar" onClick={() => handleDownload(formato.nombreArchivo, formato.archivo)} />
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            )}
+        <div className="main-container">
+            <div className="formatos-card">
+                <h3>Formatos</h3>
+                {error ? (
+                    <p>{error}</p>
+                ) : (
+                    <ul>
+                        {formatos.map((formato) => (
+                            <li key={formato.documentoID}>
+                                <span className="formato-name">{formato.nombreArchivo}</span>
+                                <div className="formato-actions">
+                                    <FaEye className="action-icon" title="Ver" onClick={() => handleView(formato.nombreArchivo, formato.archivo)} />
+                                    <FaDownload className="action-icon" title="Descargar" onClick={() => handleDownload(formato.nombreArchivo, formato.archivo)} />
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
         </div>
     );
 };

@@ -2071,3 +2071,47 @@ app.get('/practica/alumno/:alumnoID', (req, res) => {
         res.json(results[0]);
     });
 });
+
+// Ruta para obtener todos los formatos con el contenido del archivo PDF
+app.get('/api/formatos', (req, res) => {
+    const query = 'SELECT documentoID, nombreArchivo, archivo FROM formatos';
+    connection.query(query, (err, results) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error fetching formatos', error: err });
+        }
+        
+        // Convertir cada archivo en base64
+        const formatos = results.map(formato => {
+            const archivoBase64 = formato.archivo.toString('base64');
+            return {
+                documentoID: formato.documentoID,
+                nombreArchivo: formato.nombreArchivo,
+                archivo: archivoBase64
+            };
+        });
+
+        res.json(formatos);
+    });
+});
+
+// Ruta para subir un documento a la tabla formatos
+app.post('/api/uploadFormato', pdfUpload.single('file'), (req, res) => {
+    const { nombreArchivo } = req.body;
+    const archivo = req.file.buffer;
+
+    const query = `INSERT INTO formatos (nombreArchivo, archivo) VALUES (?, ?)`;
+    connection.query(query, [nombreArchivo, archivo], (err, result) => {
+        if (err) {
+            console.error('Error al guardar el documento en la base de datos:', err);
+            return res.status(500).send({
+                status: 500,
+                message: 'Error al guardar el documento en la base de datos: ' + err.message,
+            });
+        }
+        return res.status(201).send({
+            status: 201,
+            message: 'Documento subido con éxito',
+            documentoID: result.insertId,
+        });
+    });
+});

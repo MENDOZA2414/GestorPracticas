@@ -6,6 +6,7 @@ import Asesor from './Asesor';
 import Documentos from './Documentos';
 import PracticaProfesionalAlu from './PracticaProfesionalAlu';
 import Vacantes from './Vacantes';
+import Formatos from './Formatos';
 import EncabezadoInicio from './EncabezadoInicio';
 import MenuLateral from './MenuLateral';
 import './inicioAlumno.css';
@@ -53,7 +54,12 @@ const InicioAlumno = ({ user, logOut }) => {
       <EncabezadoInicio user={currentUser} userType={userType} toggleSidebar={toggleSidebar} isCollapsed={collapsed} />
       <div className={`content ${collapsed ? 'collapsed' : ''}`}>
         <Routes>
-          <Route path="/" element={<h1>Resumen de práctica profesional</h1>} />
+          <Route path="/" element={
+            <>
+              <h1>Resumen de práctica profesional</h1>
+              <Formatos />
+            </>
+          } />
           <Route path="perfil" element={<Perfil user={currentUser} setUser={setCurrentUser} />} />
           <Route path="asesor" element={<Asesor />} />
           <Route path="documentos" element={<Documentos userType={userType} />} />

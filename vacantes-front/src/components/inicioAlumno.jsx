@@ -56,7 +56,6 @@ const InicioAlumno = ({ user, logOut }) => {
         <Routes>
           <Route path="/" element={
             <>
-              <h1>Resumen de práctica profesional</h1>
               <Formatos />
             </>
           } />

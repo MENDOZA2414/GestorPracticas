@@ -6,11 +6,17 @@ const multer = require('multer');
 const md5 = require('md5');
 const app = express();
 
+const PORT = process.env.PORT || 3001;
+const DB_HOST = process.env.DB_HOST || 'localhost';
+const DB_USER = process.env.DB_USER || 'root';
+const DB_PASSWORD = process.env.DB_PASSWORD || 'Jm241410';
+const DB_NAME = process.env.DB_NAME || 'sistemaPracticas';
+
 const dbConfig = {
-    host: 'localhost',
-    user: 'root',
-    password: 'Jm241410',
-    database: 'sistemaPracticas',
+    host: DB_HOST,
+    user: DB_USER,
+    password: DB_PASSWORD,
+    database: DB_NAME,
     connectTimeout: 100000,
     acquireTimeout: 100000,
 };
@@ -44,7 +50,6 @@ app.use(cors());
 app.use(bodyParser.json({ limit: '100mb' }));
 app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
 
-const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);

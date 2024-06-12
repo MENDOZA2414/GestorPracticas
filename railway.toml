@@ -1,12 +1,11 @@
-[services]
-  [services.frontend]
-  path = "vacantes-front"
-  build = "npm install && npm run build"
-  start = "serve -s dist -p $PORT"
-  type = "node"
+[services.frontend]
+path = "vacantes-front"
+build = "npm install && npm run build"
+start = "serve -s dist -l 5000"
+type = "node"
 
-  [services.backend]
-  path = "back"
-  build = "npm install"
-  start = "npm start"
-  type = "node"
+[services.backend]
+path = "back"
+build = "npm install"
+start = "npm start"
+type = "node"

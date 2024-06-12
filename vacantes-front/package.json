@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "start": "serve dist -s -n -L -p $PORT"
+    "start": "serve -s dist -l 5000"
   },
   "dependencies": {
     "axios": "^1.7.1",
@@ -22,7 +22,8 @@
     "react-modal": "^3.16.1",
     "react-router-dom": "^6.23.1",
     "sweetalert2": "^11.11.0",
-    "validator": "^13.12.0"
+    "validator": "^13.12.0",
+    "serve": "^13.0.2"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",

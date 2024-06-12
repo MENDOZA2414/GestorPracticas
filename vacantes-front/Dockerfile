@@ -9,6 +9,7 @@ COPY package*.json ./
 
 # Instala las dependencias
 RUN npm install
+RUN npm install -g serve
 
 # Copia el resto del código de la aplicación
 COPY . .
@@ -17,7 +18,7 @@ COPY . .
 RUN npm run build
 
 # Define el comando para ejecutar la aplicación
-CMD ["serve", "-s", "dist", "-p", "5000"]
+CMD ["serve", "-s", "dist", "-l", "5000"]
 
 # Expone el puerto en el que la aplicación se ejecutará
 EXPOSE 5000
